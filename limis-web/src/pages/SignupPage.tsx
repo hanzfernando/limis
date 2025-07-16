@@ -1,0 +1,58 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
+const SignupPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Send signup request here
+    console.log({ email, password });
+  };
+
+  return (
+    <main className="w-full max-w-sm bg-gray-100 dark:bg-zinc-900">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-zinc-800 p-8 rounded shadow-md w-full max-w-sm space-y-6"
+      >
+        <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white">Sign Up</h2>
+
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+          className="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+        />
+
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+          className="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+        />
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          Sign Up
+        </button>
+
+        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+          Already have an account?{" "}
+          <Link to="/auth/login" className="text-blue-600 hover:underline">
+            Log in
+          </Link>
+        </p>
+      </form>
+    </main>
+  );
+};
+
+export default SignupPage;
