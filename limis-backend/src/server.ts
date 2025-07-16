@@ -3,6 +3,8 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import connectDB from './config/database'
 import logger from './middlewares/logger'
+import { errorHandler } from './middlewares/errorHandler'
+import authRoutes from './routes/authRoutes'
 
 dotenv.config({ path: '.env.local'})
 const PORT = process.env.PORT
@@ -18,6 +20,10 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.use('/api/auth', authRoutes);
+
+app.use(errorHandler)
 
 connectDB()
     .then(async () => {

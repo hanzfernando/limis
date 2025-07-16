@@ -15,9 +15,14 @@ import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
 import DashboardPage from "../pages/DashboardPage"; // placeholder
 
+// MISC
+import VerifyEmailPage from "../pages/VerifyEmailPage";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+
       {/* Public/Auth Routes */}
       <Route path="/" element={<AuthLayout />}>
         <Route index element={<LandingPage />} />
