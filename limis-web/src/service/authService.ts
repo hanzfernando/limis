@@ -1,23 +1,19 @@
+import type { SignupResponseData } from "../types/responses/Auth";
+import { apiRequest } from "../utils/apiRequest";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
-export async function verifyEmail(token: string, email: string) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}&email=${email}`);
+export function signup(email: string, password: string, vaultKeySalt: string) {
+  return apiRequest<SignupResponseData>(`${API_BASE_URL}/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, vaultKeySalt }),
+  });
+}
 
-    const data = await res.json();
 
-    return {
-      ok: res.ok,
-      status: res.status,
-      message: data.message,
-    };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (err) {
-    return {
-      ok: false,
-      status: 500,
-      message: "Something went wrong.",
-    };
-  }
+
+export function verifyEmail(token: string, email: string) {
+  return apiRequest<null>(`${API_BASE_URL}/auth/verify-email?token=${token}&email=${email}`);
 }

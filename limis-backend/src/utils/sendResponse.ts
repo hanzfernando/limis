@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { ServerResponse } from "../types/ServerResponse";
+import type { ServerResponse } from "../types/responses/ServerResponse";
 
 export const sendResponse = <T>(
   res: Response,
@@ -13,6 +13,7 @@ export const sendResponse = <T>(
     message,
     ...(data !== undefined && { data }),
     ...(error && { error }),
+    status: statusCode
   };
 
   return res.status(statusCode).json(response);
