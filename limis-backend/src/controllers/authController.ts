@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import User from '../models/userModel';
 import asyncHandler from 'express-async-handler';
 import { sendResponse } from '../utils/sendResponse';
-import { LoginResponseData, SignupResponseData } from '../types/responses/Auth';
+import { LoginResponseData, SignupResponseData } from '../types/Auth';
 import { generateToken } from '../utils/generateToken';
+import { AuthTokenPayload } from '../types/Auth';
 
 // POST /api/auth/signup
 export const signup = asyncHandler(async (req: Request, res: Response) => {
@@ -27,7 +28,7 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
 });
 
 // POST /api/auth/login
-export const login = asyncHandler(async ( req: Request, res: Response) => {
+export const loginWithToken = asyncHandler(async ( req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if(!email || !password){
@@ -37,6 +38,11 @@ export const login = asyncHandler(async ( req: Request, res: Response) => {
 
   const user = await User.login(email, password);
 
+  if(!user){
+    sendResponse(res, 200, "Login failed.", undefined, "Invalid credentials.", false)
+    return
+  }
+
   if(!user.isVerified){
     sendResponse(res, 403, "Please verify your email.")
     return
@@ -44,18 +50,65 @@ export const login = asyncHandler(async ( req: Request, res: Response) => {
 
   const userId = user._id.toString();
 
-  const token = generateToken(userId);
+  const payload: AuthTokenPayload = {
+    userId,
+    email
+  }
+
+  const token = generateToken(payload);
 
   const loginData: LoginResponseData = {
-    token,
-    userId
+    token
   }
 
   sendResponse(res, 200, "Login Successful", loginData)
   return
 })
 
-// GET /api/auth/signup
+// POST /api/auth/login
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    sendResponse(res, 400, "All fields are required.");
+    return 
+  }
+
+  const user = await User.login(email, password);
+
+  if(!user){
+    sendResponse(res, 200, "Login failed.", undefined, "Invalid credentials.", false)
+    return
+  }
+
+  if (!user.isVerified) {
+    sendResponse(res, 403, "Email not verified.", undefined, "Please verify your email.", false);
+    return 
+  }
+
+  const payload: AuthTokenPayload = {
+    userId: user._id.toString(),
+    email: user.email,
+  };
+
+  const token = generateToken(payload);
+
+  // Set token in cookie
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // only true in production
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  sendResponse(res, 200, "Login successful.");
+  return 
+});
+
+
+
+
+// GET /auth/verify-email
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   const { token, email } = req.query;
 

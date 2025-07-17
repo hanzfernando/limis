@@ -52,10 +52,10 @@ userSchema.methods.comparePassword = async function (candidatePassword: string) 
 // Static login method
 userSchema.statics.login = async function (email: string, password: string) {
   const user = await this.findOne({ email });
-  if (!user) throw new Error('Incorrect email');
+  if (!user) return null;
 
   const isMatch = await user.comparePassword(password);
-  if (!isMatch) throw new Error('Incorrect password');
+  if (!isMatch) return null;
 
   return user;
 };

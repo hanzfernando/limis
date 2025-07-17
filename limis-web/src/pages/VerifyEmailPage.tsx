@@ -21,8 +21,9 @@ const VerifyEmailPage = () => {
     try {
     setLoading(true);
     const res = await verifyEmail(token, email);
+    console.log(res)
 
-      if (res.ok) {
+      if (res.success) {
         setMessage(res.message || "Email verified successfully.");
         setSuccess(true);
       } else {

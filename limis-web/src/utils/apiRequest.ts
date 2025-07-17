@@ -1,11 +1,14 @@
-import type { ServerResponse } from "../types/ServerResponse";
+import type { ServerResponse } from "../types/responses/ServerResponse";
 
 export async function apiRequest<T>(
   input: RequestInfo,
   init?: RequestInit
 ): Promise<ServerResponse<T>> {
   try {
-    const res = await fetch(input, init);
+    const res = await fetch(input, {
+      ...init,
+      credentials: "include", 
+    });
     const json = await res.json();
     return { ...json, status: res.status };
   } catch (err) {

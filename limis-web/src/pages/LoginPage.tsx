@@ -1,14 +1,32 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../service/authService";
+import type { LoginInput } from "../types/Auth";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const  handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Send login request here
-    console.log({ email, password });
+
+    if(!email || !password){
+      console.log("All input fields required.")
+      return
+    }
+
+    const loginInput: LoginInput = {
+      email,
+      password
+    }
+
+    const res = await login(loginInput);
+    if (res.success) {
+      navigate("/dashboard");
+    } else {
+      console.log("Login failed:", res.message);
+    }
   };
 
   return (
@@ -45,7 +63,7 @@ const LoginPage = () => {
         </button>
 
         <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link to="/auth/signup" className="text-blue-600 hover:underline">
             Sign up
           </Link>

@@ -6,15 +6,19 @@ export const sendResponse = <T>(
   statusCode: number,
   message: string,
   data?: T,
-  error?: string
+  error?: string,
+  successOverride?: boolean
 ) => {
+  const success = successOverride ?? (statusCode >= 200 && statusCode < 300);
+
   const response: ServerResponse<T> = {
-    success: statusCode >= 200 && statusCode < 300,
+    success,
     message,
     ...(data !== undefined && { data }),
     ...(error && { error }),
-    status: statusCode
+    status: statusCode,
   };
 
   return res.status(statusCode).json(response);
 };
+
