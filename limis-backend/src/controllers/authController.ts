@@ -96,7 +96,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   // Set token in cookie
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // only true in production
+    secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -105,8 +105,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   return 
 });
 
+// POST /api/auth/logout 
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
 
-
+  sendResponse(res, 200, "Logged out successfully.");
+});
 
 // GET /auth/verify-email
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {

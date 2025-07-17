@@ -1,27 +1,45 @@
-import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom"
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { getProfile } from "../service/userService";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess, selectAuthUser } from "../state/slices/authSlice";
+import LogoutButton from "../components/LogoutButton";
 
 const MainLayout = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const user = useSelector(selectAuthUser);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const res = await getProfile();
-      if (!res.success || !res.data) {
-        navigate("/auth/login", { replace: true });
-      } else {
-        setLoading(false); // Allow access
+    const checkAuth = async () => {
+      try {
+        const res = await getProfile();
+        if (res.success && res.data) {
+          dispatch(loginSuccess({ user: res.data }));
+        } else {
+          navigate("/", { replace: true }); // not authenticated
+        }
+      } catch {
+        navigate("/", { replace: true }); // not authenticated
       }
     };
-    checkUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  if (loading) return <p>Checking authentication...</p>;
+    checkAuth();
+  }, [dispatch, navigate]);
 
-  return <Outlet />;
-}
+  // Optional: In case state is cleared before redirect triggers
+  useEffect(() => {
+    if (!user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
-export default MainLayout
+  return (
+    <>
+      <Outlet />
+      <LogoutButton />
+    </>
+  );
+};
+
+export default MainLayout;

@@ -22,3 +22,10 @@ export function login(input: LoginInput){
 export function verifyEmail(token: string, email: string) {
   return apiRequest<null>(`${API_BASE_URL}/auth/verify-email?token=${token}&email=${email}`);
 }
+
+export function logout() {
+  return apiRequest<null>(`${API_BASE_URL}/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+}

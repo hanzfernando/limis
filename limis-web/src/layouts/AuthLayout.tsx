@@ -3,21 +3,35 @@ import Topbar from '../components/Topbar'
 import { useEffect } from 'react';
 import { getProfile } from '../service/userService';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginSuccess, loginFailure } from '../state/slices/authSlice';
 
 const AuthLayout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-  const checkAuth = async () => {
-    const res = await getProfile();
-    if (res.success && res.data) {
-      navigate("/dashboard", { replace: true });
-    }
-  };
+    const checkAuth = async () => {
+      try {
+        const res = await getProfile(); 
+        console.log(res);
 
-  checkAuth();
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+        if (res.success && res.data) {
+          dispatch(loginSuccess({user: res.data}));
+          navigate('/dashboard', { replace: true });
+        } else {
+          dispatch(loginFailure({error: 'Not authenticated'}));
+        }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        dispatch(loginFailure({error: 'Failed to authenticate'}));
+      }
+    };
+
+    checkAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
   return(
