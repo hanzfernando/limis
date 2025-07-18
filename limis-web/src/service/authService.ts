@@ -1,10 +1,10 @@
-import type { LoginInput, LoginResponseData, SignupInput, SignupResponseData } from "../types/Auth";
+import type { LoginInput, SignupInput } from "../types/Auth";
 import { apiRequest } from "../utils/apiRequest";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export function signup(input: SignupInput) {
-  return apiRequest<SignupResponseData>(`${API_BASE_URL}/auth/signup`, {
+  return apiRequest<null>(`${API_BASE_URL}/auth/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
@@ -12,7 +12,7 @@ export function signup(input: SignupInput) {
 }
 
 export function login(input: LoginInput){
-  return apiRequest<LoginResponseData>(`${API_BASE_URL}/auth/login`, {
+  return apiRequest<null>(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input)

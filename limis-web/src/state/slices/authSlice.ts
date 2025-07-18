@@ -4,7 +4,8 @@ import type { AuthState, User } from '../../types/Auth';
 const initialState: AuthState = {
   user: null,
   loading: false,
-  error: null
+  error: null,
+  authChecked: false
 }
 
 const authSlice = createSlice({
@@ -35,3 +36,4 @@ export default authSlice.reducer
 
 // Selector
 export const selectAuthUser = (state: { auth: AuthState }) => state.auth.user;
+export const selectAuth = (state: { auth: AuthState }) => state.auth;

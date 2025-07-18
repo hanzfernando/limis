@@ -1,31 +1,50 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../service/authService";
+import { useDispatch } from "react-redux";
 import type { LoginInput } from "../types/Auth";
+import {
+  loginFailure,
+  loginStart,
+  loginSuccess,
+} from "../state/slices/authSlice";
+import { getProfile } from "../service/userService";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const  handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if(!email || !password){
-      console.log("All input fields required.")
-      return
+    if (!email || !password) {
+      console.log("All input fields required.");
+      return;
     }
 
+    dispatch(loginStart());
+
     const loginInput: LoginInput = {
-      email,
+      email, 
       password
     }
 
-    const res = await login(loginInput);
-    if (res.success) {
-      navigate("/dashboard");
-    } else {
-      console.log("Login failed:", res.message);
+    try {
+      const res = await login(loginInput);
+      if (!res.success) throw new Error(res.message || "Login failed");
+
+      const profile = await getProfile();
+      if (profile.success && profile.data) {
+        dispatch(loginSuccess({ user: profile.data }));
+        navigate("/dashboard");
+      } else {
+        throw new Error("Unable to fetch user");
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      dispatch(loginFailure({ error: err.message }));
     }
   };
 

@@ -21,6 +21,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  authChecked: boolean
 }
 
 export interface User {
