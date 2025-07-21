@@ -12,7 +12,7 @@ import MainLayout from "../layouts/MainLayout";
 import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
-import DashboardPage from "../pages/DashboardPage";
+import ProfilePage from "../pages/ProfilePage";
 import VaultPage from "../pages/VaultPage";
 import VerifyEmailPage from "../pages/VerifyEmailPage";
 
@@ -35,8 +35,8 @@ const router = createBrowserRouter(
 
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/vault" element={<VaultPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>
 

@@ -6,7 +6,7 @@ import { selectAuthUser } from "../state/slices/authSlice";
 const GuestRoute = () => {
   const user = useSelector(selectAuthUser);
 
-  return user ? <Navigate to="/dashboard" replace /> : <Outlet />;
+  return user ? <Navigate to="/vault" replace /> : <Outlet />;
 };
 
 export default GuestRoute;

@@ -1,13 +1,18 @@
-import { useLogout } from "../hooks/useLogout";
+import { TbLogout2 } from "react-icons/tb";
 
-const LogoutButton = () => {
-  const logout = useLogout();
+interface LogoutButtonProps {
+  onClick: () => void;
+  disabled?: boolean;
+}
 
+const LogoutButton = ({ onClick, disabled }: LogoutButtonProps) => {
   return (
     <button
-      onClick={logout}
-      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      onClick={onClick}
+      className="flex w-full items-center gap-2 px-4 py-2 text-sm rounded bg-red-600 text-white hover:bg-red-500 disabled:opacity-60"
+      disabled={disabled}
     >
+      <TbLogout2 size={18} />
       Logout
     </button>
   );

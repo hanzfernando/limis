@@ -1,24 +1,27 @@
-"use client";
-
 import { useTheme } from "../hooks/useTheme";
-import { Moon, Sun } from "lucide-react"; // Optional: install `lucide-react` or replace with emojis
+import { Moon, Sun } from "lucide-react";
 
 export default function ThemeToggleButton() {
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label="Toggle Dark Mode"
-      className={`
-        fixed bottom-4 right-4 z-50
-        w-12 h-12 rounded-full shadow-lg border
-        flex items-center justify-center
-        bg-white text-black dark:bg-black dark:text-white
-        transition-colors duration-300
-      `}
+      className="relative w-15 h-8 flex items-center justify-between px-2 bg-zinc-300 dark:bg-zinc-600 rounded-full transition-colors duration-300 focus:outline-none"
+      aria-label="Toggle Theme"
     >
-      {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      {/* Left icon - Moon for dark mode */}
+      <Moon className={`w-5 h-5 ${isDark ? "text-zinc-200" : "text-zinc-500"}`} />
+
+      {/* Right icon - Sun for light mode */}
+      <Sun className={`w-5 h-5 ${!isDark ? "text-black" : "text-zinc-400"}`} />
+
+      {/* Toggle circle */}
+      <span
+        className={`absolute top-1 left-1 w-6 h-6 rounded-full shadow-md transition-transform duration-300
+        ${isDark ? "translate-x-0 bg-zinc-200" : "translate-x-7 bg-white"}`}
+      />
     </button>
   );
 }

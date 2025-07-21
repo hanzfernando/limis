@@ -10,7 +10,7 @@ const AuthLayout = () => {
 
   useEffect(() => {
     if (auth) {
-      navigate('/dashboard', { replace: true });
+      navigate('/vault', { replace: true });
     }
   }, [auth, navigate]);
 
