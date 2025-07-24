@@ -7,6 +7,7 @@ import logger from './middlewares/logger'
 import { errorHandler } from './middlewares/errorHandler'
 import authRoutes from './routes/authRoutes'
 import userRoutes from './routes/userRoutes'
+import vaultRoutes from './routes/vaultRoutes'
 
 dotenv.config({ path: '.env.local'})
 const PORT = process.env.PORT
@@ -27,6 +28,7 @@ app.use(cors({
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/vaults', vaultRoutes);
 
 app.use(errorHandler)
 
