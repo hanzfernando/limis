@@ -19,6 +19,7 @@ import VerifyEmailPage from "../pages/VerifyEmailPage";
 import GuestRoute from "../components/GuestRoute";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthInitializer from "../components/AuthInitializer";
+import VaultDetailPage from "../pages/VaultDetailPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,6 +37,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/vault" element={<VaultPage />} />
+          <Route path="/vaults/:id" element={<VaultDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Route>

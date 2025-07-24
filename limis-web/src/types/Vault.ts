@@ -4,6 +4,15 @@ export interface Vault {
   desc?: string;
 }
 
+export interface VaultDetail {
+  id: string;
+  name: string;
+  desc?: string;
+  ciphertext: string;
+  salt: string;
+  iv: string;
+}
+
 export interface EncryptedVaultPayload {
   name: string;
   desc?: string;
@@ -18,4 +27,18 @@ export interface VaultFormInput {
   password?: string;
   note?: string;
   type?: string;
+}
+
+export interface VaultCredential {
+  title: string;
+  username?: string;
+  password?: string;
+  url?: string
+  note?: string;
+}
+
+export interface UpdateVaultPayload {
+  ciphertext: string;
+  iv: string;
+  salt: string;
 }

@@ -43,3 +43,58 @@ export const getVaults = asyncHandler(async (req: AuthenticatedRequest, res: Res
 
   sendResponse(res, 200, "Vaults fetched successfully.", formatted);
 });
+
+// GET /api/vaults/:id
+export const getVaultById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+  const vaultId = req.params.id;
+
+  const vault = await Vault.findOne({ _id: vaultId, userId: user._id }).lean();
+
+  if (!vault) {
+    sendResponse(res, 404, "Vault not found or access denied.");
+    return;
+  }
+
+  const { _id, ...rest } = vault;
+  const transformedVault = {
+    id: _id.toString(),
+    ...rest,
+  };
+
+  sendResponse(res, 200, "Vault fetched successfully.", transformedVault);
+});
+
+export const updateVault = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+  const vaultId = req.params.id;
+  const { ciphertext, iv, salt } = req.body;
+
+  if (!ciphertext || !iv || !salt) {
+    sendResponse(res, 400, "Missing encryption payload.");
+    return 
+  }
+
+  const vault = await Vault.findOne({ _id: vaultId, userId: user._id });
+
+  if (!vault) {
+    sendResponse(res, 404, "Vault not found or access denied.");
+    return 
+  }
+
+  vault.ciphertext = ciphertext;
+  vault.iv = iv;
+  vault.salt = salt;
+
+  await vault.save();
+
+  sendResponse(res, 200, "Vault updated successfully.", {
+    id: vault._id,
+    name: vault.name,
+    desc: vault.desc,
+    ciphertext: vault.ciphertext,
+    iv: vault.iv,
+    salt: vault.salt,
+  });
+  return 
+});

@@ -3,9 +3,10 @@ import VaultCard from "./VaultCard";
 
 interface VaultListProps {
   vaults: Vault[];
+  onVaultClick: (id: string) => void;
 }
 
-const VaultList = ({ vaults }: VaultListProps) => {
+const VaultList = ({ vaults, onVaultClick }: VaultListProps) => {
   if (vaults.length === 0) {
     return <p className="text-sm text-[var(--color-muted)] mt-4">No vaults found.</p>;
   }
@@ -17,7 +18,7 @@ const VaultList = ({ vaults }: VaultListProps) => {
           key={vault.id}
           name={vault.name}
           desc={vault.desc}
-          onClick={() => console.log("Open Vault", vault.id)}
+          onClick={() => onVaultClick(vault.id)}
         />
       ))}
     </div>

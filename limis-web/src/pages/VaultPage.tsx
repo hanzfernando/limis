@@ -5,6 +5,7 @@ import VaultList from "../components/vault/VaultList";
 import AddVaultModal from "../components/vault/AddVaultModal";
 import type { Vault } from "../types/Vault";
 import { getVaults } from "../service/vaultService";
+import { useNavigate } from "react-router-dom";
 
 // const mockVaults = [
 //   { id: "1", name: "Personal", description: "Private keys and notes" },
@@ -14,8 +15,12 @@ import { getVaults } from "../service/vaultService";
 
 const VaultPage = () => {
   const [vaults, setVaults] = useState<Vault[]>([]);
+  // const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
+
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  const navigate = useNavigate();
 
   const fetchVaults = async () => {
     try {
@@ -38,6 +43,10 @@ const VaultPage = () => {
     vault.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleVaultClick = (vaultId: string) => {
+    navigate(`/vaults/${vaultId}`); // <-- navigate to detail page
+  };
+
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -55,7 +64,7 @@ const VaultPage = () => {
       </div>
 
       <SearchInput value={search} onChange={setSearch} />
-      <VaultList vaults={filteredVaults} />
+      <VaultList vaults={filteredVaults} onVaultClick={handleVaultClick} />
 
       <AddVaultModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
