@@ -48,7 +48,7 @@ const VaultPage = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="max-w-5xl mx-auto p-6 mt-12">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold">Vault</h1>
         <button

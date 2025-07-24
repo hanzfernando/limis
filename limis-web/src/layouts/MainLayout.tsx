@@ -24,7 +24,7 @@ export default function MainLayout() {
 
 
       <main className="flex-1 overflow-y-auto relative">
-        <div className="max-w-5xl mx-auto w-full px-4 mt-12">
+        <div className="">
           <Outlet />
         </div>
       </main>

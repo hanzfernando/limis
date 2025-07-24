@@ -1,190 +1,126 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { FiLock, FiPlus, FiDatabase } from "react-icons/fi";
 import type { VaultDetail, VaultCredential } from "../types/Vault";
 import { getVaultById, updateVault } from "../service/vaultService";
 import { decryptVaultData, reencryptVault } from "../utils/cryptoUtils";
-import AddCredentialModal from "../components/credential/AddCredentialModal";
+import LockedVaultView from "../components/vault/LockedVaultView";
+import UnlockedVaultView from "../components/vault/UnlockedVaultView";
+import CredentialDetailPanel from "../components/credential/CredentialDetailPanel";
 
 const VaultDetailPage = () => {
   const { id } = useParams();
   const [vault, setVault] = useState<VaultDetail | null>(null);
-  const [decryptedContent, setDecryptedContent] = useState<VaultCredential[] | null>(null);
-
+  const [credentials, setCredentials] = useState<VaultCredential[] | null>(null);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const [passwordInput, setPasswordInput] = useState("");
   const [decrypting, setDecrypting] = useState(false);
   const [decryptError, setDecryptError] = useState("");
 
   const [showModal, setShowModal] = useState(false);
+  const [selectedCredential, setSelectedCredential] = useState<VaultCredential | null>(null);
 
   useEffect(() => {
     if (!id) return;
-
     const fetchVault = async () => {
-      setLoading(true);
       try {
         const res = await getVaultById(id);
-        if (res.success && res.data) {
-          setVault(res.data);
-          console.log(res.data)
-        } else {
-          setError(res.message || "Vault not found");
-        }
+        if (res.success && res.data) setVault(res.data);
+        else setError(res.message || "Vault not found.");
       } catch (err) {
-        console.error("Error fetching vault:", err);
-        setError("An error occurred");
+        console.error(err);
+        setError("Error fetching vault.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchVault();
   }, [id]);
 
   const handleDecrypt = async () => {
     if (!vault) return;
     setDecrypting(true);
-    setDecryptError("");
-
     try {
-      const decrypted = await decryptVaultData(
-        vault.ciphertext,
-        vault.iv,
-        vault.salt,
-        passwordInput
-      );
-
-      if (Array.isArray(decrypted)) {
-        setDecryptedContent(decrypted);
-      } else {
-        setDecryptedContent([]);
-      }
+      const decrypted = await decryptVaultData(vault.ciphertext, vault.iv, vault.salt, password);
+      setCredentials(Array.isArray(decrypted) ? decrypted : []);
+      setDecryptError("");
     } catch (err) {
       console.error("Decryption failed:", err);
-      setDecryptError("Invalid master password or corrupt data.");
+      setDecryptError("Invalid password or corrupt data.");
     } finally {
       setDecrypting(false);
     }
   };
 
-const handleAddCredential = async (newCredential: VaultCredential) => {
-  if (!vault || !passwordInput) return;
-
-  const updatedCredentials = decryptedContent ? [...decryptedContent, newCredential] : [newCredential];
-
-  try {
-    // Re-encrypt vault content
-    const updatedPayload = await reencryptVault(
-      vault.name,
-      vault.desc || "",
-      updatedCredentials,
-      passwordInput
-    );
-
-    console.log(vault)
-    console.log(updatedPayload)
-
-    // Send to backend
-    const res = await updateVault(vault.id, updatedPayload);
-
-    if (res.success) {
-      setDecryptedContent(updatedCredentials); // optimistic update
-      setVault(prev => prev ? { ...prev, ...updatedPayload } : prev);
-    } else {
-      alert("Failed to update vault: " + res.message);
+  const handleAddCredential = async (newCredential: VaultCredential) => {
+    if (!vault || !password) return;
+    const updated = [...(credentials || []), newCredential];
+    try {
+      const payload = await reencryptVault(vault.name, vault.desc || "", updated, password);
+      const res = await updateVault(vault.id, payload);
+      if (res.success) {
+        setCredentials(updated);
+        setVault((prev) => (prev ? { ...prev, ...payload } : prev));
+      } else {
+        alert("Failed to update vault: " + res.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Vault update failed.");
+    } finally {
+      setShowModal(false);
     }
-  } catch (err) {
-    console.error("Error reencrypting or updating vault:", err);
-    alert("Failed to re-encrypt vault");
-  } finally {
-    setShowModal(false);
-  }
-};
-
+  };
 
   if (loading) return <p className="p-6">Loading vault...</p>;
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
-  if (!vault) return <p className="p-6">No vault found.</p>;
+  if (error || !vault) return <p className="p-6 text-red-500">{error || "Vault not found."}</p>;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <FiDatabase className="text-xl text-[var(--color-brand)]" />
-        <h1 className="text-3xl font-bold">{vault.name}</h1>
-      </div>
-      {vault.desc && (
-        <p className="text-[var(--color-muted)] -mt-4 ml-7">{vault.desc}</p>
-      )}
+    <div className="flex flex-col lg:flex-row w-full min-h-screen">
+      <div className="flex-1 mt-12 p-6 space-y-6 overflow-x-hidden">
+       
 
-      {!decryptedContent ? (
-        <div className="bg-[var(--color-surface)] p-4 rounded border border-[var(--color-border)] max-w-md">
-          <div className="flex items-center gap-2 mb-2">
-            <FiLock className="text-lg" />
-            <p>🔒 This vault is encrypted.</p>
-          </div>
-          <input
-            type="password"
-            placeholder="Enter master password"
-            value={passwordInput}
-            onChange={(e) => setPasswordInput(e.target.value)}
-            className="w-full px-3 py-2 mb-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
+        {!credentials ? (
+          <LockedVaultView
+          vault={vault}
+            password={password}
+            setPassword={setPassword}
+            decrypting={decrypting}
+            decryptError={decryptError}
+            onDecrypt={handleDecrypt}
           />
-          <button
-            onClick={handleDecrypt}
-            disabled={decrypting}
-            className="bg-[var(--color-brand)] text-white px-4 py-2 rounded hover:bg-[var(--color-brand-hover)] w-full"
-          >
-            {decrypting ? "Decrypting..." : "Unlock Vault"}
-          </button>
-          {decryptError && (
-            <p className="text-sm text-red-500 mt-2">{decryptError}</p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium">Vault Entries</h3>
-            <button
-              className="flex items-center gap-2 bg-[var(--color-brand)] text-white px-4 py-2 rounded hover:bg-[var(--color-brand-hover)]"
-              onClick={() => setShowModal(true)}
-            >
-              <FiPlus className="text-base" />
-              Add Credential
-            </button>
-          </div>
-
-          {decryptedContent.length > 0 ? (
-            <div className="space-y-2">
-              {decryptedContent.map((cred, idx) => (
-                <div
-                  key={idx}
-                  className="border border-[var(--color-border)] rounded p-3 bg-[var(--color-surface)]"
-                >
-                  <p className="font-semibold">{cred.title}</p>
-                  <p className="text-sm text-[var(--color-muted)]">
-                    {cred.username}
-                  </p>
-                  <p className="text-sm font-mono">••••••••</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-[var(--color-muted)]">
-              No credentials yet. Click “Add Credential” to get started.
-            </div>
-          )}
+        ) : (
+          <UnlockedVaultView
+            vault={vault}
+            credentials={credentials}
+            showModal={showModal}
+            onAdd={handleAddCredential}
+            onSelect={setSelectedCredential}
+            onModalToggle={setShowModal}
+          />
+        )}
+      </div>
+      {/* Slide-in Panel */}
+      {selectedCredential && (
+        <div
+          className={`
+            lg:static lg:w-[24rem] lg:flex-shrink-0
+            bg-[var(--color-surface)] border-t lg:border-t-0 lg:border-l border-[var(--color-border)] shadow-xl
+            transform transition-transform duration-300 ease-in-out
+            ${selectedCredential ? "translate-y-0" : "translate-y-full"}
+            lg:translate-y-0
+            md:h-[70%] lg:h-auto
+            z-40
+          `}
+        >
+          
+            <CredentialDetailPanel
+              credential={selectedCredential}
+              onClose={() => setSelectedCredential(null)}
+            />
+          
         </div>
       )}
-
-      {/* Modal */}
-      <AddCredentialModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSave={handleAddCredential}
-      />
     </div>
   );
 };
