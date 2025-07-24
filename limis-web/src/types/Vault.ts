@@ -1,7 +1,7 @@
 export interface Vault {
   id: string;
   name: string;
-  description?: string;
+  desc?: string;
 }
 
 export interface EncryptedVaultPayload {

@@ -1,20 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import SearchInput from "../components/SearchInput";
 import VaultList from "../components/vault/VaultList";
 import AddVaultModal from "../components/vault/AddVaultModal";
+import type { Vault } from "../types/Vault";
+import { getVaults } from "../service/vaultService";
 
-const mockVaults = [
-  { id: "1", name: "Personal", description: "Private keys and notes" },
-  { id: "2", name: "Work", description: "Project credentials and docs" },
-  { id: "3", name: "Backup", description: "Cloud storage login" },
-];
+// const mockVaults = [
+//   { id: "1", name: "Personal", description: "Private keys and notes" },
+//   { id: "2", name: "Work", description: "Project credentials and docs" },
+//   { id: "3", name: "Backup", description: "Cloud storage login" },
+// ];
 
 const VaultPage = () => {
+  const [vaults, setVaults] = useState<Vault[]>([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const filteredVaults = mockVaults.filter((vault) =>
+  const fetchVaults = async () => {
+    try {
+      const res = await getVaults();
+      if (res.success) {
+        setVaults(res.data || []);
+      } else {
+        console.error("Failed to fetch vaults:", res.message);
+      }
+    } catch (err) {
+      console.error("Vault fetch error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchVaults();
+  }, []);
+
+  const filteredVaults = vaults.filter((vault) =>
     vault.name.toLowerCase().includes(search.toLowerCase())
   );
 

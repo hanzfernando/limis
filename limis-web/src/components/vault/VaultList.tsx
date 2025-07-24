@@ -16,7 +16,7 @@ const VaultList = ({ vaults }: VaultListProps) => {
         <VaultCard
           key={vault.id}
           name={vault.name}
-          description={vault.description}
+          desc={vault.desc}
           onClick={() => console.log("Open Vault", vault.id)}
         />
       ))}

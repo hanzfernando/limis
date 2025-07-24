@@ -2,11 +2,11 @@ import { FaLock } from "react-icons/fa6";
 
 interface VaultCardProps {
   name: string;
-  description?: string;
+  desc?: string;
   onClick?: () => void;
 }
 
-const VaultCard = ({ name, description, onClick }: VaultCardProps) => {
+const VaultCard = ({ name, desc, onClick }: VaultCardProps) => {
   return (
     <div
       onClick={onClick}
@@ -17,8 +17,8 @@ const VaultCard = ({ name, description, onClick }: VaultCardProps) => {
         <FaLock className="text-[var(--color-muted)]" size={16} />
         <h3 className="font-semibold text-lg">{name}</h3>
       </div>
-      {description && (
-        <p className="text-sm text-[var(--color-muted)]">{description}</p>
+      {desc && (
+        <p className="text-sm text-[var(--color-muted)]">{desc}</p>
       )}
     </div>
   );

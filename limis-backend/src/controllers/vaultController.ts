@@ -25,3 +25,21 @@ export const addVault = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 
   sendResponse(res, 201, 'Vault created successfully.', vault);
 });
+
+
+// GET /api/vaults
+export const getVaults = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+
+  const vaults = await Vault.find({ userId: user._id })
+    .select("name desc") // exclude sensitive fields
+    .lean();
+
+  const formatted = vaults.map(vault => ({
+    id: vault._id.toString(),
+    name: vault.name,
+    desc: vault.desc,
+  }));
+
+  sendResponse(res, 200, "Vaults fetched successfully.", formatted);
+});
