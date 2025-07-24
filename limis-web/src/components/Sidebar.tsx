@@ -25,10 +25,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     { label: "Profile", icon: CgProfile, to: "/profile" },
   ];
 
-  const handleLogout = () => {
-    setShowModal(true);
-  };
-
+  const handleLogout = () => setShowModal(true);
   const confirmLogout = () => {
     setShowModal(false);
     logout();
@@ -36,7 +33,6 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile backdrop */}
       {open && (
         <div
           className="fixed inset-0 bg-black/60 z-40 md:hidden"
@@ -45,7 +41,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 w-64 h-screen border-r bg-background text-foreground
+        className={`fixed top-0 left-0 z-50 w-64 h-screen border-r-1 border-[var(--color-border)]
+        bg-[var(--color-surface)] text-[var(--color-foreground)]
         flex flex-col justify-between p-4 shadow-sm transition-transform duration-300
         transform ${open ? "translate-x-0" : "-translate-x-full"}
         md:relative md:translate-x-0`}
@@ -59,14 +56,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                 <IoClose size={20} />
               </button>
             </div>
-            <div>
-              <p className="text-sm dark:text-gray-400 text-gray-500">
-                { user?.email}
-
-              </p>
-            </div>         
+            <p className="text-sm text-[var(--color-muted)]">{user?.email}</p>
           </div>
-
 
           {/* Navigation */}
           <nav className="space-y-1 text-sm mb-auto">
@@ -78,7 +69,11 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center w-full px-3 py-2 rounded-md transition-colors
-                  ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-100 dark:hover:bg-gray-800"}`
+                  ${
+                    isActive
+                      ? "bg-[var(--color-brand)] text-white"
+                      : "hover:bg-[var(--color-brand-muted)]"
+                  }`
                 }
               >
                 <Icon size={18} className="mr-2" />
@@ -88,20 +83,17 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           </nav>
         </div>
 
-        {/* Logout */}
-        
-        <div className="pt-4 border-t mt-4">
+        {/* Footer */}
+        <div className="pt-4 border-t mt-4 border-[var(--color-border)]">
           <div className="mb-4 flex items-center justify-between">
             <span className="text-sm font-medium">Theme</span>
             <ThemeToggleButton />
           </div>
           <LogoutButton onClick={handleLogout} disabled={loading} />
         </div>
-
-
       </aside>
 
-      {/* Modal rendered at root level */}
+      {/* Confirm modal */}
       {showModal && (
         <ConfirmLogoutModal
           onClose={() => setShowModal(false)}

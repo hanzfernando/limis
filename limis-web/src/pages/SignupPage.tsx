@@ -56,14 +56,13 @@ const SignupPage = () => {
   };
 
   return (
-    <main className="w-full px-4 max-w-sm bg-gray-100 dark:bg-zinc-900">
+    <main className="w-full px-4 max-w-sm" style={{ backgroundColor: "var(--color-background)" }}>
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-zinc-800 p-8 rounded shadow-md w-full space-y-6"
+        className="p-8 rounded shadow-md w-full space-y-6"
+        style={{ backgroundColor: "var(--color-surface)", color: "var(--color-foreground)" }}
       >
-        <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white">
-          Sign Up
-        </h2>
+        <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
 
         <input
           type="email"
@@ -71,7 +70,12 @@ const SignupPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+          className="w-full px-4 py-2 border rounded"
+          style={{
+            borderColor: "var(--color-border)",
+            backgroundColor: "var(--color-surface)",
+            color: "var(--color-foreground)",
+          }}
         />
 
         {/* Password Field */}
@@ -83,11 +87,17 @@ const SignupPage = () => {
             placeholder="Password"
             required
             minLength={6}
-            className="w-full px-4 py-2 pr-10 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+            className="w-full px-4 py-2 pr-10 border rounded"
+            style={{
+              borderColor: "var(--color-border)",
+              backgroundColor: "var(--color-surface)",
+              color: "var(--color-foreground)",
+            }}
           />
           <span
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 dark:text-zinc-300 cursor-pointer"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            style={{ color: "var(--color-muted)" }}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
@@ -101,11 +111,17 @@ const SignupPage = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm Password"
             required
-            className="w-full px-4 py-2 pr-10 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+            className="w-full px-4 py-2 pr-10 border rounded"
+            style={{
+              borderColor: "var(--color-border)",
+              backgroundColor: "var(--color-surface)",
+              color: "var(--color-foreground)",
+            }}
           />
           <span
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 dark:text-zinc-300 cursor-pointer"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            style={{ color: "var(--color-muted)" }}
           >
             {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
@@ -114,30 +130,32 @@ const SignupPage = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+          className="w-full px-4 py-2 rounded font-medium disabled:opacity-50"
+          style={{
+            backgroundColor: "var(--color-brand)",
+            color: "#fff",
+          }}
         >
           {isLoading ? "Signing up..." : "Sign Up"}
         </button>
 
-        {/* Form Errors */}
         {formErrors.length > 0 && (
-          <ul className="space-y-1 text-sm text-red-600 dark:text-red-400">
+          <ul className="space-y-1 text-sm text-center" style={{ color: "var(--color-danger)" }}>
             {formErrors.map((err, i) => (
-              <li key={i} className="text-center">
-                {err}
-              </li>
+              <li key={i}>{err}</li>
             ))}
           </ul>
         )}
 
-        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-center text-sm" style={{ color: "var(--color-muted)" }}>
           Already have an account?{" "}
-          <Link to="/auth/login" className="text-blue-600 hover:underline">
+          <Link to="/auth/login" className="hover:underline" style={{ color: "var(--color-brand)" }}>
             Log in
           </Link>
         </p>
       </form>
     </main>
+
   );
 };
 

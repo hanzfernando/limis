@@ -31,12 +31,12 @@ const LoginPage = () => {
     dispatch(loginStart());
 
     const loginInput: LoginInput = {
-      email, 
-      password
-    }
+      email,
+      password,
+    };
 
     try {
-      setError(""); // Clear previous error
+      setError("");
       const res = await login(loginInput);
       if (!res.success) throw new Error(res.error);
 
@@ -50,27 +50,25 @@ const LoginPage = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       dispatch(loginFailure({ error: err.message }));
-      setError(err.message); // Set the error for display
+      setError(err.message);
     }
-
   };
 
   return (
-    <main className="w-full px-4 max-w-sm bg-gray-100 dark:bg-zinc-900">
+    <main className="w-full px-4 max-w-sm bg-[var(--color-background)] text-[var(--color-foreground)]">
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-zinc-800 p-8 rounded shadow-md w-full max-w-sm space-y-6"
+        className="bg-[var(--color-surface)] p-8 rounded shadow-md w-full max-w-sm space-y-6"
       >
-        <h2 className="text-2xl font-semibold text-center text-zinc-800 dark:text-white">Login</h2>
-        
-       
+        <h2 className="text-2xl font-semibold text-center">Login</h2>
+
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+          className="w-full px-4 py-2 border border-[var(--color-border)] rounded bg-transparent text-[var(--color-foreground)] placeholder-[var(--color-muted)]"
         />
 
         <div className="relative w-full">
@@ -80,11 +78,11 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             required
-            className="w-full px-4 py-2 pr-10 border border-gray-300 dark:border-zinc-600 rounded dark:bg-zinc-700 dark:text-white"
+            className="w-full px-4 py-2 pr-10 border border-[var(--color-border)] rounded bg-transparent text-[var(--color-foreground)] placeholder-[var(--color-muted)]"
           />
           <span
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 dark:text-zinc-300 cursor-pointer"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-muted)] cursor-pointer"
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
@@ -92,19 +90,21 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          className="w-full bg-[var(--color-brand)] hover:opacity-90 text-white px-4 py-2 rounded transition"
         >
           Log In
         </button>
 
         {error && (
-          <p className="text-red-500 text-sm text-center">{error}</p>
+          <p className="text-[var(--color-danger)] text-sm text-center">{error}</p>
         )}
 
-
-        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-center text-sm text-[var(--color-muted)]">
           Don't have an account?{" "}
-          <Link to="/auth/signup" className="text-blue-600 hover:underline">
+          <Link
+            to="/auth/signup"
+            className="text-[var(--color-brand)] hover:underline"
+          >
             Sign up
           </Link>
         </p>

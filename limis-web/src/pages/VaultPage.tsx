@@ -1,17 +1,18 @@
-import { useSelector } from 'react-redux';
-import type { RootState } from '../state/store';
+import { FaPlus } from "react-icons/fa6";
 
-const DashboardPage = () => {
-  const { user, loading, error } = useSelector((state: RootState) => state.auth);
-
+const VaultPage = () => {
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-semibold mb-2">VAULT Page</h1>
-      <pre className="bg-gray-100 dark:bg-zinc-800 p-4 rounded text-sm whitespace-pre-wrap">
-        {JSON.stringify({ user, loading, error }, null, 2)}
-      </pre>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Vault</h1>
+
+      <div>
+        <button className="flex items-center gap-2 px-4 py-2 bg-[] text-white rounded-md hover:bg-blue-700 transition">
+          <FaPlus />
+          <span>Add Vault</span>
+        </button>
+      </div>
     </div>
   );
 };
 
-export default DashboardPage;
+export default VaultPage;

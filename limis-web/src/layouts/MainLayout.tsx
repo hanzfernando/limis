@@ -7,7 +7,7 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground relative">
+    <div className="flex min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] relative">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
       {/* Mobile toggle button */}
