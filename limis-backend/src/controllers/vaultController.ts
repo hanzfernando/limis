@@ -65,6 +65,26 @@ export const getVaultById = asyncHandler(async (req: AuthenticatedRequest, res: 
   sendResponse(res, 200, "Vault fetched successfully.", transformedVault);
 });
 
+export const deleteVaultById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+  const vaultId = req.params.id;
+
+  const vault = await Vault.findById(vaultId);
+  if (!vault) {
+    sendResponse(res, 404, "Vault not found or access denied.");
+    return;
+  }
+  if(vault.userId.toString() !== user.id){
+    sendResponse(res, 403, "Not authorized to delete this vault.");
+    return;
+  }
+
+  await vault.deleteOne();
+
+  sendResponse(res, 200, "Vault deleted successfully.");
+  return;
+})
+
 export const updateVault = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
   const vaultId = req.params.id;

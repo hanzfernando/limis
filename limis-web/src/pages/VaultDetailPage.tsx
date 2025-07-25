@@ -1,13 +1,20 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { VaultDetail, VaultCredential } from "../types/Vault";
-import { getVaultById, updateVault } from "../service/vaultService";
+import { getVaultById, updateVault, deleteVaultById } from "../service/vaultService";
 import { decryptVaultData, reencryptVault } from "../utils/cryptoUtils";
 import LockedVaultView from "../components/vault/LockedVaultView";
 import UnlockedVaultView from "../components/vault/UnlockedVaultView";
 import CredentialDetailPanel from "../components/credential/CredentialDetailPanel";
+import ConfirmDeleteVaultModal from "../components/ConfirmDeleteVaultModal";
+import AddCredentialModal from "../components/credential/AddCredentialModal";
+import { showToast } from "../utils/showToast";
+
+type VaultModalType = "delete-vault" | "add-credential" | null;
+
 
 const VaultDetailPage = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [vault, setVault] = useState<VaultDetail | null>(null);
   const [credentials, setCredentials] = useState<VaultCredential[] | null>(null);
@@ -17,8 +24,11 @@ const VaultDetailPage = () => {
   const [decrypting, setDecrypting] = useState(false);
   const [decryptError, setDecryptError] = useState("");
 
-  const [showModal, setShowModal] = useState(false);
+  const [activeModal, setActiveModal] = useState<VaultModalType>(null);
   const [selectedCredential, setSelectedCredential] = useState<VaultCredential | null>(null);
+
+  const openModal = (type: Exclude<VaultModalType, null>) => setActiveModal(type);
+  const closeModal = () => setActiveModal(null);
 
   useEffect(() => {
     if (!id) return;
@@ -52,6 +62,28 @@ const VaultDetailPage = () => {
     }
   };
 
+  const handleDeleteVault = async () => {
+    if (!vault) return;
+
+    try {
+      const res = await deleteVaultById(vault.id);
+
+      if (!res || !res.success) {
+        showToast(`Failed to delete "${vault.name}" vault.`, "error");
+      }
+
+      showToast(`Vault "${vault.name}" deleted.`, "success");
+      navigate("/vaults");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Vault deletion failed:", err);
+      alert(err.message || "Vault deletion failed.");
+    } finally {
+      closeModal();
+    }
+  };
+
+
   const handleAddCredential = async (newCredential: VaultCredential) => {
     if (!vault || !password) return;
     const updated = [...(credentials || []), newCredential];
@@ -68,7 +100,7 @@ const VaultDetailPage = () => {
       console.error(err);
       alert("Vault update failed.");
     } finally {
-      setShowModal(false);
+      closeModal();
     }
   };
 
@@ -93,11 +125,11 @@ const VaultDetailPage = () => {
           <UnlockedVaultView
             vault={vault}
             credentials={credentials}
-            showModal={showModal}
-            onAdd={handleAddCredential}
             onSelect={setSelectedCredential}
-            onModalToggle={setShowModal}
+            onAddCredentialClick={() => openModal("add-credential")}
+            onDeleteRequest={() => openModal("delete-vault")}
           />
+
         )}
       </div>
       {/* Slide-in Panel */}
@@ -121,6 +153,24 @@ const VaultDetailPage = () => {
           
         </div>
       )}
+
+      {activeModal === "delete-vault" && (
+        <ConfirmDeleteVaultModal
+          isOpen
+          onClose={closeModal}
+          onConfirm={handleDeleteVault}
+          vaultName={vault.name}
+        />
+      )}
+
+      {activeModal === "add-credential" && (
+        <AddCredentialModal
+          isOpen
+          onClose={closeModal}
+          onSave={handleAddCredential}
+        />
+      )}
+
     </div>
   );
 };

@@ -29,6 +29,13 @@ export function getVaultById(id: string): Promise<ServerResponse<VaultDetail>> {
   });
 }
 
+export function deleteVaultById(id: string): Promise<ServerResponse<null>> {
+  return apiRequest<null>(`${API_BASE_URL}/vaults/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 export function updateVault(id: string, payload: UpdateVaultPayload): Promise<ServerResponse<VaultDetail>> {
   return apiRequest<VaultDetail>(`${API_BASE_URL}/vaults/${id}`, {
     method: "PUT",

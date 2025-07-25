@@ -17,14 +17,22 @@ const CredentialList: React.FC<CredentialListProps> = ({ credentials, onSelect }
   }
 
   return (
-    <div className="grid gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-3">
-      {credentials.map((cred, idx) => (
-        <CredentialCard
-          key={idx}
-          credential={cred}
-          onClick={() => onSelect?.(cred)}
-        />
-      ))}
+    <div className="flex flex-wrap gap-4 mt-6">
+      {credentials.map((cred, idx) => {
+        const isLastOdd =
+          credentials.length % 2 === 1 && idx === credentials.length - 1;
+
+        return (
+          <div
+            key={idx}
+            className={`${
+              isLastOdd ? "w-full" : "w-full sm:w-[calc(50%-0.5rem)]"
+            }`}
+          >
+            <CredentialCard credential={cred} onClick={() => onSelect?.(cred)} />
+          </div>
+        );
+      })}
     </div>
   );
 };

@@ -4,14 +4,14 @@
 
 /* Light Mode (default) */
 :root {
-  --color-background: #f9fafb;    /* gray-50 */
+  --color-background: #f3f6f9;    /* gray-50 */
   --color-surface: #ffffff;       /* white */
   --color-foreground: #1f2937;    /* gray-800 */
   --color-muted: #6b7280;         /* gray-500 */
   --color-brand: #2563eb;         /* blue-600 */
   --color-brand-hover: #1d4ed8;
   --color-brand-muted: rgba(37, 99, 235, 0.1);
-  --color-border: #e5e7eb;        /* gray-200 */
+  --color-border: #cfd1d4;        /* gray-200 */
   --color-success: #10b981;       /* green-500 */
   --color-danger: #ef4444;        /* red-500 */
 }
