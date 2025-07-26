@@ -1,5 +1,3 @@
-// utils/cryptoUtil.ts
-
 import type { EncryptedVaultPayload, VaultCredential } from "../types/Vault";
 
 export async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promise<CryptoKey> {

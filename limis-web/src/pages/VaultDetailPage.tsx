@@ -9,8 +9,10 @@ import CredentialDetailPanel from "../components/credential/CredentialDetailPane
 import ConfirmDeleteVaultModal from "../components/ConfirmDeleteVaultModal";
 import AddCredentialModal from "../components/credential/AddCredentialModal";
 import { showToast } from "../utils/showToast";
+import EditCredentialModal from "../components/credential/EditCredentialModal";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 
-type VaultModalType = "delete-vault" | "add-credential" | null;
+type VaultModalType = "delete-vault" | "add-credential" | "edit-credential" | "delete-credential" |null;
 
 
 const VaultDetailPage = () => {
@@ -47,6 +49,11 @@ const VaultDetailPage = () => {
     fetchVault();
   }, [id]);
 
+  useEffect(() => {
+    if (!credentials) setSelectedCredential(null);
+  }, [credentials]);
+
+
   const handleDecrypt = async () => {
     if (!vault) return;
     setDecrypting(true);
@@ -68,16 +75,17 @@ const VaultDetailPage = () => {
     try {
       const res = await deleteVaultById(vault.id);
 
-      if (!res || !res.success) {
+      if (!res?.success) {
         showToast(`Failed to delete "${vault.name}" vault.`, "error");
+        return;
       }
-
+      
       showToast(`Vault "${vault.name}" deleted.`, "success");
       navigate("/vaults");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Vault deletion failed:", err);
-      alert(err.message || "Vault deletion failed.");
+      showToast(`Failed to delete "${vault.name}" vault.`, "error");
     } finally {
       closeModal();
     }
@@ -93,16 +101,68 @@ const VaultDetailPage = () => {
       if (res.success) {
         setCredentials(updated);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
+        showToast("Credential added successfully.", "success");
       } else {
-        alert("Failed to update vault: " + res.message);
+        showToast("Failed to update credential.", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Vault update failed.");
+      showToast("Failed to update credential.", "error");
     } finally {
       closeModal();
     }
   };
+
+  const handleUpdateCredential = async (updatedCredential: VaultCredential) => {
+    if(!vault || !password || !credentials) return;
+
+    const updatedList = credentials.map((c) => 
+      c.id === updatedCredential.id ? updatedCredential : c
+    )
+
+    try {
+      const payload = await reencryptVault(vault.name, vault.desc || "", updatedList, password);
+      const res = await updateVault(vault.id, payload);
+      if (res.success) {
+        setCredentials(updatedList);
+        setVault((prev) => (prev ? { ...prev, ...payload } : prev));
+        showToast("Credential updated successfully.", "success");
+        setSelectedCredential(null)
+      } else {
+        showToast("Failed to update credential.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to update credential.", "error");
+    } finally {
+      closeModal();
+    }
+  }
+
+  const handleDeleteCredential = async () => {
+    if(!vault || !password || !credentials || !selectedCredential) return;
+
+    const updatedList = credentials.filter((c) => c.id !== selectedCredential.id);
+
+    try {
+      const payload = await reencryptVault(vault.name, vault.desc || "", updatedList, password);
+      const res = await updateVault(vault.id, payload);
+      if (res.success) {
+        setCredentials(updatedList);
+        setVault((prev) => (prev ? { ...prev, ...payload } : prev));
+        showToast("Credential deleted successfully.", "success");
+        setSelectedCredential(null)
+      } else {
+        showToast("Failed to delete credential.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to delete credential.", "error");
+    } finally {
+      closeModal();
+    }
+  }
+
 
   if (loading) return <p className="p-6">Loading vault...</p>;
   if (error || !vault) return <p className="p-6 text-red-500">{error || "Vault not found."}</p>;
@@ -149,6 +209,13 @@ const VaultDetailPage = () => {
             <CredentialDetailPanel
               credential={selectedCredential}
               onClose={() => setSelectedCredential(null)}
+              onEdit={() => {
+                openModal("edit-credential");
+              }}
+              onDelete={() => {
+                openModal("delete-credential");
+              }}
+
             />
           
         </div>
@@ -168,6 +235,30 @@ const VaultDetailPage = () => {
           isOpen
           onClose={closeModal}
           onSave={handleAddCredential}
+        />
+      )}
+
+      {
+        activeModal === "edit-credential" && 
+        selectedCredential &&
+      (
+        <EditCredentialModal
+          isOpen
+          onClose={closeModal}
+          onSave={handleUpdateCredential} 
+          initialData={selectedCredential}
+          />
+      )}
+
+      {
+        activeModal === "delete-credential" && 
+        selectedCredential &&
+      (
+        <ConfirmDeleteModal
+          isOpen
+          title={selectedCredential.title}
+          onClose={closeModal}
+          onConfirm={handleDeleteCredential}
         />
       )}
 

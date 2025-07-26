@@ -5,21 +5,40 @@ import type { VaultCredential } from "../../types/Vault";
 type Props = {
   credential: VaultCredential;
   onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 };
 
-const CredentialDetailPanel = ({ credential, onClose }: Props) => {
+const CredentialDetailPanel = ({ credential, onClose, onEdit, onDelete }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="relative h-full flex-shrink-0 bg-[var(--color-surface)] shadow-lg border-l border-[var(--color-border)] overflow-y-auto">
       <div className="flex justify-between items-center p-4 border-b border-[var(--color-border)]">
-        <h2 className="text-lg font-semibold">{credential.title}</h2>
-        <button
-          onClick={onClose}
-          className="text-xl text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-        >
-          <IoClose />
-        </button>
+        <div>
+          <h2 className="text-lg font-semibold">{credential.title}</h2>
+          <p className="text-sm text-[var(--color-muted)]">{credential.id}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onEdit}
+            className="text-sm text-[var(--color-brand)] hover:underline"
+          >
+              Edit
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-sm text-[var(--color-danger)] hover:underline"
+          >
+              Delete
+          </button>
+          <button
+            onClick={onClose}
+            className="text-xl cursor-pointer text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+          >
+            <IoClose />
+          </button>
+        </div>
       </div>
 
       <div className="p-4 space-y-4">
