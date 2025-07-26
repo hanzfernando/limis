@@ -43,7 +43,7 @@ const LoginPage = () => {
       const profile = await getProfile();
       if (profile.success && profile.data) {
         dispatch(loginSuccess({ user: profile.data }));
-        navigate("/vault");
+        navigate("/vaults");
       } else {
         throw new Error("Unable to fetch user");
       }

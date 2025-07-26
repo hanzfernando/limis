@@ -20,6 +20,7 @@ import GuestRoute from "../components/GuestRoute";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthInitializer from "../components/AuthInitializer";
 import VaultDetailPage from "../pages/VaultDetailPage";
+import NotFoundPage from "../pages/NotFoundPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -36,7 +37,7 @@ const router = createBrowserRouter(
 
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/vault" element={<VaultPage />} />
+          <Route path="/vaults" element={<VaultPage />} />
           <Route path="/vaults/:id" element={<VaultDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
@@ -44,7 +45,7 @@ const router = createBrowserRouter(
 
       <Route
         path="*"
-        element={<p className="text-center p-8">404 - Page Not Found</p>}
+        element={<NotFoundPage />}
       />
     </Route>
   )

@@ -30,6 +30,7 @@ export interface VaultFormInput {
 }
 
 export interface VaultCredential {
+  id: string;
   title: string;
   username?: string;
   password?: string;

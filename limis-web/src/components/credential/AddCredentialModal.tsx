@@ -14,6 +14,7 @@ const AddCredentialModal = ({
   onSave,
 }: AddCredentialModalProps) => {
   const [formData, setFormData] = useState<VaultCredential>({
+    id: "",
     title: "",
     username: "",
     password: "",
@@ -28,10 +29,15 @@ const AddCredentialModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) return; // required
-    onSave(formData);
+    if (!formData.title.trim()) return;
+
+    const credentiaWithId = {
+      ...formData,
+      id: crypto.randomUUID(),
+    }
+    onSave(credentiaWithId);
     onClose();
-    setFormData({ title: "", username: "", password: "", note: "" });
+    setFormData({ id: "", title: "", username: "", password: "", note: "" });
   };
 
   if (!isOpen) return null;

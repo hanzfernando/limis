@@ -64,11 +64,10 @@ export async function decryptVaultData(
   ivBase64: string,
   saltBase64: string,
   password: string
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<any> {
+): Promise<VaultCredential[]> {
   if (!ciphertext || !ivBase64 || !saltBase64) {
     console.warn("Empty vault content — skipping decryption.");
-    return { items: [] };
+    return [];
   }
 
   const decoder = new TextDecoder();

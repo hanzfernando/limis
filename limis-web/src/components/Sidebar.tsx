@@ -21,7 +21,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
   const { logout, loading } = useLogout();
 
   const navItems = [
-    { label: "Vault", icon: FaLock, to: "/vault" },
+    { label: "Vault", icon: FaLock, to: "/vaults" },
     { label: "Profile", icon: CgProfile, to: "/profile" },
   ];
 
