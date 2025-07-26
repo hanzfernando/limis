@@ -1,31 +1,28 @@
 import type { EncryptedVaultPayload, VaultCredential } from "../types/Vault";
+import { hash } from "argon2-wasm";
 
 export async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promise<CryptoKey> {
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(password),
-    { name: "PBKDF2" },
-    false,
-    ["deriveKey"]
-  );
+const result = await hash({
+    pass: password,
+    salt,
+    type: 2,             // Argon2id
+    time: 3,             // iterations
+    mem: 65536,          // 64MB
+    parallelism: 4,      // match multi-core systems
+    hashLen: 32,
+  });
 
-  return crypto.subtle.deriveKey(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations: 100_000,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    { name: "AES-GCM", length: 256 },
+  return crypto.subtle.importKey(
+    "raw",
+    result.hash,
+    { name: "AES-GCM" },
     false,
     ["encrypt", "decrypt"]
   );
 }
 
 export function generateIV(): Uint8Array {
-  return crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV
+  return crypto.getRandomValues(new Uint8Array(12));
 }
 
 export function generateSalt(): Uint8Array {
