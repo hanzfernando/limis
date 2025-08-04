@@ -9,6 +9,7 @@ export interface IUser {
 
   // Instance methods
   comparePassword(candidate: string): Promise<boolean>;
+  changePassword(currentPassword: string, newPassword: string): Promise<boolean>;
 }
 
 export interface IUserModel extends Model<IUser> {
