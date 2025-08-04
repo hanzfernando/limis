@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { IoClose, IoEye, IoEyeOff } from "react-icons/io5";
+import { IoClose, IoEye, IoEyeOff, IoCopy } from "react-icons/io5";
 import type { VaultCredential } from "../../types/Vault";
+import { showToast } from "../../utils/showToast";
 
 type Props = {
   credential: VaultCredential;
@@ -45,26 +46,51 @@ const CredentialDetailPanel = ({ credential, onClose, onEdit, onDelete }: Props)
         {/* Username */}
         <div>
           <label className="block text-sm text-[var(--color-muted)] mb-1">Username</label>
-          <div className="bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 font-mono text-sm">
-            {credential.username}
+          <div className="relative">
+            <div className="bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 font-mono text-sm pr-10">
+              {credential.username}
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(credential.username!);
+                showToast("Username copied to clipboard", "info");
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+              title="Copy username"
+            >
+              <IoCopy />
+            </button>
           </div>
         </div>
+
 
         {/* Password */}
         <div>
           <label className="block text-sm text-[var(--color-muted)] mb-1">Password</label>
           <div className="relative">
-            <div className="bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 font-mono text-sm pr-10">
+            <div className="bg-[var(--color-background)] border border-[var(--color-border)] rounded px-3 py-2 font-mono text-sm pr-16">
               {showPassword ? credential.password : "••••••••"}
             </div>
             <button
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+              title="Toggle visibility"
             >
               {showPassword ? <IoEyeOff /> : <IoEye />}
             </button>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(credential.password!);
+                showToast("Password copied to clipboard", "info");
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+              title="Copy password"
+            >
+              <IoCopy />
+            </button>
           </div>
         </div>
+
 
         {/* URL */}
         {credential.url && (

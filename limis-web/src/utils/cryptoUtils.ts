@@ -21,6 +21,30 @@ const result = await hash({
   );
 }
 
+// export async function deriveKeyFromPassword(password: string, salt: Uint8Array): Promise<CryptoKey> {
+//   const encoder = new TextEncoder();
+//   const keyMaterial = await crypto.subtle.importKey(
+//     "raw",
+//     encoder.encode(password),
+//     { name: "PBKDF2" },
+//     false,
+//     ["deriveKey"]
+//   );
+
+//   return crypto.subtle.deriveKey(
+//     {
+//       name: "PBKDF2",
+//       salt,
+//       iterations: 100_000,
+//       hash: "SHA-256",
+//     },
+//     keyMaterial,
+//     { name: "AES-GCM", length: 256 },
+//     false,
+//     ["encrypt", "decrypt"]
+//   );
+// }
+
 export function generateIV(): Uint8Array {
   return crypto.getRandomValues(new Uint8Array(12));
 }
@@ -48,9 +72,9 @@ export async function encryptVaultData(data: object, password: string): Promise<
   );
 
   return {
-    ciphertext: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-    iv: btoa(String.fromCharCode(...iv)),
-    salt: btoa(String.fromCharCode(...salt)),
+    iv: toBase64(iv),
+    salt: toBase64(salt),
+    ciphertext: toBase64(new Uint8Array(encrypted)),
   };
 }
 
@@ -66,18 +90,31 @@ export async function decryptVaultData(
   }
 
   const decoder = new TextDecoder();
-  const iv = Uint8Array.from(atob(ivBase64), c => c.charCodeAt(0));
-  const salt = Uint8Array.from(atob(saltBase64), c => c.charCodeAt(0));
+  const iv = fromBase64(ivBase64);
+  const salt = fromBase64(saltBase64);
+  const encryptedBytes = fromBase64(ciphertext);
   const key = await deriveKeyFromPassword(password, salt);
-  const encryptedBytes = Uint8Array.from(atob(ciphertext), c => c.charCodeAt(0));
 
-  const decrypted = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv },
-    key,
-    encryptedBytes
-  );
+  try {
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      encryptedBytes
+    );
 
-  return JSON.parse(decoder.decode(decrypted));
+    return JSON.parse(decoder.decode(decrypted));
+  } catch (err) {
+    console.error("Decryption failed:", err);
+    console.log({
+      iv,
+      salt,
+      ciphertext: encryptedBytes,
+      key: await deriveKeyFromPassword(password, salt)
+    });
+
+    return [];
+  }
+  
 }
 
 export async function reencryptVault(
@@ -97,8 +134,17 @@ export async function reencryptVault(
   return {
     name,
     desc,
-    ciphertext: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
-    iv: btoa(String.fromCharCode(...iv)),
-    salt: btoa(String.fromCharCode(...salt)),
+    ciphertext: toBase64(new Uint8Array(encrypted)),
+    iv: toBase64(iv),
+    salt: toBase64(salt),
   };
 }
+
+function toBase64(u8: Uint8Array): string {
+  return btoa(String.fromCharCode(...u8));
+}
+
+function fromBase64(str: string): Uint8Array {
+  return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+}
+

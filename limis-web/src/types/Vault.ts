@@ -21,6 +21,24 @@ export interface EncryptedVaultPayload {
   iv: string;
 }
 
+// export interface EncryptedVaultPayload {
+//   name: string;
+//   desc: string;
+//   version: number;
+//   argon: {
+//     type: number;
+//     mem: number;
+//     time: number;
+//     hashLen: number;
+//     parallelism: number;
+//   };
+//   salt: string;
+//   iv: string;
+//   ciphertext: string;
+//   keyFingerprint: string;
+//   plaintextHash: string;
+// }
+
 export interface VaultFormInput {
   title: string;
   username?: string;

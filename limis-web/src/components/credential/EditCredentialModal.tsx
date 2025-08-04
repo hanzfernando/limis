@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { VaultCredential } from "../../types/Vault";
 import { FiX } from "react-icons/fi";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 interface EditCredentialModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const EditCredentialModal = ({
   initialData,
 }: EditCredentialModalProps) => {
   const [formData, setFormData] = useState<VaultCredential>(initialData);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setFormData(initialData);
@@ -71,13 +73,22 @@ const EditCredentialModal = ({
           </div>
           <div>
             <label className="block text-sm mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                style={{ color: "var(--color-muted)" }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </div>
           </div>
           <div>
             <label className="block text-sm mb-1">URL</label>

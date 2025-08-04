@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaLock, FaTimes } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock, FaTimes } from "react-icons/fa";
 import { encryptVaultData } from "../../utils/cryptoUtils";
 import { addVault } from "../../service/vaultService";
 
@@ -15,6 +15,8 @@ const AddVaultModal = ({ isOpen, onClose }: Props) => {
   });
   const [masterPassword, setMasterPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -91,14 +93,24 @@ const AddVaultModal = ({ isOpen, onClose }: Props) => {
             onChange={handleChange}
           />
 
-          <input
-            name="masterPassword"
-            type="password"
-            placeholder="Master Password"
-            className="w-full px-4 py-2 rounded-md bg-[var(--color-surface)] text-[var(--color-foreground)] placeholder-[var(--color-muted)] border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            value={masterPassword}
-            onChange={e => setMasterPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              name="masterPassword"
+              type={showPassword ? "text" : "password"}
+              placeholder="Master Password"
+              className="w-full px-4 py-2 pr-10 rounded-md bg-[var(--color-surface)] text-[var(--color-foreground)] placeholder-[var(--color-muted)] border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
+              value={masterPassword}
+              onChange={e => setMasterPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(prev => !prev)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] focus:outline-none"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
         </div>
 
         <div className="mt-6 flex justify-end">
