@@ -60,6 +60,20 @@ userSchema.statics.login = async function (email: string, password: string) {
   return user;
 };
 
+userSchema.methods.changePassword = async function (
+  currentPassword: string,
+  newPassword: string
+): Promise<boolean> {
+  const isMatch = await bcrypt.compare(currentPassword, this.password);
+  if (!isMatch) return false;
+
+  this.password = newPassword;
+  await this.save();
+
+  return true;
+};
+
+
 // Static signup method
 userSchema.statics.signup = async function(
   email: string,
@@ -89,6 +103,9 @@ userSchema.statics.signup = async function(
    await user.save();
    return user;
 }
+
+
+
 
 
 export default mongoose.model<IUser, IUserModel>('User', userSchema);

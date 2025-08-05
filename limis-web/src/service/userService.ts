@@ -9,3 +9,12 @@ export function getProfile() {
     credentials: "include", // send cookies
   });
 }
+
+export function changePassword(currentPassword: string, newPassword: string) {
+  return apiRequest<null>(`${API_BASE_URL}/user/change-password`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({currentPassword, newPassword})
+  });
+}
