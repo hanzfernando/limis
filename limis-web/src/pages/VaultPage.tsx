@@ -3,49 +3,83 @@ import { FaPlus } from "react-icons/fa6";
 import SearchInput from "../components/SearchInput";
 import VaultList from "../components/vault/VaultList";
 import AddVaultModal from "../components/vault/AddVaultModal";
-import type { Vault } from "../types/Vault";
-import { getVaults } from "../service/vaultService";
 import { useNavigate } from "react-router-dom";
 
-// const mockVaults = [
-//   { id: "1", name: "Personal", description: "Private keys and notes" },
-//   { id: "2", name: "Work", description: "Project credentials and docs" },
-//   { id: "3", name: "Backup", description: "Cloud storage login" },
-// ];
+import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
+import { createVaultThunk, fetchVaultsThunk } from "../state/thunks/vaultThunk";
+import { selectVaults, selectVaultLoading, selectVaultError } from "../state/slices/vaultSlice";
+import { encryptVaultData } from "../utils/cryptoUtils";
+import { showToast } from "../utils/showToast";
 
 const VaultPage = () => {
-  const [vaults, setVaults] = useState<Vault[]>([]);
-  // const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+
+  const vaults = useAppSelector(selectVaults);
+  const loading = useAppSelector(selectVaultLoading);
+  const error = useAppSelector(selectVaultError);
 
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const navigate = useNavigate();
 
-  const fetchVaults = async () => {
-    try {
-      const res = await getVaults();
-      if (res.success) {
-        setVaults(res.data || []);
-      } else {
-        console.error("Failed to fetch vaults:", res.message);
-      }
-    } catch (err) {
-      console.error("Vault fetch error:", err);
-    }
-  };
 
   useEffect(() => {
-    fetchVaults();
-  }, []);
+    dispatch(fetchVaultsThunk());
+  }, [dispatch]);
 
-  const filteredVaults = vaults.filter((vault) =>
+  const filteredVaults = vaults!.filter((vault) =>
     vault.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleVaultClick = (vaultId: string) => {
     navigate(`/vaults/${vaultId}`); // <-- navigate to detail page
   };
+
+const handleAddVault = async (
+  vaultData: { name: string; desc: string },
+  password: string
+) => {
+  setIsSubmitting(true);
+  setSubmitError(null);
+
+  try {
+    const { ciphertext, iv, salt } = await encryptVaultData({}, password);
+
+    const res = await dispatch(
+      createVaultThunk({
+        name: vaultData.name,
+        desc: vaultData.desc,
+        ciphertext,
+        iv,
+        salt,
+      })
+    );
+
+    if (res?.success) {
+      showToast("Vault created successfully!");
+      setShowModal(false);
+      dispatch(fetchVaultsThunk());
+    } else {
+      const errorMsg = res?.message || "Failed to create vault.";
+      showToast(errorMsg, "error");
+      setSubmitError(errorMsg);
+    }
+  } catch (err) {
+    console.error("Vault submission error:", err);
+    showToast("Unexpected error occurred", "error");
+    setSubmitError("Unexpected error occurred");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 mt-12">
@@ -64,9 +98,21 @@ const VaultPage = () => {
       </div>
 
       <SearchInput value={search} onChange={setSearch} />
-      <VaultList vaults={filteredVaults} onVaultClick={handleVaultClick} />
 
-      <AddVaultModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      {loading && <p className="text-muted">Loading vaults...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && <VaultList vaults={filteredVaults} onVaultClick={handleVaultClick} />}
+
+      <AddVaultModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={handleAddVault}
+        isSubmitting={isSubmitting}
+        error={submitError}
+      />
+
+
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import type { VaultDetail, VaultCredential } from "../types/Vault";
-import { getVaultById, updateVault, deleteVaultById } from "../service/vaultService";
 import { decryptVaultData, reencryptVault } from "../utils/cryptoUtils";
 import LockedVaultView from "../components/vault/LockedVaultView";
 import UnlockedVaultView from "../components/vault/UnlockedVaultView";
@@ -11,20 +10,32 @@ import AddCredentialModal from "../components/credential/AddCredentialModal";
 import { showToast } from "../utils/showToast";
 import EditCredentialModal from "../components/credential/EditCredentialModal";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
+import { deleteVaultThunk, fetchVaultDetailThunk, updateVaultThunk } from "../state/thunks/vaultThunk";
+import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
+import { selectVaultDetailById, selectVaultError } from "../state/slices/vaultSlice";
 
 type VaultModalType = "delete-vault" | "add-credential" | "edit-credential" | "delete-credential" |null;
 
 
 const VaultDetailPage = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  
   const { id } = useParams();
   const [vault, setVault] = useState<VaultDetail | null>(null);
   const [credentials, setCredentials] = useState<VaultCredential[] | null>(null);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [decrypting, setDecrypting] = useState(false);
   const [decryptError, setDecryptError] = useState("");
+
+  const vaultFromStore = useAppSelector((state) =>
+    id ? selectVaultDetailById(state, id) : undefined
+  );
+
+  const reduxError = useAppSelector(selectVaultError);
+
 
   const [activeModal, setActiveModal] = useState<VaultModalType>(null);
   const [selectedCredential, setSelectedCredential] = useState<VaultCredential | null>(null);
@@ -32,22 +43,23 @@ const VaultDetailPage = () => {
   const openModal = (type: Exclude<VaultModalType, null>) => setActiveModal(type);
   const closeModal = () => setActiveModal(null);
 
+  
+
   useEffect(() => {
-    if (!id) return;
-    const fetchVault = async () => {
-      try {
-        const res = await getVaultById(id);
-        if (res.success && res.data) setVault(res.data);
-        else setError(res.message || "Vault not found.");
-      } catch (err) {
-        console.error(err);
-        setError("Error fetching vault.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchVault();
-  }, [id]);
+    if (!id || vaultFromStore) return;
+    dispatch(fetchVaultDetailThunk(id));
+  }, [id, vaultFromStore, dispatch]);
+
+  useEffect(() => {
+    if (vaultFromStore) {
+      setVault(vaultFromStore);
+      setLoading(false);
+    } else if (id && reduxError) {
+      setLoading(false);
+    }
+  }, [vaultFromStore, reduxError, id]);
+
+
 
   useEffect(() => {
     if (!credentials) setSelectedCredential(null);
@@ -55,7 +67,11 @@ const VaultDetailPage = () => {
 
 
   const handleDecrypt = async () => {
-    if (!vault) return;
+    if (!vault || !password) {
+      showToast("Password is required to update vault.", "error");
+      return;
+    }
+
     setDecrypting(true);
     try {
       const decrypted = await decryptVaultData(vault.ciphertext, vault.iv, vault.salt, password);
@@ -69,35 +85,35 @@ const VaultDetailPage = () => {
     }
   };
 
-  const handleDeleteVault = async () => {
-    if (!vault) return;
+const handleDeleteVault = async () => {
+  if (!vault || !password) {
+    showToast("Password is required to update vault.", "error");
+    return;
+  }
 
-    try {
-      const res = await deleteVaultById(vault.id);
+  const res = await dispatch(deleteVaultThunk(vault.id));
 
-      if (!res?.success) {
-        showToast(`Failed to delete "${vault.name}" vault.`, "error");
-        return;
-      }
-      
-      showToast(`Vault "${vault.name}" deleted.`, "success");
-      navigate("/vaults");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error("Vault deletion failed:", err);
-      showToast(`Failed to delete "${vault.name}" vault.`, "error");
-    } finally {
-      closeModal();
-    }
-  };
+  if (!res?.success) {
+    showToast(`Failed to delete "${vault.name}" vault.`, "error");
+    return;
+  }
+
+  showToast(`Vault "${vault.name}" deleted.`, "success");
+  navigate("/vaults");
+  closeModal();
+};
 
 
   const handleAddCredential = async (newCredential: VaultCredential) => {
-    if (!vault || !password) return;
+    if (!vault || !password) {
+      showToast("Password is required to update vault.", "error");
+      return;
+    }
     const updated = [...(credentials || []), newCredential];
     try {
       const payload = await reencryptVault(vault.name, vault.desc || "", updated, password);
-      const res = await updateVault(vault.id, payload);
+      const res = await dispatch(updateVaultThunk(vault.id, payload));
+
       if (res.success) {
         setCredentials(updated);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
@@ -114,7 +130,10 @@ const VaultDetailPage = () => {
   };
 
   const handleUpdateCredential = async (updatedCredential: VaultCredential) => {
-    if(!vault || !password || !credentials) return;
+    if (!vault || !password || !credentials) {
+      showToast("Password is required to update vault.", "error");
+      return;
+    }
 
     const updatedList = credentials.map((c) => 
       c.id === updatedCredential.id ? updatedCredential : c
@@ -122,7 +141,8 @@ const VaultDetailPage = () => {
 
     try {
       const payload = await reencryptVault(vault.name, vault.desc || "", updatedList, password);
-      const res = await updateVault(vault.id, payload);
+      const res = await dispatch(updateVaultThunk(vault.id, payload));
+
       if (res.success) {
         setCredentials(updatedList);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
@@ -140,13 +160,17 @@ const VaultDetailPage = () => {
   }
 
   const handleDeleteCredential = async () => {
-    if(!vault || !password || !credentials || !selectedCredential) return;
+    if (!vault || !password || !credentials || !selectedCredential) {
+      showToast("Password is required to update vault.", "error");
+      return;
+    }
 
     const updatedList = credentials.filter((c) => c.id !== selectedCredential.id);
 
     try {
       const payload = await reencryptVault(vault.name, vault.desc || "", updatedList, password);
-      const res = await updateVault(vault.id, payload);
+      const res = await dispatch(updateVaultThunk(vault.id, payload));
+
       if (res.success) {
         setCredentials(updatedList);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
@@ -164,8 +188,17 @@ const VaultDetailPage = () => {
   }
 
 
-  if (loading) return <p className="p-6">Loading vault...</p>;
-  if (error || !vault) return <p className="p-6 text-red-500">{error || "Vault not found."}</p>;
+  if (loading) {
+    return <p className="p-6">Loading vault...</p>;
+  }
+  if (reduxError) {
+    return <p className="p-6 text-red-500">{reduxError}</p>;
+  }
+  if (!vault) {
+    return <p className="p-6 text-red-500">Vault not found.</p>;
+  }
+
+
 
   return (
     <div className="flex flex-col lg:flex-row w-full min-h-screen">
