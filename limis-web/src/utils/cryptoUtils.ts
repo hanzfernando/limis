@@ -105,15 +105,9 @@ export async function decryptVaultData(
     return JSON.parse(decoder.decode(decrypted));
   } catch (err) {
     console.error("Decryption failed:", err);
-    console.log({
-      iv,
-      salt,
-      ciphertext: encryptedBytes,
-      key: await deriveKeyFromPassword(password, salt)
-    });
-
-    return [];
+    throw new Error("Failed to decrypt vault. Please check your password.");
   }
+
   
 }
 

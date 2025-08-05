@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash, FaLock, FaTimes } from "react-icons/fa";
-import { encryptVaultData } from "../../utils/cryptoUtils";
-import { addVault } from "../../service/vaultService";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (vaultData: { name: string; desc: string }, password: string) => void;
+  isSubmitting?: boolean;
+  error?: string | null;
 }
 
-const AddVaultModal = ({ isOpen, onClose }: Props) => {
+const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props) => {
   const [vaultData, setVaultData] = useState({
     name: "",
     desc: "",
   });
   const [masterPassword, setMasterPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-
+  
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -25,39 +24,26 @@ const AddVaultModal = ({ isOpen, onClose }: Props) => {
     setVaultData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
-    if (!masterPassword || !vaultData.name) return;
-
-    setLoading(true);
-    try {
-      // vaultData contains desc (plaintext), do not encrypt it
-      const { ciphertext, iv, salt } = await encryptVaultData(
-        {}, // no items yet — encrypting empty vault
-        masterPassword
-      );
-
-      await addVault({
-        name: vaultData.name,
-        desc: vaultData.desc,
-        ciphertext,
-        iv,
-        salt,
-      });
-
-      onClose();
-    } catch (err) {
-      console.error("Vault submission error:", err);
-    } finally {
-      setLoading(false);
-    }
+  const handleSubmit = () => {
+    if (!vaultData.name || !masterPassword) return;
+    onSubmit(vaultData, masterPassword);
   };
 
+
   useEffect(() => {
+    if (!isOpen) {
+      setVaultData({ name: "", desc: "" });
+      setMasterPassword("");
+      setShowPassword(false);
+    }
+
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
+
+  
 
   if (!isOpen) return null;
 
@@ -113,13 +99,18 @@ const AddVaultModal = ({ isOpen, onClose }: Props) => {
 
         </div>
 
+        {error && (
+          <p className="mt-4 text-sm text-[var(--color-danger)]">{error}</p>
+        )}
+
+
         <div className="mt-6 flex justify-end">
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={!vaultData.name || !masterPassword || isSubmitting}
             className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white px-4 py-2 rounded-md transition disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Save Vault"}
+            {isSubmitting ? "Saving..." : "Save Vault"}
           </button>
         </div>
       </div>

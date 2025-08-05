@@ -4,6 +4,15 @@ export interface Vault {
   desc?: string;
 }
 
+export interface VaultState {
+  vaults: Vault[] | null; // 
+  vaultDetails: Record<string, VaultDetail>; 
+  loading: boolean;
+  error: string | null;
+  authChecked: boolean;
+}
+
+
 export interface VaultDetail {
   id: string;
   name: string;
@@ -20,24 +29,6 @@ export interface EncryptedVaultPayload {
   salt: string;
   iv: string;
 }
-
-// export interface EncryptedVaultPayload {
-//   name: string;
-//   desc: string;
-//   version: number;
-//   argon: {
-//     type: number;
-//     mem: number;
-//     time: number;
-//     hashLen: number;
-//     parallelism: number;
-//   };
-//   salt: string;
-//   iv: string;
-//   ciphertext: string;
-//   keyFingerprint: string;
-//   plaintextHash: string;
-// }
 
 export interface VaultFormInput {
   title: string;
