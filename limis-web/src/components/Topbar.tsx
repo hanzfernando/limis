@@ -4,12 +4,18 @@ import ThemeToggleButton from './ThemeToggleButton';
 const Topbar = () => {
   return (
     <nav className="flex justify-between p-6 shadow-md bg-[var(--color-surface)] transition-colors">
-      <NavLink 
+      <NavLink
         to="/"
-        className="text-lg uppercase font-bold text-[var(--color-foreground)]"
+        className="flex items-center gap-3 text-2xl uppercase font-bold text-[var(--color-foreground)] hover:opacity-90 transition"
       >
+        <img
+          src="/limis_icon.svg" 
+          className="w-10 h-10"
+          alt="Limis logo"
+        />
         Limis
       </NavLink>
+
       <div className="flex items-center gap-4">
         <ThemeToggleButton />
 
