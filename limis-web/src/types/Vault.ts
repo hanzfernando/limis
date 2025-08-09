@@ -1,0 +1,54 @@
+export interface Vault {
+  id: string;
+  name: string;
+  desc?: string;
+}
+
+export interface VaultState {
+  vaults: Vault[] | null; // 
+  vaultDetails: Record<string, VaultDetail>; 
+  loading: boolean;
+  error: string | null;
+  authChecked: boolean;
+}
+
+
+export interface VaultDetail {
+  id: string;
+  name: string;
+  desc?: string;
+  ciphertext: string;
+  salt: string;
+  iv: string;
+}
+
+export interface EncryptedVaultPayload {
+  name: string;
+  desc?: string;
+  ciphertext: string;
+  salt: string;
+  iv: string;
+}
+
+export interface VaultFormInput {
+  title: string;
+  username?: string;
+  password?: string;
+  note?: string;
+  type?: string;
+}
+
+export interface VaultCredential {
+  id: string;
+  title: string;
+  username?: string;
+  password?: string;
+  url?: string
+  note?: string;
+}
+
+export interface UpdateVaultPayload {
+  ciphertext: string;
+  iv: string;
+  salt: string;
+}

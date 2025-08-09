@@ -2,19 +2,51 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Light mode */
-@theme {
-  --color-background: #f9fafb;    
-  --color-foreground: #1f2937;    
+/* Light Mode (default) */
+:root {
+  --color-background: #f3f6f9;    /* gray-50 */
+  --color-surface: #ffffff;       /* white */
+  --color-foreground: #1f2937;    /* gray-800 */
+  --color-muted: #6b7280;         /* gray-500 */
+  --color-brand: #2563eb;         /* blue-600 */
+  --color-brand-hover: #1d4ed8;
+  --color-brand-muted: rgba(37, 99, 235, 0.1);
+  --color-border: #cfd1d4;        /* gray-200 */
+  --color-success: #10b981;       /* green-500 */
+  --color-danger: #ef4444;        /* red-500 */
 }
 
-/* Dark mode */
+/* Dark Mode */
 .dark {
-  --color-background: #18181b;    
-  --color-foreground: #f4f4f5;    
+  --color-background: #18181b;    /* zinc-900 */
+  --color-surface: #27272a;       /* zinc-800 */
+  --color-foreground: #f4f4f5;    /* zinc-100 */
+  --color-muted: #a1a1aa;         /* zinc-400 */
+  --color-brand: #3b82f6;         /* blue-500 */
+  --color-brand-hover: #2563eb;
+  --color-brand-muted: rgba(59, 130, 246, 0.1);
+  --color-border: #3f3f46;        /* zinc-700 */
+  --color-success: #22c55e;       /* green-500 */
+  --color-danger: #f87171;        /* red-400 */
 }
+
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
 }
