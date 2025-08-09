@@ -43,7 +43,7 @@ export const changePassword = asyncHandler( async(req: AuthenticatedRequest, res
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "none",
   });
 
   sendResponse(res, 200, "Password changed successfully.");
