@@ -27,13 +27,17 @@ const authSlice = createSlice({
     },
     logout(state) {
       state.user = null;
+    },
+    setAuthChecked(state) {
+      state.authChecked = true;
     }
   }
 })
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setAuthChecked } = authSlice.actions;
 export default authSlice.reducer
 
 // Selector
 export const selectAuthUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectAuth = (state: { auth: AuthState }) => state.auth;
+export const selectAuthChecked = (state: { auth: AuthState }) => state.auth.authChecked;
