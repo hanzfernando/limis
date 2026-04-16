@@ -27,6 +27,15 @@ app.use(cors({
   credentials: true
 }));
 
+app.get('/health', (_req, res) => {
+    res.status(200).json({
+        success: true,
+        status: 'ok',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+    });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/vaults', vaultRoutes);
