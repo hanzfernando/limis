@@ -1,9 +1,12 @@
-import { Text, View } from "react-native";
+import { Redirect } from "expo-router";
+import { useAppSelector } from "@/src/hooks/redux";
 
 export default function Index() {
-  return (
-    <View className="flex flex-1">
-      <Text className="text-4xl text-red-500">Edit app/index.tsx to edit this screen.</Text>
-    </View>
-  );
+  const { token, authChecked } = useAppSelector((state) => state.auth);
+
+  if (!authChecked) {
+    return null;
+  } 
+
+  return <Redirect href={token ? "/(app)" : "/(auth)/login"} />;
 }

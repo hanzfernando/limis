@@ -73,6 +73,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return 
   }
 
+  const loginData: LoginResponseData = {
+    token: result.data!.token,
+  };
+
   // Set token in cookie
   res.cookie("token", result.data!.token, {
     httpOnly: true,
@@ -81,7 +85,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
-  sendResponse(res, 200, "Login successful.");
+  sendResponse<LoginResponseData>(res, 200, "Login successful.", loginData);
   return 
 });
 
