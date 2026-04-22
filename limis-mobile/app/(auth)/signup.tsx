@@ -3,7 +3,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   Text,
   TextInput,
   View,
@@ -62,7 +61,7 @@ export default function SignupScreen() {
     loading || !email.trim() || !password || !confirmPassword || !vaultKeySalt;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-slate-950">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 justify-center px-6"
@@ -160,6 +159,6 @@ export default function SignupScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }

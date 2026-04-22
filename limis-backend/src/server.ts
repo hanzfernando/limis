@@ -17,6 +17,8 @@ const app = express()
 const allowedOrigins = [
   process.env.CLIENT_URL,
   process.env.EXPO_URL,
+  process.env.EXPO_GO_URL,
+  process.env.EXPO_GO_TUNNEL_URL,
 ].filter(Boolean);
 
 console.log("Allowed CORS origins:", allowedOrigins);
@@ -79,8 +81,8 @@ app.use(errorHandler)
 
 connectDB()
     .then(async () => {
-        app.listen(PORT, () => {
-            console.log("Server running on port", PORT)
+        app.listen(Number(PORT), '0.0.0.0', () => {
+          console.log("Server running on port", PORT)
         })
     })
     .catch((error: { message: any }) => {

@@ -10,29 +10,47 @@ export async function apiRequest<T>(
   options: RequestOptions = {}
 ): Promise<ApiResponse<T>> {
   const { body, headers, ...restOptions } = options;
+  const url = `${API_BASE_URL}${endpoint}`;
+  console.log("Fetching URL:", url);
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...restOptions,
-    headers: {
-      "Content-Type": "application/json",
-      ...(headers ?? {}),
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  try {
 
-  const rawBody = await response.text();
-  const payload = rawBody
-    ? (JSON.parse(rawBody) as ApiResponse<T>)
-    : ({
-        success: response.ok,
-        message: response.ok ? "Request successful" : "Request failed",
-        status: response.status,
-      } as ApiResponse<T>);
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...restOptions,
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+        ...(headers ?? {}),
+      },
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
 
-  if (!response.ok || !payload.success) {
-    const errorMessage = payload.error ?? payload.message ?? "Request failed.";
-    throw new Error(errorMessage);
+    console.log(`API Request: ${options.method ?? "GET"} ${endpoint}`);
+    console.log("Request options:", options);
+    console.log("Response status:", response.status);
+
+
+    const rawBody = await response.text();
+
+    console.log("Response body:", rawBody);
+
+    const payload = rawBody
+      ? (JSON.parse(rawBody) as ApiResponse<T>)
+      : ({
+          success: response.ok,
+          message: response.ok ? "Request successful" : "Request failed",
+          status: response.status,
+        } as ApiResponse<T>);
+
+    if (!response.ok || !payload.success) {
+      const errorMessage = payload.error ?? payload.message ?? "Request failed.";
+      throw new Error(errorMessage);
+    }
+
+    return payload;
+  }catch (err) {
+    console.log("Fetch error:", err);
+    throw err;
   }
 
-  return payload;
 }

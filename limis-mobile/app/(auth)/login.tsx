@@ -3,12 +3,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
 import { clearAuthError, loginThunk } from "@/src/store/slices/authSlice";
 
@@ -26,7 +25,14 @@ export default function LoginScreen() {
       return;
     }
 
-    await dispatch(loginThunk({ email: trimmedEmail, password }));
+    const result = await dispatch(loginThunk({ email: trimmedEmail, password }));
+    console.log("Login thunk result:", result);
+    console.log("Login result:", result.type); // should print "auth/login/fulfilled"
+
+    if (loginThunk.fulfilled.match(result)) {
+      console.log("Redirecting...");
+      router.replace("/(app)");
+    }
   }
 
   function handleEmailChange(value: string) {
@@ -48,7 +54,7 @@ export default function LoginScreen() {
   const isDisabled = loading || !email.trim() || !password;
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-slate-950">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 justify-center px-6"
@@ -109,6 +115,6 @@ export default function LoginScreen() {
           </View>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
