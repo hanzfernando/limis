@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { verifyEmail } from '../service/authService';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
@@ -8,7 +10,8 @@ const VerifyEmailPage = () => {
   const [success, setSuccess] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleVerifyClick = async () => {
+  const handleVerifyClick = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     const token = searchParams.get("token");
     const email = searchParams.get("email");
 
@@ -39,25 +42,33 @@ const VerifyEmailPage = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-zinc-900 px-4">
-      <div className={`p-6 rounded shadow-md max-w-md w-full text-center space-y-4
-        ${success === true ? 'bg-green-100 text-green-700' : ''}
-        ${success === false ? 'bg-red-100 text-red-700' : ''}
-        ${success === null ? 'bg-white dark:bg-zinc-800 text-zinc-800 dark:text-white' : ''}
-      `}>
-        <h1 className="text-2xl font-semibold">Email Verification</h1>
-        <p>{message}</p>
-
-        {success === null && (
-          <button
-            onClick={handleVerifyClick}
-            disabled={loading}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition"
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center">Email Verification</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 text-center">
+          <p
+            className={
+              success === true
+                ? "rounded-md border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 p-3 text-[var(--color-success)]"
+                : success === false
+                ? "rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive"
+                : ""
+            }
           >
-            {loading ? "Verifying..." : "Verify Email"}
-          </button>
-        )}
-      </div>
+            {message}
+          </p>
+
+          {success === null && (
+            <form onSubmit={handleVerifyClick}>
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Verifying..." : "Verify Email"}
+              </Button>
+            </form>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 };

@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { FaEye, FaEyeSlash, FaLock, FaTimes } from "react-icons/fa";
+import { FaLock } from "react-icons/fa";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import PasswordField from "../ui/password-field";
+import { Textarea } from "../ui/textarea";
 
 interface Props {
   isOpen: boolean;
@@ -15,7 +21,6 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
     desc: "",
   });
   const [masterPassword, setMasterPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,7 +29,8 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
     setVaultData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!vaultData.name || !masterPassword) return;
     onSubmit(vaultData, masterPassword);
   };
@@ -34,7 +40,6 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
     if (!isOpen) {
       setVaultData({ name: "", desc: "" });
       setMasterPassword("");
-      setShowPassword(false);
     }
 
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -48,73 +53,43 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-[var(--color-surface)] text-[var(--color-foreground)] rounded-xl shadow-xl w-full max-w-md p-6 relative animate-fadeIn">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md animate-fadeIn">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <FaLock /> New Vault
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-          >
-            <FaTimes />
-          </button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-4">
-          <input
-            name="name"
-            placeholder="Vault Name"
-            className="w-full px-4 py-2 rounded-md bg-[var(--color-surface)] text-[var(--color-foreground)] placeholder-[var(--color-muted)] border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            value={vaultData.name}
-            onChange={handleChange}
-          />
-
-          <textarea
-            name="desc"
-            placeholder="Vault Description (Optional)"
-            className="w-full px-4 py-2 rounded-md bg-[var(--color-surface)] text-[var(--color-foreground)] placeholder-[var(--color-muted)] border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-            value={vaultData.desc}
-            onChange={handleChange}
-          />
-
-          <div className="relative">
-            <input
-              name="masterPassword"
-              type={showPassword ? "text" : "password"}
-              placeholder="Master Password"
-              className="w-full px-4 py-2 pr-10 rounded-md bg-[var(--color-surface)] text-[var(--color-foreground)] placeholder-[var(--color-muted)] border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)] transition"
-              value={masterPassword}
-              onChange={e => setMasterPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(prev => !prev)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-muted)] hover:text-[var(--color-foreground)] focus:outline-none"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="vault-name">Vault Name</Label>
+            <Input id="vault-name" name="name" value={vaultData.name} onChange={handleChange} required />
           </div>
 
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="vault-desc">Vault Description</Label>
+            <Textarea id="vault-desc" name="desc" value={vaultData.desc} onChange={handleChange} />
+          </div>
 
-        {error && (
-          <p className="mt-4 text-sm text-[var(--color-danger)]">{error}</p>
-        )}
+          <PasswordField
+            id="vault-master-password"
+            label="Master Password"
+            value={masterPassword}
+            onChange={setMasterPassword}
+            required
+          />
 
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={handleSubmit}
-            disabled={!vaultData.name || !masterPassword || isSubmitting}
-            className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white px-4 py-2 rounded-md transition disabled:opacity-50"
-          >
-            {isSubmitting ? "Saving..." : "Save Vault"}
-          </button>
-        </div>
-      </div>
-    </div>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={!vaultData.name || !masterPassword || isSubmitting}>
+              {isSubmitting ? "Saving..." : "Save Vault"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

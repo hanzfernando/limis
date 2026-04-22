@@ -1,7 +1,11 @@
 import { useState } from "react";
 import type { VaultCredential } from "../../types/Vault";
-import { FiX } from "react-icons/fi";
-import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import PasswordField from "../ui/password-field";
+import { Textarea } from "../ui/textarea";
 
 interface AddCredentialModalProps {
   isOpen: boolean;
@@ -22,8 +26,6 @@ const AddCredentialModal = ({
     url: "",
     note: "",
   });
-
-  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -46,90 +48,43 @@ const AddCredentialModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[var(--color-surface)] p-6 rounded-lg w-full max-w-md shadow-lg relative border border-[var(--color-border)]">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-        >
-          <FiX className="text-xl" />
-        </button>
-
-        <h2 className="text-xl font-semibold mb-4">Add Credential</h2>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add Credential</DialogTitle>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-3">
-          <div>
-            <label className="block text-sm mb-1">Title *</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
-              required
-            />
+          <div className="space-y-1">
+            <Label htmlFor="credential-title">Title *</Label>
+            <Input id="credential-title" type="text" name="title" value={formData.title} onChange={handleChange} required />
           </div>
-          <div>
-            <label className="block text-sm mb-1">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
-            />
+          <div className="space-y-1">
+            <Label htmlFor="credential-username">Username</Label>
+            <Input id="credential-username" type="text" name="username" value={formData.username} onChange={handleChange} />
           </div>
-          <div>
-            <label className="block text-sm mb-1">Password</label>
-            <div className="relative">   
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
-              />
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                style={{ color: "var(--color-muted)" }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm mb-1">URL</label>
-            <input
-              type="url"
-              name="url"
-              value={formData.url}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)]"
-              placeholder="https://example.com"
-            />
+          <PasswordField
+            id="credential-password"
+            label="Password"
+            value={formData.password || ""}
+            onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+          />
+          <div className="space-y-1">
+            <Label htmlFor="credential-url">URL</Label>
+            <Input id="credential-url" type="url" name="url" value={formData.url} onChange={handleChange} placeholder="https://example.com" />
           </div>
 
-          <div>
-            <label className="block text-sm mb-1">Note</label>
-            <textarea
-              name="note"
-              value={formData.note}
-              onChange={handleChange}
-              rows={3}
-              className="w-full px-3 py-2 border rounded bg-[var(--color-background)] text-[var(--color-foreground)] resize-none"
-            />
+          <div className="space-y-1">
+            <Label htmlFor="credential-note">Note</Label>
+            <Textarea id="credential-note" name="note" value={formData.note} onChange={handleChange} rows={3} className="resize-none" />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white py-2 rounded mt-2"
-          >
+          <Button type="submit" className="mt-2 w-full">
             Save Credential
-          </button>
+          </Button>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

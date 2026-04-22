@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import type { VaultDetail, VaultCredential } from "../types/Vault";
 import { decryptVaultData, reencryptVault } from "../utils/cryptoUtils";
 import LockedVaultView from "../components/vault/LockedVaultView";
@@ -66,7 +67,8 @@ const VaultDetailPage = () => {
   }, [credentials]);
 
 
-  const handleDecrypt = async () => {
+  const handleDecrypt = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!vault || !password) {
       showToast("Password is required to update vault.", "error");
       return;
@@ -189,13 +191,13 @@ const handleDeleteVault = async () => {
 
 
   if (loading) {
-    return <p className="p-6">Loading vault...</p>;
+    return <p className="p-6 text-muted-foreground">Loading vault...</p>;
   }
   if (reduxError) {
-    return <p className="p-6 text-red-500">{reduxError}</p>;
+    return <p className="p-6 text-destructive">{reduxError}</p>;
   }
   if (!vault) {
-    return <p className="p-6 text-red-500">Vault not found.</p>;
+    return <p className="p-6 text-destructive">Vault not found.</p>;
   }
 
 

@@ -1,6 +1,7 @@
 import { FiDatabase, FiPlus, FiTrash2 } from "react-icons/fi";
 import type { Vault, VaultCredential } from "../../types/Vault";
 import CredentialList from "../credential/CredentialList";
+import { Button } from "../ui/button";
 
 type Props = {
   vault: Vault;
@@ -30,35 +31,38 @@ const UnlockedVaultView = ({
 
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-medium">Vault Entries</h3>
-          <button
+          <Button
+            type="button"
             onClick={onAddCredentialClick}
-            className="flex items-center gap-2 bg-[var(--color-brand)] text-white px-4 py-2 rounded hover:bg-[var(--color-brand-hover)]"
+            className="flex items-center gap-2"
           >
             <FiPlus />
             Add Credential
-          </button>
+          </Button>
         </div>
 
         <CredentialList credentials={credentials} onSelect={onSelect} />
       </section>
 
-      <section className="border border-[var(--color-danger)] rounded-md p-4 mt-8 max-w-5xl mx-auto">
+      <section className="mt-8 max-w-5xl mx-auto rounded-md border border-destructive p-4">
         <details>
-          <summary className="text-[var(--color-danger)] font-semibold cursor-pointer">
+          <summary className="cursor-pointer font-semibold text-destructive">
             Danger Zone
           </summary>
 
-          <div className="text-sm mt-4 text-[var(--color-muted)]">
+          <div className="mt-4 text-sm text-muted-foreground">
             <p className="mb-2">
               Deleting this vault will permanently remove all credentials stored in it. This action cannot be undone.
             </p>
-            <button
+            <Button
+              type="button"
+              variant="destructive"
               onClick={onDeleteRequest}
-              className="flex items-center gap-2 bg-[var(--color-danger)] text-white px-4 py-2 rounded hover:bg-[var(--color-danger-hover)]"
+              className="flex items-center gap-2"
             >
               <FiTrash2 />
               Delete Vault
-            </button>
+            </Button>
           </div>
         </details>
       </section>

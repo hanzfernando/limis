@@ -1,12 +1,14 @@
 import { NavLink } from 'react-router-dom';
 import ThemeToggleButton from './ThemeToggleButton';
+import { buttonVariants } from './ui/button';
+import { cn } from '../lib/utils';
 
 const Topbar = () => {
   return (
-    <nav className="flex justify-between p-6 shadow-md bg-[var(--color-surface)] transition-colors">
+    <nav className="flex items-center justify-between border-b border-border bg-card px-4 py-4 shadow-sm md:px-6">
       <NavLink
         to="/"
-        className="flex items-center gap-3 text-2xl uppercase font-bold text-[var(--color-foreground)] hover:opacity-90 transition"
+        className="flex items-center gap-3 text-2xl font-bold uppercase text-foreground transition hover:opacity-90"
       >
         <img
           src="/limis_icon.svg" 
@@ -16,17 +18,13 @@ const Topbar = () => {
         Limis
       </NavLink>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-3">
         <ThemeToggleButton />
 
         <NavLink
           to="/auth/login"
           className={({ isActive }) =>
-            `px-4 py-2 rounded transition ${
-              isActive
-                ? 'bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white'
-                : 'border border-[var(--color-brand)] text-[var(--color-brand)] hover:bg-[var(--color-brand-muted)]'
-            }`
+            cn(buttonVariants({ variant: isActive ? "default" : "outline", size: "sm" }))
           }
         >
           Login
@@ -35,11 +33,7 @@ const Topbar = () => {
         <NavLink
           to="/auth/signup"
           className={({ isActive }) =>
-            `px-4 py-2 rounded transition ${
-              isActive
-                ? 'bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white'
-                : 'border border-[var(--color-brand)] text-[var(--color-brand)] hover:bg-[var(--color-brand-muted)]'
-            }`
+            cn(buttonVariants({ variant: isActive ? "default" : "outline", size: "sm" }))
           }
         >
           Signup

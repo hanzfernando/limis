@@ -15,9 +15,9 @@ const AuthLayout = () => {
   }, [auth, navigate]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-zinc-900">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <Topbar />
-      <div className="flex-1 flex items-center justify-center overflow-hidden bg-gray-100 dark:bg-zinc-900">
+      <div className="flex flex-1 items-center justify-center px-4 py-8">
         <Outlet />
       </div>
     </div>

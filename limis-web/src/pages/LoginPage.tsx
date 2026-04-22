@@ -8,13 +8,16 @@ import {
   loginStart,
   loginSuccess,
 } from "../state/slices/authSlice";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { getProfile } from "../service/userService";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import AuthCard from "../components/ui/auth-card";
+import PasswordField from "../components/ui/password-field";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
@@ -55,60 +58,47 @@ const LoginPage = () => {
   };
 
   return (
-    <main className="w-full px-4 max-w-sm bg-[var(--color-background)] text-[var(--color-foreground)]">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-[var(--color-surface)] p-8 rounded shadow-md w-full max-w-sm space-y-6"
-      >
-        <h2 className="text-2xl font-semibold text-center">Login</h2>
-
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          className="w-full px-4 py-2 border border-[var(--color-border)] rounded bg-transparent text-[var(--color-foreground)] placeholder-[var(--color-muted)]"
-        />
-
-        <div className="relative w-full">
-          <input
-            type={showPassword ? "text" : "password"}
+    <main className="w-full px-4">
+      <AuthCard title="Login">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="login-email">Email</Label>
+            <Input
+              id="login-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+          <PasswordField
+            id="login-password"
+            label="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            onChange={setPassword}
             required
-            className="w-full px-4 py-2 pr-10 border border-[var(--color-border)] rounded bg-transparent text-[var(--color-foreground)] placeholder-[var(--color-muted)]"
+            placeholder="Enter your password"
           />
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--color-muted)] cursor-pointer"
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
 
-        <button
-          type="submit"
-          className="w-full bg-[var(--color-brand)] hover:opacity-90 text-white px-4 py-2 rounded transition"
-        >
-          Log In
-        </button>
+          <Button type="submit" className="w-full">
+            Log In
+          </Button>
 
-        {error && (
-          <p className="text-[var(--color-danger)] text-sm text-center">{error}</p>
-        )}
+          {error && (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
 
-        <p className="text-center text-sm text-[var(--color-muted)]">
-          Don't have an account?{" "}
-          <Link
-            to="/auth/signup"
-            className="text-[var(--color-brand)] hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </form>
+          <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link to="/auth/signup" className="font-medium text-primary hover:underline">
+              Sign up
+            </Link>
+          </p>
+        </form>
+      </AuthCard>
     </main>
   );
 };

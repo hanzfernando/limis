@@ -1,39 +1,113 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Light Mode (default) */
 :root {
-  --color-background: #f3f6f9;    /* gray-50 */
-  --color-surface: #ffffff;       /* white */
-  --color-foreground: #1f2937;    /* gray-800 */
-  --color-muted: #6b7280;         /* gray-500 */
-  --color-brand: #2563eb;         /* blue-600 */
+  --background: #f3f6f9;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #e5e7eb;
+  --secondary-foreground: #111827;
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --accent: #dbeafe;
+  --accent-foreground: #1e3a8a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #d1d5db;
+  --input: #d1d5db;
+  --ring: #2563eb;
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --radius: 0.625rem;
+
+  /* Backward-compatible aliases during migration */
+  --color-background: var(--background);
+  --color-surface: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted-foreground);
+  --color-brand: var(--primary);
   --color-brand-hover: #1d4ed8;
-  --color-brand-muted: rgba(37, 99, 235, 0.1);
-  --color-border: #cfd1d4;        /* gray-200 */
-  --color-success: #10b981;       /* green-500 */
-  --color-danger: #ef4444;        /* red-500 */
+  --color-brand-muted: rgba(37, 99, 235, 0.15);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-danger: var(--destructive);
+  --color-surface-hover: var(--accent);
+  --color-danger-hover: #dc2626;
 }
 
-/* Dark Mode */
 .dark {
-  --color-background: #18181b;    /* zinc-900 */
-  --color-surface: #27272a;       /* zinc-800 */
-  --color-foreground: #f4f4f5;    /* zinc-100 */
-  --color-muted: #a1a1aa;         /* zinc-400 */
-  --color-brand: #3b82f6;         /* blue-500 */
-  --color-brand-hover: #2563eb;
-  --color-brand-muted: rgba(59, 130, 246, 0.1);
-  --color-border: #3f3f46;        /* zinc-700 */
-  --color-success: #22c55e;       /* green-500 */
-  --color-danger: #f87171;        /* red-400 */
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: #18181b;
+  --card-foreground: #f4f4f5;
+  --popover: #18181b;
+  --popover-foreground: #f4f4f5;
+  --primary: #60a5fa;
+  --primary-foreground: #0f172a;
+  --secondary: #27272a;
+  --secondary-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  --accent: #1f2937;
+  --accent-foreground: #e5e7eb;
+  --destructive: #f87171;
+  --destructive-foreground: #111827;
+  --border: #3f3f46;
+  --input: #3f3f46;
+  --ring: #60a5fa;
+  --success: #22c55e;
+  --success-foreground: #052e16;
+
+  --color-background: var(--background);
+  --color-surface: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted-foreground);
+  --color-brand: var(--primary);
+  --color-brand-hover: #3b82f6;
+  --color-brand-muted: rgba(96, 165, 250, 0.2);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-danger: var(--destructive);
+  --color-surface-hover: var(--accent);
+  --color-danger-hover: #ef4444;
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
 
 @keyframes fadeIn {

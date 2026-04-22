@@ -10,6 +10,8 @@ import { createVaultThunk, fetchVaultsThunk } from "../state/thunks/vaultThunk";
 import { selectVaults, selectVaultLoading, selectVaultError } from "../state/slices/vaultSlice";
 import { encryptVaultData } from "../utils/cryptoUtils";
 import { showToast } from "../utils/showToast";
+import PageContainer from "../components/ui/page-container";
+import { Button } from "../components/ui/button";
 
 const VaultPage = () => {
   const dispatch = useAppDispatch();
@@ -82,25 +84,23 @@ const handleAddVault = async (
 
 
   return (
-    <div className="max-w-5xl mx-auto p-6 mt-12">
+    <PageContainer>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="text-3xl font-bold">Vault</h1>
-        <button
+        <Button
+          type="button"
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 
-          bg-[var(--color-brand)] text-white rounded-md 
-          hover:bg-[var(--color-brand-hover)] 
-          transition focus:outline-none"
+          className="flex items-center gap-2"
         >
           <FaPlus />
           <span>Add Vault</span>
-        </button>
+        </Button>
       </div>
 
       <SearchInput value={search} onChange={setSearch} />
 
-      {loading && <p className="text-muted">Loading vaults...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {loading && <p className="text-muted-foreground">Loading vaults...</p>}
+      {error && <p className="text-destructive">{error}</p>}
 
       {!loading && <VaultList vaults={filteredVaults} onVaultClick={handleVaultClick} />}
 
@@ -112,8 +112,7 @@ const handleAddVault = async (
         error={submitError}
       />
 
-
-    </div>
+    </PageContainer>
   );
 };
 

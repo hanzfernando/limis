@@ -9,6 +9,7 @@ import ConfirmLogoutModal from "./ConfirmLogoutModal";
 import { useLogout } from "../hooks/useLogout";
 import { useState } from "react";
 import ThemeToggleButton from "./ThemeToggleButton";
+import { Button } from "./ui/button";
 
 interface SidebarProps {
   open: boolean;
@@ -41,8 +42,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 w-64 h-screen border-r-1 border-[var(--color-border)]
-        bg-[var(--color-surface)] text-[var(--color-foreground)]
+        className={`fixed top-0 left-0 z-50 h-screen w-64 border-r border-border
+        bg-card text-card-foreground
         flex flex-col justify-between p-4 shadow-sm transition-transform duration-300
         transform ${open ? "translate-x-0" : "-translate-x-full"}
         md:relative md:translate-x-0`}
@@ -52,11 +53,11 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           <div className="mb-6 px-2">
             <div className="flex justify-between items-center">
               <h1 className="text-xl font-bold">Limis</h1>
-              <button className="md:hidden" onClick={() => setOpen(false)}>
+              <Button type="button" variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(false)}>
                 <IoClose size={20} />
-              </button>
+              </Button>
             </div>
-            <p className="text-sm text-[var(--color-muted)]">{user?.email}</p>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
 
           {/* Navigation */}
@@ -71,8 +72,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                   `flex items-center w-full px-3 py-2 rounded-md transition-colors
                   ${
                     isActive
-                      ? "bg-[var(--color-brand)] text-white"
-                      : "hover:bg-[var(--color-brand-muted)]"
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground"
                   }`
                 }
               >
@@ -84,7 +85,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
         </div>
 
         {/* Footer */}
-        <div className="pt-4 border-t mt-4 border-[var(--color-border)]">
+        <div className="mt-4 border-t border-border pt-4">
           <div className="mb-4 flex items-center justify-between">
             <span className="text-sm font-medium">Theme</span>
             <ThemeToggleButton />

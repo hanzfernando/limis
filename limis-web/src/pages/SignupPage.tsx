@@ -4,14 +4,16 @@ import { signup } from "../service/authService";
 import type { SignupInput } from "../types/Auth";
 import { generateVaultKeySalt } from "../utils/generateVaultKeySalt";
 import { showToast } from "../utils/showToast";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import AuthCard from "../components/ui/auth-card";
+import PasswordField from "../components/ui/password-field";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -56,106 +58,61 @@ const SignupPage = () => {
   };
 
   return (
-    <main className="w-full px-4 max-w-sm" style={{ backgroundColor: "var(--color-background)" }}>
-      <form
-        onSubmit={handleSubmit}
-        className="p-8 rounded shadow-md w-full space-y-6"
-        style={{ backgroundColor: "var(--color-surface)", color: "var(--color-foreground)" }}
-      >
-        <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
+    <main className="w-full px-4">
+      <AuthCard title="Sign Up">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="signup-email">Email</Label>
+            <Input
+              id="signup-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="you@example.com"
+            />
+          </div>
 
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          className="w-full px-4 py-2 border rounded"
-          style={{
-            borderColor: "var(--color-border)",
-            backgroundColor: "var(--color-surface)",
-            color: "var(--color-foreground)",
-          }}
-        />
-
-        {/* Password Field */}
-        <div className="relative w-full">
-          <input
-            type={showPassword ? "text" : "password"}
+          <PasswordField
+            id="signup-password"
+            label="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            onChange={setPassword}
             required
             minLength={6}
-            className="w-full px-4 py-2 pr-10 border rounded"
-            style={{
-              borderColor: "var(--color-border)",
-              backgroundColor: "var(--color-surface)",
-              color: "var(--color-foreground)",
-            }}
+            placeholder="At least 6 characters"
           />
-          <span
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            style={{ color: "var(--color-muted)" }}
-          >
-            {showPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
 
-        {/* Confirm Password Field */}
-        <div className="relative w-full">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
+          <PasswordField
+            id="signup-confirm-password"
+            label="Confirm Password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm Password"
+            onChange={setConfirmPassword}
             required
-            className="w-full px-4 py-2 pr-10 border rounded"
-            style={{
-              borderColor: "var(--color-border)",
-              backgroundColor: "var(--color-surface)",
-              color: "var(--color-foreground)",
-            }}
+            placeholder="Re-enter password"
           />
-          <span
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-            style={{ color: "var(--color-muted)" }}
-          >
-            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-          </span>
-        </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full px-4 py-2 rounded font-medium disabled:opacity-50"
-          style={{
-            backgroundColor: "var(--color-brand)",
-            color: "#fff",
-          }}
-        >
-          {isLoading ? "Signing up..." : "Sign Up"}
-        </button>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Signing up..." : "Sign Up"}
+          </Button>
 
-        {formErrors.length > 0 && (
-          <ul className="space-y-1 text-sm text-center" style={{ color: "var(--color-danger)" }}>
-            {formErrors.map((err, i) => (
-              <li key={i}>{err}</li>
-            ))}
-          </ul>
-        )}
+          {formErrors.length > 0 && (
+            <ul className="space-y-1 text-sm text-destructive" role="alert">
+              {formErrors.map((err) => (
+                <li key={err}>{err}</li>
+              ))}
+            </ul>
+          )}
 
-        <p className="text-center text-sm" style={{ color: "var(--color-muted)" }}>
-          Already have an account?{" "}
-          <Link to="/auth/login" className="hover:underline" style={{ color: "var(--color-brand)" }}>
-            Log in
-          </Link>
-        </p>
-      </form>
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link to="/auth/login" className="font-medium text-primary hover:underline">
+              Log in
+            </Link>
+          </p>
+        </form>
+      </AuthCard>
     </main>
-
   );
 };
 

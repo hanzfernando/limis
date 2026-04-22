@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { RxHamburgerMenu } from "react-icons/rx";
-import Sidebar from "../components/Sidebar"; // adjust path
+import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
+import { Button } from "../components/ui/button";
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,21 +13,19 @@ export default function MainLayout() {
 
       {/* Mobile toggle button */}
       {!sidebarOpen && (
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
           onClick={() => setSidebarOpen(true)}
-          className="md:hidden p-3 absolute top-2 left-4 z-50
-                    rounded-md shadow
-                    opacity-0 scale-95 animate-fadeIn"
+          className="absolute left-4 top-3 z-50 animate-fadeIn md:hidden"
         >
           <RxHamburgerMenu size={24} />
-        </button>
+        </Button>
       )}
 
-
-      <main className="flex-1 overflow-y-auto relative">
-        <div className="">
-          <Outlet />
-        </div>
+      <main className="flex-1 h-screen overflow-y-auto relative">
+        <Outlet />
       </main>
     </div>
   );

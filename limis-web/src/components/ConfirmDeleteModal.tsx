@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "./ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
@@ -20,29 +22,24 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[var(--color-surface)] p-6 rounded-lg w-full max-w-md shadow-lg relative border border-[var(--color-border)]">
-        <h2 className="text-lg font-semibold mb-2 text-[var(--color-foreground)]">
-          Delete <span className="text-[var(--color-danger)]">{title}</span>?
-        </h2>
-        <p className="text-sm text-[var(--color-muted)] mb-6">{message}</p>
-
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm rounded-md border border-[var(--color-border)] bg-[var(--color-muted)] text-white hover:bg-[var(--color-foreground)]"
-          >
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            Delete <span className="text-destructive">{title}</span>?
+          </DialogTitle>
+          <DialogDescription>{message}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm rounded-md bg-[var(--color-danger)] text-white hover:opacity-90"
-          >
+          </Button>
+          <Button type="button" variant="destructive" onClick={onConfirm}>
             {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
