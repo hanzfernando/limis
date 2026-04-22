@@ -1,30 +1,20 @@
-export interface SignupResponseData {
-  email: string;
-}
+import type {
+  LoginInputContract,
+  LoginResponseDataContract,
+  SignupInputContract,
+  SignupResponseDataContract,
+  UserContract,
+} from "../contracts/auth.contract";
 
-export interface LoginResponseData {
-  token: string;
-}
-
-export interface SignupInput {
-  email: string;
-  password: string;
-  vaultKeySalt: string;
-}
-
-export interface LoginInput {
-  email: string;
-  password: string;
-}
+export type SignupResponseData = SignupResponseDataContract;
+export type LoginResponseData = LoginResponseDataContract;
+export type SignupInput = SignupInputContract;
+export type LoginInput = LoginInputContract;
+export type User = UserContract;
 
 export interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
   authChecked: boolean
-}
-
-export interface User {
-  id: string;
-  email: string;
 }

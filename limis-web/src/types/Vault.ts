@@ -1,8 +1,14 @@
-export interface Vault {
-  id: string;
-  name: string;
-  desc?: string;
-}
+import type {
+  CreateVaultPayloadContract,
+  UpdateVaultPayloadContract,
+  VaultDetailContract,
+  VaultSummaryContract,
+} from "../contracts/vault.contract";
+
+export type Vault = VaultSummaryContract;
+export type VaultDetail = VaultDetailContract;
+export type EncryptedVaultPayload = CreateVaultPayloadContract;
+export type UpdateVaultPayload = UpdateVaultPayloadContract;
 
 export interface VaultState {
   vaults: Vault[] | null; // 
@@ -12,23 +18,6 @@ export interface VaultState {
   authChecked: boolean;
 }
 
-
-export interface VaultDetail {
-  id: string;
-  name: string;
-  desc?: string;
-  ciphertext: string;
-  salt: string;
-  iv: string;
-}
-
-export interface EncryptedVaultPayload {
-  name: string;
-  desc?: string;
-  ciphertext: string;
-  salt: string;
-  iv: string;
-}
 
 export interface VaultFormInput {
   title: string;
@@ -45,10 +34,4 @@ export interface VaultCredential {
   password?: string;
   url?: string
   note?: string;
-}
-
-export interface UpdateVaultPayload {
-  ciphertext: string;
-  iv: string;
-  salt: string;
 }

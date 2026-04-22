@@ -1,33 +1,21 @@
-export interface CreateVaultInput {
+import type {
+  CreateVaultPayloadContract,
+  UpdateVaultPayloadContract,
+  VaultDetailContract,
+  VaultSummaryContract,
+} from "../contracts/vault.contract";
+
+export interface CreateVaultInput extends CreateVaultPayloadContract {
   userId: string;
-  name: string;
-  desc?: string;
-  ciphertext: string;
-  salt: string;
-  iv: string;
 }
 
-export interface UpdateVaultPayloadInput {
+export interface UpdateVaultPayloadInput extends UpdateVaultPayloadContract {
   userId: string;
   vaultId: string;
-  ciphertext: string;
-  iv: string;
-  salt: string;
 }
 
-export interface VaultSummaryDto {
-  id: string;
-  name: string;
-  desc: string;
-}
+export interface VaultSummaryDto extends VaultSummaryContract {}
 
-export interface VaultDetailDto {
-  id: string;
-  name: string;
-  desc: string;
-  ciphertext: string;
-  iv: string;
-  salt: string;
-}
+export interface VaultDetailDto extends VaultDetailContract {}
 
 export type DeleteVaultResult = 'deleted' | 'not_found' | 'forbidden';

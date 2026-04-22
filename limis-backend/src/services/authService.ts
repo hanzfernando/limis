@@ -3,7 +3,7 @@ import { generateToken } from '../utils/generateToken';
 import type { AuthTokenPayload, SignupResponseData, LoginResult, SignupInput } from '../types/Auth';
 
 export const signupUser = async (input: SignupInput): Promise<SignupResponseData> => {
-  const user = await User.signup(input.email, input.password, input.vaultKeySalt, input.origin);
+  const user = await User.signup(input.email, input.password, input.vaultKeySalt);
 
   return {
     email: user.email,

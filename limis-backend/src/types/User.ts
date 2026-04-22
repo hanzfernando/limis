@@ -17,7 +17,6 @@ export interface IUserModel extends Model<IUser> {
     email: string,
     password: string,
     vaultKeySalt: string,
-    origin: string
   ): Promise<HydratedDocument<IUser>>;
 
   login(email: string, password: string): Promise<HydratedDocument<IUser> | null>;
