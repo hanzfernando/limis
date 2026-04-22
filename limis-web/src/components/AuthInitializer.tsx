@@ -1,15 +1,19 @@
 // components/AuthInitializer.tsx
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginSuccess, logout } from "../state/slices/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess, logout, selectAuthChecked, setAuthChecked } from "../state/slices/authSlice";
 import { getProfile } from "../service/userService";
 
 const AuthInitializer = () => {
   const dispatch = useDispatch();
-  const [checked, setChecked] = useState(false);
+  const authChecked = useSelector(selectAuthChecked);
 
   useEffect(() => {
+    if (authChecked) {
+      return;
+    }
+
     const fetchUser = async () => {
       try {
         const res = await getProfile();
@@ -21,14 +25,14 @@ const AuthInitializer = () => {
       } catch {
         dispatch(logout());
       } finally {
-        setChecked(true);
+        dispatch(setAuthChecked());
       }
     };
 
     fetchUser();
-  }, [dispatch]);
+  }, [authChecked, dispatch]);
 
-  if (!checked) return <div className="text-center p-8">Checking session...</div>;
+  if (!authChecked) return null;
 
   return <Outlet />;
 };
