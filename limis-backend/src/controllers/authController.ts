@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import User from '../models/userModel';
 import asyncHandler from 'express-async-handler';
 import { sendResponse } from '../utils/sendResponse';
 import { LoginResponseData, SignupResponseData } from '../types/Auth';
-import { generateToken } from '../utils/generateToken';
-import { AuthTokenPayload } from '../types/Auth';
+import { loginUser, signupUser, verifyUserEmail } from '../services/authService';
 
 // POST /api/auth/signup
 export const signup = asyncHandler(async (req: Request, res: Response) => {
@@ -15,13 +13,11 @@ export const signup = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const origin = process.env.CLIENT_URL!;
-
-  const user = await User.signup(email, password, vaultKeySalt, origin);
-
-  const responseData: SignupResponseData = {
-    email: user.email
-  }
+  const responseData: SignupResponseData = await signupUser({
+    email,
+    password,
+    vaultKeySalt,
+  });
 
   sendResponse<SignupResponseData>(res, 201, "Signup successful. Please verify your email.", responseData);
   return;
@@ -36,29 +32,20 @@ export const loginWithToken = asyncHandler(async ( req: Request, res: Response) 
     return
   }
 
-  const user = await User.login(email, password);
+  const result = await loginUser(email, password);
 
-  if(!user){
+  if (result.status === 'invalid_credentials') {
     sendResponse(res, 200, "Login failed.", undefined, "Invalid credentials.", false)
     return
   }
 
-  if(!user.isVerified){
+  if (result.status === 'email_not_verified') {
     sendResponse(res, 403, "Please verify your email.")
     return
   }
 
-  const userId = user._id.toString();
-
-  const payload: AuthTokenPayload = {
-    userId,
-    email
-  }
-
-  const token = generateToken(payload);
-
   const loginData: LoginResponseData = {
-    token
+    token: result.data!.token,
   }
 
   sendResponse(res, 200, "Login Successful", loginData)
@@ -74,27 +61,20 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return 
   }
 
-  const user = await User.login(email, password);
+  const result = await loginUser(email, password);
 
-  if(!user){
+  if (result.status === 'invalid_credentials') {
     sendResponse(res, 200, "Login failed.", undefined, "Invalid credentials.", false)
     return
   }
 
-  if (!user.isVerified) {
+  if (result.status === 'email_not_verified') {
     sendResponse(res, 403, "Email not verified.", undefined, "Please verify your email.", false);
     return 
   }
 
-  const payload: AuthTokenPayload = {
-    userId: user._id.toString(),
-    email: user.email,
-  };
-
-  const token = generateToken(payload);
-
   // Set token in cookie
-  res.cookie("token", token, {
+  res.cookie("token", result.data!.token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -125,16 +105,12 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
     return;
   }
 
-  const user = await User.findOne({ email, verificationToken: token });
+  const isVerified = await verifyUserEmail(String(email), String(token));
 
-  if (!user) {
+  if (!isVerified) {
     sendResponse(res, 404, "Invalid or expired token.");
     return;
   }
-
-  user.isVerified = true;
-  user.verificationToken = null;
-  await user.save();
 
   sendResponse(res, 200, "Email verified successfully.");
   return;

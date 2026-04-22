@@ -1,18 +1,13 @@
 import asyncHandler from "express-async-handler";
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AuthenticatedRequest } from "../types/Auth";
 import { sendResponse } from "../utils/sendResponse";
-import User from "../models/userModel"
+import { changePasswordForUser, mapUserToProfile } from "../services/userService";
 
 export const getProfile = asyncHandler( async( req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!._id;
+  const profile = mapUserToProfile(req.user!);
 
-  const { _id, email } = req.user!;
-
-  sendResponse(res, 200, "User profile fetched successfully", {
-    id: _id.toString(),
-    email,
-  });
+  sendResponse(res, 200, "User profile fetched successfully", profile);
   return
 })
 
@@ -25,16 +20,18 @@ export const changePassword = asyncHandler( async(req: AuthenticatedRequest, res
     return;
   }
 
-  const user = await User.findById(userId);
+  const result = await changePasswordForUser(
+    userId.toString(),
+    currentPassword,
+    newPassword
+  );
 
-  if(!user) {
+  if (result === 'user_not_found') {
     sendResponse(res, 404, "User not found.");
     return;
   }
 
-  const success = await user.changePassword(currentPassword, newPassword);
-
-  if(!success){
+  if (result === 'invalid_password') {
     sendResponse(res, 401, "Incorrect password.");
     return;
   }

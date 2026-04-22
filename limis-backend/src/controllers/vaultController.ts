@@ -1,8 +1,14 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import asyncHandler from 'express-async-handler';
-import Vault from '../models/vaultModel';
 import { sendResponse } from '../utils/sendResponse';
 import type { AuthenticatedRequest } from '../types/Auth';
+import {
+  createVault,
+  deleteVaultByIdForUser,
+  getVaultByIdForUser,
+  getVaultsByUserId,
+  updateVaultPayload,
+} from '../services/vaultService';
 
 // POST /api/vaults
 export const addVault = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
@@ -14,8 +20,8 @@ export const addVault = asyncHandler(async (req: AuthenticatedRequest, res: Resp
     return 
   }
 
-  const vault = await Vault.create({
-    userId: user._id,
+  const vault = await createVault({
+    userId: user._id.toString(),
     name,
     desc,
     ciphertext,
@@ -30,56 +36,41 @@ export const addVault = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 // GET /api/vaults
 export const getVaults = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
+  const vaults = await getVaultsByUserId(user._id.toString());
 
-  const vaults = await Vault.find({ userId: user._id })
-    .select("name desc") // exclude sensitive fields
-    .lean();
-
-  const formatted = vaults.map(vault => ({
-    id: vault._id.toString(),
-    name: vault.name,
-    desc: vault.desc,
-  }));
-
-  sendResponse(res, 200, "Vaults fetched successfully.", formatted);
+  sendResponse(res, 200, "Vaults fetched successfully.", vaults);
 });
 
 // GET /api/vaults/:id
 export const getVaultById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
-  const vaultId = req.params.id;
+  const vaultId = String(req.params.id);
 
-  const vault = await Vault.findOne({ _id: vaultId, userId: user._id }).lean();
+  const vault = await getVaultByIdForUser(user._id.toString(), vaultId);
 
   if (!vault) {
     sendResponse(res, 404, "Vault not found or access denied.");
     return;
   }
 
-  const { _id, ...rest } = vault;
-  const transformedVault = {
-    id: _id.toString(),
-    ...rest,
-  };
-
-  sendResponse(res, 200, "Vault fetched successfully.", transformedVault);
+  sendResponse(res, 200, "Vault fetched successfully.", vault);
 });
 
 export const deleteVaultById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
-  const vaultId = req.params.id;
+  const vaultId = String(req.params.id);
 
-  const vault = await Vault.findById(vaultId);
-  if (!vault) {
+  const result = await deleteVaultByIdForUser(user._id.toString(), vaultId);
+
+  if (result === 'not_found') {
     sendResponse(res, 404, "Vault not found or access denied.");
     return;
   }
-  if(vault.userId.toString() !== user.id){
+
+  if (result === 'forbidden') {
     sendResponse(res, 403, "Not authorized to delete this vault.");
     return;
   }
-
-  await vault.deleteOne();
 
   sendResponse(res, 200, "Vault deleted successfully.");
   return;
@@ -87,7 +78,7 @@ export const deleteVaultById = asyncHandler(async (req: AuthenticatedRequest, re
 
 export const updateVault = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const user = req.user!;
-  const vaultId = req.params.id;
+  const vaultId = String(req.params.id);
   const { ciphertext, iv, salt } = req.body;
 
   if (!ciphertext || !iv || !salt) {
@@ -95,21 +86,21 @@ export const updateVault = asyncHandler(async (req: AuthenticatedRequest, res: R
     return 
   }
 
-  const vault = await Vault.findOne({ _id: vaultId, userId: user._id });
+  const vault = await updateVaultPayload({
+    userId: user._id.toString(),
+    vaultId,
+    ciphertext,
+    iv,
+    salt,
+  });
 
   if (!vault) {
     sendResponse(res, 404, "Vault not found or access denied.");
     return 
   }
 
-  vault.ciphertext = ciphertext;
-  vault.iv = iv;
-  vault.salt = salt;
-
-  await vault.save();
-
   sendResponse(res, 200, "Vault updated successfully.", {
-    id: vault._id,
+    id: vault.id,
     name: vault.name,
     desc: vault.desc,
     ciphertext: vault.ciphertext,
