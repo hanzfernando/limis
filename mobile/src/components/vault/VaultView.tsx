@@ -1,10 +1,12 @@
-import { FlatList, Text, View } from "react-native"
+import { FlatList, Text, View, Pressable } from "react-native"
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux"
 import { useCallback, useEffect } from "react"
 import { fetchVaultsThunk } from "@/src/store/slices/vaultSlice"
+import { useRouter } from "expo-router"
 const VaultView = () => {
   const dispatch = useAppDispatch()
   const { items: vaults, loading } = useAppSelector((state) => state.vaults)
+  const router = useRouter()
 
   const loadVaults = useCallback(() => {
     dispatch(fetchVaultsThunk())
@@ -37,12 +39,16 @@ const VaultView = () => {
         ) : null
       }
       renderItem={({ item }) => (
-        <View className="mb-3 rounded-lg border border-[--border] bg-[--card] p-4">
-          <Text className="text-base font-semibold text-[--foreground]">{item.name}</Text>
-          {item.desc ? (
-            <Text className="mt-1 text-sm text-[--muted-foreground]">{item.desc}</Text>
-          ) : null}
-        </View>
+        <Pressable onPress={() => {
+          router.push({ pathname: `/vault/${item.id}` } as any)}
+        } className="mb-3">
+          <View className="rounded-lg border border-[--border] bg-[--card] p-4">
+            <Text className="text-base font-semibold text-[--foreground]">{item.name}</Text>
+            {item.desc ? (
+              <Text className="mt-1 text-sm text-[--muted-foreground]">{item.desc}</Text>
+            ) : null}
+          </View>
+        </Pressable>
       )}
     />
   )

@@ -23,7 +23,6 @@ export default function CustomTabBar({ state, descriptors, navigation }: CustomT
 
           let iconName: any = "";
 
-          if (route.name === "index") iconName = "home";
           if (route.name === "vault") iconName = "lock-closed";
           if (route.name === "profile") iconName = "person";
 

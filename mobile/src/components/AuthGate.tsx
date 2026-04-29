@@ -29,7 +29,7 @@ export function AuthGate({ children }: PropsWithChildren) {
     }
 
     if (token && inAuthGroup) {
-      router.replace("/(app)");
+      router.replace("/(app)/(tabs)/vault");
     }
   }, [authChecked, router, segments, token]);
 

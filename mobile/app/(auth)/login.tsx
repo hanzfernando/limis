@@ -32,7 +32,7 @@ export default function LoginScreen() {
 
     if (loginThunk.fulfilled.match(result)) {
       console.log("Redirecting...");
-      router.replace("/(app)");
+      router.replace("/(app)/(tabs)/vault");
     }
   }
 

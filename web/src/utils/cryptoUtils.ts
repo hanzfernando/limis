@@ -14,7 +14,7 @@ const result = await hash({
 
   return crypto.subtle.importKey(
     "raw",
-    result.hash,
+    toArrayBuffer(result.hash),
     { name: "AES-GCM" },
     false,
     ["encrypt", "decrypt"]
@@ -66,9 +66,9 @@ export async function encryptVaultData(data: object, password: string): Promise<
   const encoded = encoder.encode(JSON.stringify(data));
 
   const encrypted = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv },
+    { name: "AES-GCM", iv: toArrayBuffer(iv) },
     key,
-    encoded
+    toArrayBuffer(encoded)
   );
 
   return {
@@ -97,9 +97,9 @@ export async function decryptVaultData(
 
   try {
     const decrypted = await crypto.subtle.decrypt(
-      { name: "AES-GCM", iv },
+      { name: "AES-GCM", iv: toArrayBuffer(iv) },
       key,
-      encryptedBytes
+      toArrayBuffer(encryptedBytes)
     );
 
     return JSON.parse(decoder.decode(decrypted));
@@ -123,7 +123,11 @@ export async function reencryptVault(
 
   const encoder = new TextEncoder();
   const encoded = encoder.encode(JSON.stringify(credentials));
-  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoded);
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: toArrayBuffer(iv) },
+    key,
+    toArrayBuffer(encoded)
+  );
 
   return {
     name,
@@ -140,5 +144,11 @@ function toBase64(u8: Uint8Array): string {
 
 function fromBase64(str: string): Uint8Array {
   return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+}
+
+function toArrayBuffer(u8: Uint8Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(u8.byteLength);
+  new Uint8Array(buffer).set(u8);
+  return buffer;
 }
 

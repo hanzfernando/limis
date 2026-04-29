@@ -8,5 +8,5 @@ export default function Index() {
     return null;
   } 
 
-  return <Redirect href={token ? "/(app)" : "/(auth)/login"} />;
+  return <Redirect href={token ? "/(app)/(tabs)/vault" : "/(auth)/login"} />;
 }

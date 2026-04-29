@@ -14,10 +14,12 @@ export default function ProfileScreen() {
           This is your profile screen.
         </Text>
         <ThemeSwitchButton />
-        
+
         <View className="mt-6 rounded-2xl border border-[--border] bg-[--card] p-4">
           <Text className="text-base font-semibold text-[--foreground]">Account</Text>
-          <Text className="mt-1 text-sm text-[--muted-foreground]">Manage your account settings.</Text>
+          <Text className="mt-1 text-sm text-[--muted-foreground]">
+            Manage your account settings.
+          </Text>
           <View className="mt-4 rounded-xl bg-[--primary] px-4 py-3">
             <Text
               onPress={() => dispatch(logoutThunk())}
@@ -28,8 +30,6 @@ export default function ProfileScreen() {
           </View>
         </View>
       </View>
-
-      
     </View>
   );
 }
