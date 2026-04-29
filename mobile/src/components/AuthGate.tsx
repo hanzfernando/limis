@@ -3,14 +3,14 @@ import { ActivityIndicator, Text, View } from "react-native";
 import { useRouter, useSegments } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
 import { hydrateAuthThunk } from "@/src/store/slices/authSlice";
-import { useThemeSwitch } from "@/src/hooks/useThemeSwitch";
+import { useUnstableNativeVariable } from "nativewind";
 
 export function AuthGate({ children }: PropsWithChildren) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const segments = useSegments();
   const { token, authChecked } = useAppSelector((state) => state.auth);
-  const { tokens } = useThemeSwitch();
+  const indicatorColor = useUnstableNativeVariable("--foreground") ?? "#111827";
 
   useEffect(() => {
     dispatch(hydrateAuthThunk());
@@ -35,9 +35,11 @@ export function AuthGate({ children }: PropsWithChildren) {
 
   if (!authChecked) {
     return (
-      <View className={`flex-1 items-center justify-center ${tokens.screenBg}`}>
-        <ActivityIndicator size="large" color={tokens.loadingIndicator} />
-        <Text className={`mt-3 text-base ${tokens.textSecondary}`}>Restoring session...</Text>
+      <View className="flex-1 items-center justify-center bg-[--background]">
+        <ActivityIndicator size="large" color={indicatorColor} />
+        <Text className="mt-3 text-base text-[--muted-foreground]">
+          Restoring session...
+        </Text>
       </View>
     );
   }

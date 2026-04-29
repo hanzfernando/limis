@@ -8,6 +8,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";
 import { useEffect } from "react";
 import { View } from "react-native";
+import { vars } from "nativewind";
 
 export default function RootLayout() {
   return (
@@ -20,15 +21,15 @@ export default function RootLayout() {
 }
 
 function RootLayoutContent() {
-  const { backgroundColor, effectiveScheme } = useThemeSwitch();
+  const { backgroundColor, colorScheme, themeVars } = useThemeSwitch();
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(backgroundColor).catch(() => {});
   }, [backgroundColor]);
 
   return (
-    <View className="flex-1" style={{ backgroundColor }}>
-      <StatusBar style={effectiveScheme === "dark" ? "light" : "dark"} translucent backgroundColor="transparent" />
+    <View className="flex-1 bg-[--background]" style={vars(themeVars)}>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} translucent backgroundColor="transparent" />
       <AuthGate>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />

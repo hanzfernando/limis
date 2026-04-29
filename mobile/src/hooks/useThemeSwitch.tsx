@@ -1,64 +1,62 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { useColorScheme } from "react-native";
+import { useColorScheme } from "nativewind";
 
 const THEME_MODE_KEY = "limis_theme_mode";
 
 export type ThemeMode = "system" | "light" | "dark";
 type ThemeScheme = "light" | "dark";
 
-type ThemeTokens = {
-  background: string;
-  screenBg: string;
-  card: string;
-  textPrimary: string;
-  textSecondary: string;
-  textMuted: string;
-  label: string;
-  input: string;
-  inputPlaceholder: string;
-  disabledButton: string;
-  accentButton: string;
-  primaryButtonText: string;
-  tabBar: string;
-  tabIconIdle: string;
-  loadingIndicator: string;
-};
+type ThemeVariables = Record<string, string>;
 
-const themeTokens: Record<ThemeScheme, ThemeTokens> = {
+const themeVariables: Record<ThemeScheme, ThemeVariables> = {
   light: {
-    background: "#f3f6f9",
-    screenBg: "bg-slate-100",
-    card: "border-slate-300 bg-white",
-    textPrimary: "text-slate-900",
-    textSecondary: "text-slate-700",
-    textMuted: "text-slate-600",
-    label: "text-slate-700",
-    input: "border-slate-300 bg-white text-slate-900",
-    inputPlaceholder: "#94a3b8",
-    disabledButton: "bg-slate-300",
-    accentButton: "bg-sky-600",
-    primaryButtonText: "text-white",
-    tabBar: "bg-white/95 border-slate-300",
-    tabIconIdle: "#334155",
-    loadingIndicator: "#0f172a",
+    "--background": "#f3f6f9",
+    "--foreground": "#111827",
+    "--card": "#ffffff",
+    "--card-foreground": "#111827",
+    "--popover": "#ffffff",
+    "--popover-foreground": "#111827",
+    "--primary": "#2563eb",
+    "--primary-foreground": "#ffffff",
+    "--secondary": "#e5e7eb",
+    "--secondary-foreground": "#111827",
+    "--muted": "#f9fafb",
+    "--muted-foreground": "#6b7280",
+    "--accent": "#dbeafe",
+    "--accent-foreground": "#1e3a8a",
+    "--destructive": "#ef4444",
+    "--destructive-foreground": "#ffffff",
+    "--border": "#d1d5db",
+    "--input": "#d1d5db",
+    "--ring": "#2563eb",
+    "--success": "#10b981",
+    "--success-foreground": "#ffffff",
+    "--radius": "0.625rem",
   },
   dark: {
-    background: "#09090b",
-    screenBg: "bg-slate-950",
-    card: "border-slate-800 bg-slate-900",
-    textPrimary: "text-slate-50",
-    textSecondary: "text-slate-300",
-    textMuted: "text-slate-400",
-    label: "text-slate-300",
-    input: "border-slate-700 bg-slate-950 text-slate-100",
-    inputPlaceholder: "#64748b",
-    disabledButton: "bg-slate-700",
-    accentButton: "bg-sky-500",
-    primaryButtonText: "text-slate-950",
-    tabBar: "bg-slate-950/90 border-slate-800",
-    tabIconIdle: "#94a3b8",
-    loadingIndicator: "#e2e8f0",
+    "--background": "#09090b",
+    "--foreground": "#f4f4f5",
+    "--card": "#18181b",
+    "--card-foreground": "#f4f4f5",
+    "--popover": "#18181b",
+    "--popover-foreground": "#f4f4f5",
+    "--primary": "#60a5fa",
+    "--primary-foreground": "#0f172a",
+    "--secondary": "#27272a",
+    "--secondary-foreground": "#f4f4f5",
+    "--muted": "#27272a",
+    "--muted-foreground": "#a1a1aa",
+    "--accent": "#1f2937",
+    "--accent-foreground": "#e5e7eb",
+    "--destructive": "#f87171",
+    "--destructive-foreground": "#111827",
+    "--border": "#3f3f46",
+    "--input": "#3f3f46",
+    "--ring": "#60a5fa",
+    "--success": "#22c55e",
+    "--success-foreground": "#052e16",
+    "--radius": "0.625rem",
   },
 };
 
@@ -66,15 +64,15 @@ interface ThemeSwitchContextValue {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
   toggleMode: () => void;
-  effectiveScheme: ThemeScheme;
+  colorScheme: ThemeScheme;
   backgroundColor: string;
-  tokens: ThemeTokens;
+  themeVars: ThemeVariables;
 }
 
 const ThemeSwitchContext = createContext<ThemeSwitchContextValue | undefined>(undefined);
 
 export function ThemeSwitchProvider({ children }: { children: ReactNode }) {
-  const systemScheme = useColorScheme();
+  const { colorScheme, setColorScheme } = useColorScheme();
   const [mode, setMode] = useState<ThemeMode>("system");
 
   useEffect(() => {
@@ -87,6 +85,7 @@ export function ThemeSwitchProvider({ children }: { children: ReactNode }) {
 
         if (stored === "light" || stored === "dark" || stored === "system") {
           setMode(stored);
+          setColorScheme(stored);
         }
       } catch {
         // Ignore read errors and keep system mode.
@@ -101,25 +100,32 @@ export function ThemeSwitchProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    setColorScheme(mode);
     AsyncStorage.setItem(THEME_MODE_KEY, mode).catch(() => {
       // Ignore write errors; the toggle should still work in-memory.
     });
-  }, [mode]);
+  }, [mode, setColorScheme]);
 
-  const effectiveScheme: ThemeScheme = mode === "system" ? systemScheme ?? "light" : mode;
-  const tokens = themeTokens[effectiveScheme];
-  const backgroundColor = tokens.background;
+  const effectiveScheme: ThemeScheme = colorScheme === "dark" ? "dark" : "light";
+  const themeVars = themeVariables[effectiveScheme];
+  const backgroundColor = themeVars["--background"];
 
   const value = useMemo<ThemeSwitchContextValue>(
     () => ({
       mode,
       setMode,
-      effectiveScheme,
+      colorScheme: effectiveScheme,
       backgroundColor,
-      tokens,
-      toggleMode: () => setMode((current) => (current === "dark" ? "light" : "dark")),
+      themeVars,
+      toggleMode: () =>
+        setMode((current) => {
+          if (current === "system") {
+            return effectiveScheme === "dark" ? "light" : "dark";
+          }
+          return current === "dark" ? "light" : "dark";
+        }),
     }),
-    [mode, effectiveScheme, backgroundColor, tokens],
+    [mode, effectiveScheme, backgroundColor, themeVars],
   );
 
   return <ThemeSwitchContext.Provider value={value}>{children}</ThemeSwitchContext.Provider>;

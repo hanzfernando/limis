@@ -10,13 +10,12 @@ import {
 import { Link, useRouter } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
 import { clearAuthError, signupThunk } from "@/src/store/slices/authSlice";
-import { useThemeSwitch } from "@/src/hooks/useThemeSwitch";
+import { useUnstableNativeVariable } from "nativewind";
 
 export default function SignupScreen() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { loading, error } = useAppSelector((state) => state.auth);
-  const { tokens } = useThemeSwitch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,22 +60,25 @@ export default function SignupScreen() {
 
   const isDisabled =
     loading || !email.trim() || !password || !confirmPassword || !vaultKeySalt;
+  const placeholderTextColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
 
   return (
-    <View className={`flex-1 ${tokens.screenBg}`}>
+    <View className="flex-1 bg-[--background]">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 justify-center px-6"
       >
-        <View className={`rounded-3xl border px-5 py-8 ${tokens.card}`}>
-          <Text className={`text-3xl font-semibold ${tokens.textPrimary}`}>Create account</Text>
-          <Text className={`mt-2 text-base ${tokens.textSecondary}`}>
+        <View className="rounded-3xl border border-[--border] bg-[--card] px-5 py-8">
+          <Text className="text-3xl font-semibold text-[--foreground]">
+            Create account
+          </Text>
+          <Text className="mt-2 text-base text-[--muted-foreground]">
             Sign up with your credentials to get started.
           </Text>
 
           <View className="mt-6 gap-4">
             <View>
-              <Text className={`mb-2 text-sm ${tokens.label}`}>Email</Text>
+              <Text className="mb-2 text-sm text-[--muted-foreground]">Email</Text>
               <TextInput
                 autoCapitalize="none"
                 autoComplete="email"
@@ -87,13 +89,13 @@ export default function SignupScreen() {
                   setEmail(value);
                 }}
                 placeholder="you@example.com"
-                placeholderTextColor={tokens.inputPlaceholder}
-                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
+                placeholderTextColor={placeholderTextColor}
+                className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
               />
             </View>
 
             <View>
-              <Text className={`mb-2 text-sm ${tokens.label}`}>Password</Text>
+              <Text className="mb-2 text-sm text-[--muted-foreground]">Password</Text>
               <TextInput
                 secureTextEntry
                 value={password}
@@ -102,13 +104,13 @@ export default function SignupScreen() {
                   setPassword(value);
                 }}
                 placeholder="Create a password"
-                placeholderTextColor={tokens.inputPlaceholder}
-                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
+                placeholderTextColor={placeholderTextColor}
+                className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
               />
             </View>
 
             <View>
-              <Text className={`mb-2 text-sm ${tokens.label}`}>Confirm password</Text>
+              <Text className="mb-2 text-sm text-[--muted-foreground]">Confirm password</Text>
               <TextInput
                 secureTextEntry
                 value={confirmPassword}
@@ -117,13 +119,13 @@ export default function SignupScreen() {
                   setConfirmPassword(value);
                 }}
                 placeholder="Repeat your password"
-                placeholderTextColor={tokens.inputPlaceholder}
-                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
+                placeholderTextColor={placeholderTextColor}
+                className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
               />
             </View>
 
             <View>
-              <Text className={`mb-2 text-sm ${tokens.label}`}>Vault key salt</Text>
+              <Text className="mb-2 text-sm text-[--muted-foreground]">Vault key salt</Text>
               <TextInput
                 autoCapitalize="none"
                 value={vaultKeySalt}
@@ -132,8 +134,8 @@ export default function SignupScreen() {
                   setVaultKeySalt(value);
                 }}
                 placeholder="Unique vault salt"
-                placeholderTextColor={tokens.inputPlaceholder}
-                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
+                placeholderTextColor={placeholderTextColor}
+                className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
               />
             </View>
           </View>
@@ -144,15 +146,17 @@ export default function SignupScreen() {
           <Pressable
             disabled={isDisabled}
             onPress={handleSignup}
-            className={`mt-6 rounded-xl px-4 py-3 ${isDisabled ? tokens.disabledButton : "bg-cyan-500"}`}
+            className={`mt-6 rounded-xl px-4 py-3 ${
+              isDisabled ? "bg-[--secondary]" : "bg-[--primary]"
+            }`}
           >
-            <Text className={`text-center text-base font-semibold ${tokens.primaryButtonText}`}>
+            <Text className="text-center text-base font-semibold text-[--primary-foreground]">
               {loading ? "Creating account..." : "Sign up"}
             </Text>
           </Pressable>
 
           <View className="mt-6 flex-row justify-center">
-            <Text className={tokens.textSecondary}>Already registered? </Text>
+            <Text className="text-[--muted-foreground]">Already registered? </Text>
             <Link href="/(auth)/login" asChild>
               <Pressable>
                 <Text className="font-semibold text-cyan-400">Login</Text>
