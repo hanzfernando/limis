@@ -10,10 +10,12 @@ import {
 import { Link, router } from "expo-router";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
 import { clearAuthError, loginThunk } from "@/src/store/slices/authSlice";
+import { useThemeSwitch } from "@/src/hooks/useThemeSwitch";
 
 export default function LoginScreen() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
+  const { tokens } = useThemeSwitch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,20 +56,20 @@ export default function LoginScreen() {
   const isDisabled = loading || !email.trim() || !password;
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className={`flex-1 ${tokens.screenBg}`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1 justify-center px-6"
       >
-        <View className="rounded-3xl border border-slate-800 bg-slate-900 px-5 py-8">
-          <Text className="text-3xl font-semibold text-slate-50">Welcome back</Text>
-          <Text className="mt-2 text-base text-slate-300">
+        <View className={`rounded-3xl border px-5 py-8 ${tokens.card}`}>
+          <Text className={`text-3xl font-semibold ${tokens.textPrimary}`}>Welcome back</Text>
+          <Text className={`mt-2 text-base ${tokens.textSecondary}`}>
             Sign in with your account to continue.
           </Text>
 
           <View className="mt-6 gap-4">
             <View>
-              <Text className="mb-2 text-sm text-slate-300">Email</Text>
+              <Text className={`mb-2 text-sm ${tokens.label}`}>Email</Text>
               <TextInput
                 autoCapitalize="none"
                 autoComplete="email"
@@ -75,20 +77,20 @@ export default function LoginScreen() {
                 value={email}
                 onChangeText={handleEmailChange}
                 placeholder="you@example.com"
-                placeholderTextColor="#64748b"
-                className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100"
+                placeholderTextColor={tokens.inputPlaceholder}
+                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
               />
             </View>
 
             <View>
-              <Text className="mb-2 text-sm text-slate-300">Password</Text>
+              <Text className={`mb-2 text-sm ${tokens.label}`}>Password</Text>
               <TextInput
                 secureTextEntry
                 value={password}
                 onChangeText={handlePasswordChange}
                 placeholder="Your password"
-                placeholderTextColor="#64748b"
-                className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100"
+                placeholderTextColor={tokens.inputPlaceholder}
+                className={`rounded-xl border px-4 py-3 ${tokens.input}`}
               />
             </View>
           </View>
@@ -98,15 +100,15 @@ export default function LoginScreen() {
           <Pressable
             disabled={isDisabled}
             onPress={handleLogin}
-            className={`mt-6 rounded-xl px-4 py-3 ${isDisabled ? "bg-slate-700" : "bg-cyan-500"}`}
+            className={`mt-6 rounded-xl px-4 py-3 ${isDisabled ? tokens.disabledButton : "bg-cyan-500"}`}
           >
-            <Text className="text-center text-base font-semibold text-slate-950">
+            <Text className={`text-center text-base font-semibold ${tokens.primaryButtonText}`}>
               {loading ? "Signing in..." : "Login"}
             </Text>
           </Pressable>
 
           <View className="mt-6 flex-row justify-center">
-            <Text className="text-slate-300">No account yet? </Text>
+            <Text className={tokens.textSecondary}>No account yet? </Text>
             <Link href="/(auth)/signup" asChild>
               <Pressable>
                 <Text className="font-semibold text-cyan-400">Create one</Text>

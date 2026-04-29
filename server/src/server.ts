@@ -10,7 +10,7 @@ import userRoutes from './routes/userRoutes'
 import vaultRoutes from './routes/vaultRoutes'
 import devRoutes from './routes/devRoutes'
 
-dotenv.config({ path: '.env.local'})
+dotenv.config()
 const PORT = process.env.PORT
 const app = express()
 
