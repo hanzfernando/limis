@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/src/store/slices/authSlice";
+import vaultReducer from "@/src/store/slices/vaultSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    vaults: vaultReducer,
   },
 });
 
