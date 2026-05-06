@@ -1,40 +1,30 @@
-import * as Argon2 from "@sphereon/react-native-argon2";
+import argon2 from "@sphereon/react-native-argon2";
 
-const ARGON2_ID = 2;
-
-// Get hash function with fallback support
-const getHashFunction = () => {
-  const argon2Module = Argon2 as any;
-  // Try multiple import patterns
-  return argon2Module.hash || argon2Module.default?.hash || argon2Module;
-};
+const ARGON2_CONFIG = {
+  iterations: 3,
+  memory: 65536,
+  parallelism: 4,
+  hashLength: 32,
+  mode: "argon2id",
+} as const;
 
 export async function deriveKeyFromPassword(
   password: string,
   salt: Uint8Array
 ): Promise<CryptoKey> {
-  const hashFn = getHashFunction();
-  
-  if (typeof hashFn !== "function" && typeof hashFn.hash !== "function") {
+  if (salt.byteLength !== 32) {
     throw new Error(
-      "Argon2 hash function not available. Check @sphereon/react-native-argon2 installation."
+      "Sphereon Argon2 requires a 32-byte salt. Encrypt and decrypt must use the same mobile vault config."
     );
   }
 
-  const result = await (typeof hashFn === "function" ? hashFn : hashFn.hash)({
-    pass: password,
-    salt,
-    type: ARGON2_ID,
-    time: 3,
-    mem: 65536,
-    parallelism: 4,
-    hashLen: 32,
-  });
+  const result = await argon2(password, toHex(salt), ARGON2_CONFIG);
 
-  const rawKey =
-    result.hash instanceof Uint8Array
-      ? result.hash
-      : fromBase64(result.hash as unknown as string);
+  if (!result.rawHash) {
+    throw new Error("Argon2 raw hash not available.");
+  }
+
+  const rawKey = fromHex(result.rawHash);
 
   return (globalThis.crypto as any).subtle.importKey(
     "raw",
@@ -50,7 +40,34 @@ export function generateIV(): Uint8Array {
 }
 
 export function generateSalt(): Uint8Array {
-  return (globalThis.crypto as any).getRandomValues(new Uint8Array(16));
+  return (globalThis.crypto as any).getRandomValues(new Uint8Array(32));
+}
+
+export async function encryptVaultData(data: object, password: string): Promise<{
+  ciphertext: string;
+  iv: string;
+  salt: string;
+}> {
+  const iv = generateIV();
+  const salt = generateSalt();
+  const key = await deriveKeyFromPassword(password, salt);
+  const encoder = new TextEncoder();
+  const encoded = encoder.encode(JSON.stringify(data));
+  const subtle = (globalThis.crypto as any).subtle;
+
+  if (!subtle) throw new Error("WebCrypto Subtle not available on this platform.");
+
+  const encrypted = await subtle.encrypt(
+    { name: "AES-GCM", iv: toArrayBuffer(iv) },
+    key,
+    toArrayBuffer(encoded)
+  );
+
+  return {
+    ciphertext: toBase64(new Uint8Array(encrypted)),
+    iv: toBase64(iv),
+    salt: toBase64(salt),
+  };
 }
 
 export async function decryptVaultData(
@@ -95,6 +112,23 @@ function fromBase64(str: string): Uint8Array {
   if (typeof atob === "function") return Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
   if (typeof Buffer !== "undefined") return Uint8Array.from(Buffer.from(str, "base64"));
   throw new Error("No base64 available");
+}
+
+function toHex(u8: Uint8Array): string {
+  return Array.from(u8, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function fromHex(hex: string): Uint8Array {
+  if (hex.length % 2 !== 0) {
+    throw new Error("Invalid hex string");
+  }
+
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i += 1) {
+    bytes[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  }
+
+  return bytes;
 }
 
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {

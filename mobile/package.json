@@ -19,7 +19,6 @@
     "@react-navigation/native": "^7.1.8",
     "@reduxjs/toolkit": "^2.11.2",
     "@sphereon/react-native-argon2": "^2.0.9",
-    "argon2-wasm": "^0.9.0",
     "babel-preset-expo": "^54.0.10",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",
