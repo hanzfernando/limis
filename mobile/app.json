@@ -40,7 +40,13 @@
           }
         }
       ],
-      "expo-secure-store"
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow Limis to use Face ID to unlock your protected vault key."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

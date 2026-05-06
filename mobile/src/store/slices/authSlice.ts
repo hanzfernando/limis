@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { loginRequest, logoutRequest, signupRequest } from "@/src/services/authService";
+import { vaultSessionManager } from "@/src/services/vaultSessionManager";
 import type { AuthState, LoginInput, SignupInput } from "@/src/types/auth";
 import { clearAuthToken, getAuthToken, saveAuthToken } from "@/src/utils/authStorage";
 import { decodeAuthUser } from "@/src/utils/jwt";
@@ -90,6 +91,7 @@ export const logoutThunk = createAsyncThunk("auth/logout", async () => {
   }
 
   await clearAuthToken();
+  await vaultSessionManager.logoutAll().catch(() => {});
 });
 
 const authSlice = createSlice({

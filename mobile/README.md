@@ -48,3 +48,14 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+## Vault biometric security notes
+
+The vault password remains the root secret. The mobile app derives the vault data key from the password and vault salt, then stores a copy of that key only in OS-backed secure storage when biometrics are available.
+
+- Android uses Expo SecureStore backed by Android Keystore with `requireAuthentication`.
+- iOS uses Keychain access control with biometric current set semantics through `requireAuthentication`.
+- Biometric enrollment changes invalidate authenticated SecureStore items where supported, so the next unlock requires the vault password.
+- Locked is different from logged out. Locking wipes the in-memory vault key but keeps the protected local key. Logging out removes protected local vault keys and requires the vault password again.
+- Auto-lock defaults to 5 minutes, and password re-verification for sensitive actions defaults to 24 hours.
+- Expo Go is not enough for Face ID protected reads. Use a development build/custom dev client or EAS build so the `expo-secure-store` config plugin can add the native Face ID permission and Android backup exclusions.

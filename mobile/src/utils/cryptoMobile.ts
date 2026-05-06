@@ -32,6 +32,13 @@ export async function deriveKeyFromPassword(
   return fromHex(result.rawHash);
 }
 
+export async function deriveVaultKeyFromPassword(
+  password: string,
+  saltBase64: string
+): Promise<Uint8Array> {
+  return deriveKeyFromPassword(password, fromBase64(saltBase64));
+}
+
 export function generateIV(): Uint8Array {
   return getRandomValues(new Uint8Array(IV_LENGTH_BYTES));
 }
@@ -61,6 +68,23 @@ export async function encryptVaultData(
   };
 }
 
+export async function encryptVaultDataWithKey(
+  data: object,
+  key: Uint8Array
+): Promise<{
+  ciphertext: string;
+  iv: string;
+}> {
+  const iv = generateIV();
+  const plaintext = encodeJson(data);
+  const encrypted = encryptBytes(plaintext, key, iv);
+
+  return {
+    ciphertext: toBase64(encrypted),
+    iv: toBase64(iv),
+  };
+}
+
 export async function decryptVaultData(
   ciphertext: string,
   ivBase64: string,
@@ -75,6 +99,26 @@ export async function decryptVaultData(
   const salt = fromBase64(saltBase64);
   const encryptedBytes = fromBase64(ciphertext);
   const key = await deriveKeyFromPassword(password, salt);
+
+  try {
+    const decrypted = decryptBytes(encryptedBytes, key, iv);
+    return decodeJson<any[]>(decrypted);
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function decryptVaultDataWithKey(
+  ciphertext: string,
+  ivBase64: string,
+  key: Uint8Array
+): Promise<any[]> {
+  if (!ciphertext || !ivBase64) {
+    return [];
+  }
+
+  const iv = fromBase64(ivBase64);
+  const encryptedBytes = fromBase64(ciphertext);
 
   try {
     const decrypted = decryptBytes(encryptedBytes, key, iv);
@@ -100,13 +144,13 @@ function decodeJson<T>(bytes: Uint8Array): T {
   return JSON.parse(new TextDecoder().decode(toArrayBuffer(bytes)));
 }
 
-function toBase64(u8: Uint8Array): string {
+export function toBase64(u8: Uint8Array): string {
   if (typeof btoa === "function") return btoa(String.fromCharCode(...u8));
   if (typeof Buffer !== "undefined") return Buffer.from(u8).toString("base64");
   throw new Error("No base64 available");
 }
 
-function fromBase64(str: string): Uint8Array {
+export function fromBase64(str: string): Uint8Array {
   if (typeof atob === "function") return Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
   if (typeof Buffer !== "undefined") return Uint8Array.from(Buffer.from(str, "base64"));
   throw new Error("No base64 available");

@@ -4,8 +4,18 @@ import { useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useUnstableNativeVariable } from "nativewind";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
+import {
+  canUseBiometricUnlock,
+  enableBiometricUnlockForVault,
+} from "@/src/services/biometricUnlockService";
+import { vaultSessionManager } from "@/src/services/vaultSessionManager";
 import { createVaultThunk } from "@/src/store/slices/vaultSlice";
-import { encryptVaultData } from "@/src/utils/cryptoMobile";
+import {
+  deriveKeyFromPassword,
+  encryptVaultDataWithKey,
+  generateSalt,
+  toBase64,
+} from "@/src/utils/cryptoMobile";
 
 export default function CreateVaultScreen() {
   const dispatch = useAppDispatch();
@@ -38,8 +48,12 @@ export default function CreateVaultScreen() {
 
     setLocalError(null);
 
+    let vaultKey: Uint8Array | null = null;
     try {
-      const { ciphertext, iv, salt } = await encryptVaultData([], password);
+      const saltBytes = generateSalt();
+      vaultKey = await deriveKeyFromPassword(password, saltBytes);
+      const { ciphertext, iv } = await encryptVaultDataWithKey([], vaultKey);
+      const salt = toBase64(saltBytes);
       const result = await dispatch(
         createVaultThunk({
           name: trimmedName,
@@ -51,12 +65,18 @@ export default function CreateVaultScreen() {
       );
 
       if (createVaultThunk.fulfilled.match(result)) {
+        await vaultSessionManager.unlockWithVaultKey(result.payload.id, vaultKey, "password");
+        if (canUseBiometricUnlock()) {
+          await enableBiometricUnlockForVault(result.payload.id, vaultKey).catch(() => {});
+        }
         router.replace(`/vault/${result.payload.id}`);
       } else if (createVaultThunk.rejected.match(result)) {
         setLocalError((result.payload as string | undefined) ?? "Could not create vault.");
       }
     } catch (error: any) {
       setLocalError(error?.message ?? "Unexpected error while creating vault.");
+    } finally {
+      vaultKey?.fill(0);
     }
   }
 
