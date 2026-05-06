@@ -114,13 +114,26 @@ export default function VaultDetailScreen() {
       const creds = await decryptVaultDataWithKey(vault.ciphertext, vault.iv, vaultKey);
       await vaultSessionManager.unlockWithVaultKey(vault.id, vaultKey, "password", securityMetadata ?? undefined);
 
-      if (canUseBiometricUnlock()) {
-        await enableBiometricUnlockForVault(vault.id, vaultKey).catch(() => {});
-      }
-
       setCredentials(Array.isArray(creds) ? (creds as VaultCredential[]) : []);
-      setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
+      const nextMetadata = await getVaultSecurityMetadata(vault.id);
+      setSecurityMetadata(nextMetadata);
       setPassword("");
+
+      if (canUseBiometricUnlock() && !nextMetadata.biometricEnabled) {
+        Alert.alert(
+          "Enable biometric unlock?",
+          "Use this phone's biometrics to unlock this vault next time. Your vault password remains the root secret.",
+          [
+            { text: "Not now", style: "cancel" },
+            {
+              text: "Enable",
+              onPress: () => {
+                void handleEnableBiometricUnlock();
+              },
+            },
+          ]
+        );
+      }
     } catch (err: any) {
       Alert.alert("Decryption failed", err?.message ?? String(err));
       setCredentials(null);
@@ -150,9 +163,26 @@ export default function VaultDetailScreen() {
     }
   }
 
+  async function handleEnableBiometricUnlock() {
+    if (!vault) return;
+
+    const vaultKey = vaultSessionManager.getKey(vault.id);
+    if (!vaultKey) {
+      Alert.alert("Vault locked", "Unlock with your vault password before enabling biometric unlock.");
+      return;
+    }
+
+    try {
+      await enableBiometricUnlockForVault(vault.id, vaultKey);
+      setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
+      Alert.alert("Biometric unlock enabled", "You can use biometrics the next time this vault is locked.");
+    } catch (err: any) {
+      Alert.alert("Could not enable biometric unlock", err?.message ?? String(err));
+    }
+  }
+
   function handleCloseVault() {
     lockVault();
-    router.back();
   }
 
   function handleOpenAddCredential() {
