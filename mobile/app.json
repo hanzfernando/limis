@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "limis-mobile",
-    "slug": "limis-mobile",
+    "name": "limis",
+    "slug": "limis",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -45,6 +45,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "58221a7f-4d58-47e2-9fb9-5d1af7ddfdbb"
+      }
     }
   }
 }
