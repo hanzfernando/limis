@@ -1,6 +1,9 @@
 import "react-native-get-random-values";
-import argon2 from "@sphereon/react-native-argon2";
 import { gcm } from "@noble/ciphers/aes.js";
+import argon2 from "@sphereon/react-native-argon2";
+
+const IV_LENGTH_BYTES = 12;
+const SALT_LENGTH_BYTES = 32;
 
 const ARGON2_CONFIG = {
   iterations: 3,
@@ -14,7 +17,7 @@ export async function deriveKeyFromPassword(
   password: string,
   salt: Uint8Array
 ): Promise<Uint8Array> {
-  if (salt.byteLength !== 32) {
+  if (salt.byteLength !== SALT_LENGTH_BYTES) {
     throw new Error(
       "Sphereon Argon2 requires a 32-byte salt. Encrypt and decrypt must use the same mobile vault config."
     );
@@ -30,14 +33,17 @@ export async function deriveKeyFromPassword(
 }
 
 export function generateIV(): Uint8Array {
-  return getRandomValues(new Uint8Array(12));
+  return getRandomValues(new Uint8Array(IV_LENGTH_BYTES));
 }
 
 export function generateSalt(): Uint8Array {
-  return getRandomValues(new Uint8Array(32));
+  return getRandomValues(new Uint8Array(SALT_LENGTH_BYTES));
 }
 
-export async function encryptVaultData(data: object, password: string): Promise<{
+export async function encryptVaultData(
+  data: object,
+  password: string
+): Promise<{
   ciphertext: string;
   iv: string;
   salt: string;
@@ -45,9 +51,8 @@ export async function encryptVaultData(data: object, password: string): Promise<
   const iv = generateIV();
   const salt = generateSalt();
   const key = await deriveKeyFromPassword(password, salt);
-  const encoder = new TextEncoder();
-  const encoded = encoder.encode(JSON.stringify(data));
-  const encrypted = toUint8Array(gcm(key, iv).encrypt(encoded));
+  const plaintext = encodeJson(data);
+  const encrypted = encryptBytes(plaintext, key, iv);
 
   return {
     ciphertext: toBase64(encrypted),
@@ -66,18 +71,33 @@ export async function decryptVaultData(
     return [];
   }
 
-  const decoder = new TextDecoder();
   const iv = fromBase64(ivBase64);
   const salt = fromBase64(saltBase64);
   const encryptedBytes = fromBase64(ciphertext);
   const key = await deriveKeyFromPassword(password, salt);
 
   try {
-    const decrypted = toUint8Array(gcm(key, iv).decrypt(encryptedBytes));
-    return JSON.parse(decoder.decode(toArrayBuffer(decrypted)));
+    const decrypted = decryptBytes(encryptedBytes, key, iv);
+    return decodeJson<any[]>(decrypted);
   } catch (err) {
     throw err;
   }
+}
+
+function encryptBytes(plaintext: Uint8Array, key: Uint8Array, iv: Uint8Array): Uint8Array {
+  return toUint8Array(gcm(key, iv).encrypt(plaintext));
+}
+
+function decryptBytes(encryptedBytes: Uint8Array, key: Uint8Array, iv: Uint8Array): Uint8Array {
+  return toUint8Array(gcm(key, iv).decrypt(encryptedBytes));
+}
+
+function encodeJson(data: unknown): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify(data));
+}
+
+function decodeJson<T>(bytes: Uint8Array): T {
+  return JSON.parse(new TextDecoder().decode(toArrayBuffer(bytes)));
 }
 
 function toBase64(u8: Uint8Array): string {
