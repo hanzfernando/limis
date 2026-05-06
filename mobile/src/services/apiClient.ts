@@ -11,7 +11,6 @@ export async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
   const { body, headers, ...restOptions } = options;
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log("Fetching URL:", url);
 
   try {
 
@@ -25,14 +24,7 @@ export async function apiRequest<T>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
 
-    console.log(`API Request: ${options.method ?? "GET"} ${endpoint}`);
-    console.log("Request options:", options);
-    console.log("Response status:", response.status);
-
-
     const rawBody = await response.text();
-
-    console.log("Response body:", rawBody);
 
     const payload = rawBody
       ? (JSON.parse(rawBody) as ApiResponse<T>)

@@ -22,8 +22,8 @@ export default function VaultDetailScreen() {
     if (!vault) return;
     setDecrypting(true);
     try {
-      // const creds = await decryptVaultData(vault.ciphertext, vault.iv, vault.salt, password);
-      // setCredentials(creds as any[]);
+      const creds = await decryptVaultData(vault.ciphertext, vault.iv, vault.salt, password);
+      setCredentials(creds as any[]);
     } catch (err: any) {
       Alert.alert("Decryption failed", err?.message ?? String(err));
       setCredentials(null);

@@ -27,8 +27,6 @@ export default function LoginScreen() {
     }
 
     const result = await dispatch(loginThunk({ email: trimmedEmail, password }));
-    console.log("Login thunk result:", result);
-    console.log("Login result:", result.type); // should print "auth/login/fulfilled"
 
     if (loginThunk.fulfilled.match(result)) {
       console.log("Redirecting...");

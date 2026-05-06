@@ -1,12 +1,27 @@
-import { hash } from "@sphereon/react-native-argon2";
+import * as Argon2 from "@sphereon/react-native-argon2";
 
 const ARGON2_ID = 2;
+
+// Get hash function with fallback support
+const getHashFunction = () => {
+  const argon2Module = Argon2 as any;
+  // Try multiple import patterns
+  return argon2Module.hash || argon2Module.default?.hash || argon2Module;
+};
 
 export async function deriveKeyFromPassword(
   password: string,
   salt: Uint8Array
 ): Promise<CryptoKey> {
-  const result = await hash({
+  const hashFn = getHashFunction();
+  
+  if (typeof hashFn !== "function" && typeof hashFn.hash !== "function") {
+    throw new Error(
+      "Argon2 hash function not available. Check @sphereon/react-native-argon2 installation."
+    );
+  }
+
+  const result = await (typeof hashFn === "function" ? hashFn : hashFn.hash)({
     pass: password,
     salt,
     type: ARGON2_ID,
