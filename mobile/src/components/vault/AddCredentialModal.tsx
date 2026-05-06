@@ -4,6 +4,8 @@ import type { CredentialFormState } from "@/src/types/credential";
 
 type Props = {
   visible: boolean;
+  title?: string;
+  saveLabel?: string;
   value: CredentialFormState;
   saving: boolean;
   foregroundColor: string;
@@ -12,7 +14,17 @@ type Props = {
   onSave: () => void;
 };
 
-export function AddCredentialModal({ visible, value, saving, foregroundColor, onChange, onClose, onSave }: Props) {
+export function AddCredentialModal({
+  visible,
+  title = "Add credential",
+  saveLabel = "Save credential",
+  value,
+  saving,
+  foregroundColor,
+  onChange,
+  onClose,
+  onSave,
+}: Props) {
   function updateField(field: keyof CredentialFormState, fieldValue: string) {
     onChange({ ...value, [field]: fieldValue });
   }
@@ -28,7 +40,7 @@ export function AddCredentialModal({ visible, value, saving, foregroundColor, on
         />
         <View className="max-h-[90%] rounded-t-2xl bg-[--card] p-4">
           <View className="mb-4 flex-row items-center justify-between gap-3">
-            <Text className="text-lg font-semibold text-[--foreground]">Add credential</Text>
+            <Text className="text-lg font-semibold text-[--foreground]">{title}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close add credential"
@@ -82,7 +94,7 @@ export function AddCredentialModal({ visible, value, saving, foregroundColor, on
               disabled={saving}
               className={`mb-6 h-12 items-center justify-center rounded-md ${saving ? "bg-gray-300" : "bg-[--primary]"}`}
             >
-              <Text className="font-semibold text-[--primary-foreground]">{saving ? "Saving..." : "Save credential"}</Text>
+              <Text className="font-semibold text-[--primary-foreground]">{saving ? "Saving..." : saveLabel}</Text>
             </Pressable>
           </ScrollView>
         </View>

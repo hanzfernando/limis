@@ -9,6 +9,8 @@ type Props = {
   credential: VaultCredential | null;
   foregroundColor: string;
   onClose: () => void;
+  onEdit: (credential: VaultCredential) => void;
+  onDelete: (credential: VaultCredential) => void;
 };
 
 function CredentialField({
@@ -49,7 +51,7 @@ function CredentialField({
   );
 }
 
-export function CredentialDetailModal({ credential, foregroundColor, onClose }: Props) {
+export function CredentialDetailModal({ credential, foregroundColor, onClose, onEdit, onDelete }: Props) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
   const hasDetails = Boolean(credential?.username || credential?.password || credential?.url || credential?.note);
@@ -91,6 +93,29 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose }: 
               <Ionicons name="close" size={20} color={foregroundColor} />
             </Pressable>
           </View>
+
+          {credential ? (
+            <View className="mb-4 flex-row gap-2">
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Edit credential"
+                onPress={() => onEdit(credential)}
+                className="h-11 flex-1 flex-row items-center justify-center gap-2 rounded-md bg-[--primary]"
+              >
+                <Ionicons name="create-outline" size={17} color="#ffffff" />
+                <Text className="font-semibold text-[--primary-foreground]">Edit</Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Delete credential"
+                onPress={() => onDelete(credential)}
+                className="h-11 flex-1 flex-row items-center justify-center gap-2 rounded-md border border-rose-500"
+              >
+                <Ionicons name="trash-outline" size={17} color="#f43f5e" />
+                <Text className="font-semibold text-rose-500">Delete</Text>
+              </Pressable>
+            </View>
+          ) : null}
 
           <ScrollView className="pb-12">
             <CredentialField
