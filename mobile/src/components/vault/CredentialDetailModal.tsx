@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { useUnstableNativeVariable } from "nativewind";
 import type { VaultCredential } from "@/src/types/credential";
 
 type Props = {
@@ -8,32 +11,68 @@ type Props = {
   onClose: () => void;
 };
 
-function CredentialField({ label, value }: { label: string; value?: string }) {
+function CredentialField({
+  label,
+  value,
+  copiedField,
+  mutedColor,
+  onCopy,
+}: {
+  label: string;
+  value?: string;
+  copiedField: string | null;
+  mutedColor: string;
+  onCopy: (label: string, value: string) => void;
+}) {
   if (!value) return null;
 
   return (
     <View className="mb-4">
       <Text className="mb-2 text-sm text-[--muted-foreground]">{label}</Text>
       <View className="rounded-lg border border-[--border] bg-[--muted] p-3">
-        <Text selectable className="text-sm text-[--foreground]">
-          {value}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          <Text selectable className="flex-1 text-sm text-[--foreground]">
+            {value}
+          </Text>
+          {copiedField === label ? <Text className="text-xs font-semibold text-[--success]">Copied</Text> : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Copy ${label.toLowerCase()}`}
+            onPress={() => onCopy(label, value)}
+            className="h-9 w-9 items-center justify-center rounded-full border border-[--border] bg-[--card]"
+          >
+            <Ionicons name="copy-outline" size={17} color={mutedColor} />
+          </Pressable>
+        </View>
       </View>
     </View>
   );
 }
 
 export function CredentialDetailModal({ credential, foregroundColor, onClose }: Props) {
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
   const hasDetails = Boolean(credential?.username || credential?.password || credential?.url || credential?.note);
 
+  async function handleCopy(label: string, value: string) {
+    await Clipboard.setStringAsync(value);
+    setCopiedField(label);
+    setTimeout(() => setCopiedField((current) => (current === label ? null : current)), 1600);
+  }
+
+  function handleClose() {
+    setCopiedField(null);
+    onClose();
+  }
+
   return (
-    <Modal animationType="slide" transparent visible={credential !== null} onRequestClose={onClose}>
+    <Modal animationType="slide" transparent visible={credential !== null} onRequestClose={handleClose}>
       <View className="flex-1 justify-end">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Close credential details"
           className="absolute bottom-0 left-0 right-0 top-0 bg-black/40"
-          onPress={onClose}
+          onPress={handleClose}
         />
         <View className="max-h-[82%] rounded-t-2xl bg-[--card] p-4">
           <View className="mb-4 flex-row items-start justify-between gap-3">
@@ -46,7 +85,7 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose }: 
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close credential details"
-              onPress={onClose}
+              onPress={handleClose}
               className="h-10 w-10 items-center justify-center rounded-full border border-[--border]"
             >
               <Ionicons name="close" size={20} color={foregroundColor} />
@@ -54,10 +93,34 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose }: 
           </View>
 
           <ScrollView className="pb-12">
-            <CredentialField label="Username" value={credential?.username} />
-            <CredentialField label="Password" value={credential?.password} />
-            <CredentialField label="URL" value={credential?.url} />
-            <CredentialField label="Note" value={credential?.note} />
+            <CredentialField
+              label="Username"
+              value={credential?.username}
+              copiedField={copiedField}
+              mutedColor={mutedColor}
+              onCopy={handleCopy}
+            />
+            <CredentialField
+              label="Password"
+              value={credential?.password}
+              copiedField={copiedField}
+              mutedColor={mutedColor}
+              onCopy={handleCopy}
+            />
+            <CredentialField
+              label="URL"
+              value={credential?.url}
+              copiedField={copiedField}
+              mutedColor={mutedColor}
+              onCopy={handleCopy}
+            />
+            <CredentialField
+              label="Note"
+              value={credential?.note}
+              copiedField={copiedField}
+              mutedColor={mutedColor}
+              onCopy={handleCopy}
+            />
             {credential && !hasDetails ? (
               <Text className="mb-4 text-sm text-[--muted-foreground]">This credential has no saved details.</Text>
             ) : null}
