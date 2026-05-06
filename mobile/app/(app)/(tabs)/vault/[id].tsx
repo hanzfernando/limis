@@ -4,8 +4,8 @@ import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, Text, TextInput
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useUnstableNativeVariable } from "nativewind";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
-import { fetchVaultByIdThunk } from "@/src/store/slices/vaultSlice";
-import { decryptVaultData } from "@/src/utils/cryptoMobile";
+import { fetchVaultByIdThunk, updateVaultThunk } from "@/src/store/slices/vaultSlice";
+import { decryptVaultData, encryptVaultData } from "@/src/utils/cryptoMobile";
 
 type VaultCredential = {
   id?: string;
@@ -26,6 +26,15 @@ export default function VaultDetailScreen() {
   const [decrypting, setDecrypting] = useState(false);
   const [credentials, setCredentials] = useState<VaultCredential[] | null>(null);
   const [selectedCredential, setSelectedCredential] = useState<VaultCredential | null>(null);
+  const [isAddCredentialOpen, setIsAddCredentialOpen] = useState(false);
+  const [savingCredential, setSavingCredential] = useState(false);
+  const [newCredential, setNewCredential] = useState({
+    title: "",
+    username: "",
+    password: "",
+    url: "",
+    note: "",
+  });
   const isUnlocked = credentials !== null;
   const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#111827";
   const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
@@ -33,8 +42,11 @@ export default function VaultDetailScreen() {
   const lockVault = useCallback(() => {
     setCredentials(null);
     setSelectedCredential(null);
+    setIsAddCredentialOpen(false);
     setPassword("");
     setDecrypting(false);
+    setSavingCredential(false);
+    setNewCredential({ title: "", username: "", password: "", url: "", note: "" });
   }, []);
 
   useEffect(() => {
@@ -74,6 +86,54 @@ export default function VaultDetailScreen() {
 
   function handleDismissCredential() {
     setSelectedCredential(null);
+  }
+
+  function handleOpenAddCredential() {
+    setNewCredential({ title: "", username: "", password: "", url: "", note: "" });
+    setIsAddCredentialOpen(true);
+  }
+
+  function handleCloseAddCredential() {
+    if (savingCredential) return;
+    setIsAddCredentialOpen(false);
+  }
+
+  async function handleAddCredential() {
+    if (!vault || !credentials) return;
+
+    const title = newCredential.title.trim();
+    if (!title) {
+      Alert.alert("Title required", "Add a title for this credential.");
+      return;
+    }
+
+    const credential: VaultCredential = {
+      id: `${Date.now()}`,
+      title,
+      username: newCredential.username.trim() || undefined,
+      password: newCredential.password || undefined,
+      url: newCredential.url.trim() || undefined,
+      note: newCredential.note.trim() || undefined,
+    };
+    const updatedCredentials = [...credentials, credential];
+
+    setSavingCredential(true);
+    try {
+      const payload = await encryptVaultData(updatedCredentials, password);
+      const result = await dispatch(updateVaultThunk({ vaultId: vault.id, payload }));
+
+      if (updateVaultThunk.fulfilled.match(result)) {
+        setCredentials(updatedCredentials);
+        setSelectedCredential(credential);
+        setIsAddCredentialOpen(false);
+      } else {
+        Alert.alert("Save failed", typeof result.payload === "string" ? result.payload : "Could not add credential.");
+      }
+    } catch (err: any) {
+      Alert.alert("Save failed", err?.message ?? String(err));
+    } finally {
+      setSavingCredential(false);
+    }
   }
 
   function renderCredentialField(label: string, value: string | undefined) {
@@ -162,15 +222,26 @@ export default function VaultDetailScreen() {
           <View className="mt-6">
             <View className="mb-3 flex-row items-center justify-between">
               <Text className="text-base font-semibold text-[--foreground]">Credentials</Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Close vault"
-                onPress={handleCloseVault}
-                className="flex-row items-center gap-2 rounded-md border border-[--border] px-3 py-2"
-              >
-                <Ionicons name="lock-closed-outline" size={16} color={foregroundColor} />
-                <Text className="text-sm font-semibold text-[--foreground]">Close</Text>
-              </Pressable>
+              <View className="flex-row items-center gap-2">
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Add credential"
+                  onPress={handleOpenAddCredential}
+                  className="flex-row items-center gap-2 rounded-md bg-[--primary] px-3 py-2"
+                >
+                  <Ionicons name="add" size={16} color="#ffffff" />
+                  <Text className="text-sm font-semibold text-[--primary-foreground]">Add</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Close vault"
+                  onPress={handleCloseVault}
+                  className="flex-row items-center gap-2 rounded-md border border-[--border] px-3 py-2"
+                >
+                  <Ionicons name="lock-closed-outline" size={16} color={foregroundColor} />
+                  <Text className="text-sm font-semibold text-[--foreground]">Close</Text>
+                </Pressable>
+              </View>
             </View>
 
             {credentials.length === 0 ? (
@@ -251,6 +322,107 @@ export default function VaultDetailScreen() {
               !selectedCredential.note ? (
                 <Text className="mb-4 text-sm text-[--muted-foreground]">This credential has no saved details.</Text>
               ) : null}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent
+        visible={isAddCredentialOpen}
+        onRequestClose={handleCloseAddCredential}
+      >
+        <View className="flex-1 justify-end">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Close add credential"
+            className="absolute bottom-0 left-0 right-0 top-0 bg-black/40"
+            onPress={handleCloseAddCredential}
+          />
+          <View className="max-h-[90%] rounded-t-2xl bg-[--card] p-4">
+            <View className="mb-4 flex-row items-center justify-between gap-3">
+              <Text className="text-lg font-semibold text-[--foreground]">Add credential</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close add credential"
+                onPress={handleCloseAddCredential}
+                className="h-10 w-10 items-center justify-center rounded-full border border-[--border]"
+              >
+                <Ionicons name="close" size={20} color={foregroundColor} />
+              </Pressable>
+            </View>
+
+            <ScrollView keyboardShouldPersistTaps="handled" className="mb-12">
+              <View className="mb-4">
+                <Text className="mb-2 text-sm text-[--muted-foreground]">Title</Text>
+                <TextInput
+                  value={newCredential.title}
+                  onChangeText={(value) => setNewCredential((current) => ({ ...current, title: value }))}
+                  placeholder="Example account"
+                  className="rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="mb-2 text-sm text-[--muted-foreground]">Username</Text>
+                <TextInput
+                  value={newCredential.username}
+                  onChangeText={(value) => setNewCredential((current) => ({ ...current, username: value }))}
+                  autoCapitalize="none"
+                  placeholder="name@example.com"
+                  className="rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="mb-2 text-sm text-[--muted-foreground]">Password</Text>
+                <TextInput
+                  value={newCredential.password}
+                  onChangeText={(value) => setNewCredential((current) => ({ ...current, password: value }))}
+                  autoCapitalize="none"
+                  secureTextEntry
+                  placeholder="Password"
+                  className="rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="mb-2 text-sm text-[--muted-foreground]">URL</Text>
+                <TextInput
+                  value={newCredential.url}
+                  onChangeText={(value) => setNewCredential((current) => ({ ...current, url: value }))}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                  placeholder="https://example.com"
+                  className="rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="mb-2 text-sm text-[--muted-foreground]">Note</Text>
+                <TextInput
+                  value={newCredential.note}
+                  onChangeText={(value) => setNewCredential((current) => ({ ...current, note: value }))}
+                  multiline
+                  textAlignVertical="top"
+                  placeholder="Optional note"
+                  className="min-h-24 rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                />
+              </View>
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={handleAddCredential}
+                disabled={savingCredential}
+                className={`mb-6 h-12 items-center justify-center rounded-md ${
+                  savingCredential ? "bg-gray-300" : "bg-[--primary]"
+                }`}
+              >
+                <Text className="font-semibold text-[--primary-foreground]">
+                  {savingCredential ? "Saving..." : "Save credential"}
+                </Text>
+              </Pressable>
             </ScrollView>
           </View>
         </View>
