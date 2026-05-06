@@ -1,4 +1,6 @@
+import "react-native-get-random-values";
 import argon2 from "@sphereon/react-native-argon2";
+import { gcm } from "@noble/ciphers/aes.js";
 
 const ARGON2_CONFIG = {
   iterations: 3,
@@ -11,7 +13,7 @@ const ARGON2_CONFIG = {
 export async function deriveKeyFromPassword(
   password: string,
   salt: Uint8Array
-): Promise<CryptoKey> {
+): Promise<Uint8Array> {
   if (salt.byteLength !== 32) {
     throw new Error(
       "Sphereon Argon2 requires a 32-byte salt. Encrypt and decrypt must use the same mobile vault config."
@@ -24,23 +26,15 @@ export async function deriveKeyFromPassword(
     throw new Error("Argon2 raw hash not available.");
   }
 
-  const rawKey = fromHex(result.rawHash);
-
-  return (globalThis.crypto as any).subtle.importKey(
-    "raw",
-    toArrayBuffer(rawKey),
-    { name: "AES-GCM" },
-    false,
-    ["encrypt", "decrypt"]
-  );
+  return fromHex(result.rawHash);
 }
 
 export function generateIV(): Uint8Array {
-  return (globalThis.crypto as any).getRandomValues(new Uint8Array(12));
+  return getRandomValues(new Uint8Array(12));
 }
 
 export function generateSalt(): Uint8Array {
-  return (globalThis.crypto as any).getRandomValues(new Uint8Array(32));
+  return getRandomValues(new Uint8Array(32));
 }
 
 export async function encryptVaultData(data: object, password: string): Promise<{
@@ -53,18 +47,10 @@ export async function encryptVaultData(data: object, password: string): Promise<
   const key = await deriveKeyFromPassword(password, salt);
   const encoder = new TextEncoder();
   const encoded = encoder.encode(JSON.stringify(data));
-  const subtle = (globalThis.crypto as any).subtle;
-
-  if (!subtle) throw new Error("WebCrypto Subtle not available on this platform.");
-
-  const encrypted = await subtle.encrypt(
-    { name: "AES-GCM", iv: toArrayBuffer(iv) },
-    key,
-    toArrayBuffer(encoded)
-  );
+  const encrypted = toUint8Array(gcm(key, iv).encrypt(encoded));
 
   return {
-    ciphertext: toBase64(new Uint8Array(encrypted)),
+    ciphertext: toBase64(encrypted),
     iv: toBase64(iv),
     salt: toBase64(salt),
   };
@@ -87,16 +73,8 @@ export async function decryptVaultData(
   const key = await deriveKeyFromPassword(password, salt);
 
   try {
-    const subtle = (globalThis.crypto as any).subtle;
-    if (!subtle) throw new Error("WebCrypto Subtle not available on this platform.");
-
-    const decrypted = await subtle.decrypt(
-      { name: "AES-GCM", iv: toArrayBuffer(iv) },
-      key,
-      toArrayBuffer(encryptedBytes)
-    );
-
-    return JSON.parse(decoder.decode(decrypted));
+    const decrypted = toUint8Array(gcm(key, iv).decrypt(encryptedBytes));
+    return JSON.parse(decoder.decode(toArrayBuffer(decrypted)));
   } catch (err) {
     throw err;
   }
@@ -129,6 +107,23 @@ function fromHex(hex: string): Uint8Array {
   }
 
   return bytes;
+}
+
+function getRandomValues(u8: Uint8Array): Uint8Array {
+  const crypto = globalThis.crypto;
+  if (!crypto?.getRandomValues) {
+    throw new Error("Secure random values are not available on this platform.");
+  }
+
+  return (crypto.getRandomValues as (array: Uint8Array) => Uint8Array)(u8);
+}
+
+function toUint8Array(bytes: ArrayBufferView): Uint8Array {
+  if (bytes instanceof Uint8Array) {
+    return bytes;
+  }
+
+  return new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 }
 
 function toArrayBuffer(u8: Uint8Array): ArrayBuffer {

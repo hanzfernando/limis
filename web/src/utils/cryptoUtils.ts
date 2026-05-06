@@ -50,7 +50,7 @@ export function generateIV(): Uint8Array {
 }
 
 export function generateSalt(): Uint8Array {
-  return crypto.getRandomValues(new Uint8Array(16));
+  return crypto.getRandomValues(new Uint8Array(32));
 }
 
 export async function encryptVaultData(data: object, password: string): Promise<{
