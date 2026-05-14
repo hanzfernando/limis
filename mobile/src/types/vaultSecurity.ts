@@ -13,6 +13,7 @@ export interface VaultSecurityMetadata {
   passwordReauthExpiresAt: number | null;
   autoLockTimeoutMs: number;
   passwordReauthTimeoutMs: number;
+  vaultSalt: string | null;
   updatedAt: number;
 }
 
