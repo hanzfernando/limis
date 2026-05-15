@@ -9,6 +9,7 @@ import {
   setVaultDetail,
 
   updateVault as updateVaultAction,
+  updateVaultMetadata as updateVaultMetadataAction,
   deleteVault as deleteVaultAction
 } from '../slices/vaultSlice';
 
@@ -18,10 +19,11 @@ import {
 
   addVault as addVaultService,
   updateVault as updateVaultService,
+  updateVaultMetadata as updateVaultMetadataService,
   deleteVaultById
 } from '../../service/vaultService';
 
-import type { EncryptedVaultPayload, UpdateVaultPayload } from '../../types/Vault';
+import type { EncryptedVaultPayload, UpdateVaultMetadataPayload, UpdateVaultPayload } from '../../types/Vault';
 
 export const fetchVaultsThunk = () => async (dispatch: AppDispatch) => {
   try {
@@ -85,6 +87,27 @@ export const updateVaultThunk = (id: string, payload: UpdateVaultPayload) =>
       return res; // return full response to use in component
     } catch (err) {
       dispatch(setError("Unexpected error while updating vault"));
+      return { success: false, message: "Unexpected error" };
+    }
+  };
+
+export const updateVaultMetadataThunk = (id: string, payload: UpdateVaultMetadataPayload) =>
+  async (dispatch: AppDispatch) => {
+    try {
+      const res = await updateVaultMetadataService(id, payload);
+
+      if (!res.success) {
+        dispatch(setError(res.message || "Failed to update vault details"));
+      } else {
+        dispatch(updateVaultMetadataAction({ id, data: payload }));
+        if (res.data) {
+          dispatch(setVaultDetail(res.data));
+        }
+      }
+
+      return res;
+    } catch (err) {
+      dispatch(setError("Unexpected error while updating vault details"));
       return { success: false, message: "Unexpected error" };
     }
   };

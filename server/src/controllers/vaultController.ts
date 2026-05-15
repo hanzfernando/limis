@@ -7,6 +7,7 @@ import {
   deleteVaultByIdForUser,
   getVaultByIdForUser,
   getVaultsByUserId,
+  updateVaultMetadata,
   updateVaultPayload,
 } from '../services/vaultService';
 
@@ -108,4 +109,34 @@ export const updateVault = asyncHandler(async (req: AuthenticatedRequest, res: R
     salt: vault.salt,
   });
   return 
+});
+
+export const updateVaultDetails = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const user = req.user!;
+  const vaultId = String(req.params.id);
+  const { name, desc } = req.body;
+
+  if (typeof name !== 'string' || !name.trim()) {
+    sendResponse(res, 400, "Vault name is required.");
+    return;
+  }
+
+  if (desc !== undefined && typeof desc !== 'string') {
+    sendResponse(res, 400, "Vault description must be text.");
+    return;
+  }
+
+  const vault = await updateVaultMetadata({
+    userId: user._id.toString(),
+    vaultId,
+    name,
+    desc,
+  });
+
+  if (!vault) {
+    sendResponse(res, 404, "Vault not found or access denied.");
+    return;
+  }
+
+  sendResponse(res, 200, "Vault details updated successfully.", vault);
 });

@@ -31,7 +31,7 @@ function CredentialField({
   return (
     <View className="mb-4">
       <Text className="mb-2 text-sm text-[--muted-foreground]">{label}</Text>
-      <View className="rounded-lg border border-[--border] bg-[--muted] p-3">
+      <View className="rounded-md border border-[--border] bg-[--muted] p-3">
         <View className="flex-row items-center gap-2">
           <Text selectable className="flex-1 text-sm text-[--foreground]">
             {value}
@@ -41,7 +41,7 @@ function CredentialField({
             accessibilityRole="button"
             accessibilityLabel={`Copy ${label.toLowerCase()}`}
             onPress={() => onCopy(label, value)}
-            className="h-9 w-9 items-center justify-center rounded-full border border-[--border] bg-[--card]"
+            className="h-9 w-9 items-center justify-center rounded-md border border-[--border] bg-[--card]"
           >
             <Ionicons name="copy-outline" size={17} color={mutedColor} />
           </Pressable>
@@ -53,7 +53,8 @@ function CredentialField({
 
 export function CredentialDetailModal({ credential, foregroundColor, onClose, onEdit, onDelete }: Props) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
+  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#756e83";
+  const primaryColor = useUnstableNativeVariable("--primary") ?? "#5d3c8f";
   const hasDetails = Boolean(credential?.username || credential?.password || credential?.url || credential?.note);
 
   async function handleCopy(label: string, value: string) {
@@ -76,9 +77,15 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose, on
           className="absolute bottom-0 left-0 right-0 top-0 bg-black/40"
           onPress={handleClose}
         />
-        <View className="max-h-[82%] rounded-t-2xl bg-[--card] p-4">
+        <View className="max-h-[82%] rounded-t-lg border-t border-[--border] bg-[--card] p-4">
           <View className="mb-4 flex-row items-start justify-between gap-3">
+            <View className="h-10 w-10 items-center justify-center rounded-md bg-[--secondary]">
+              <Ionicons name="key-outline" size={18} color={primaryColor} />
+            </View>
             <View className="flex-1">
+              <Text className="text-xs font-semibold uppercase tracking-widest text-[--muted-foreground]">
+                Credential record
+              </Text>
               <Text className="text-lg font-semibold text-[--foreground]">
                 {credential?.title ?? credential?.name ?? "Credential"}
               </Text>
@@ -88,7 +95,7 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose, on
               accessibilityRole="button"
               accessibilityLabel="Close credential details"
               onPress={handleClose}
-              className="h-10 w-10 items-center justify-center rounded-full border border-[--border]"
+              className="h-10 w-10 items-center justify-center rounded-md border border-[--border]"
             >
               <Ionicons name="close" size={20} color={foregroundColor} />
             </Pressable>
@@ -102,17 +109,17 @@ export function CredentialDetailModal({ credential, foregroundColor, onClose, on
                 onPress={() => onEdit(credential)}
                 className="h-11 flex-1 flex-row items-center justify-center gap-2 rounded-md bg-[--primary]"
               >
-                <Ionicons name="create-outline" size={17} color="#ffffff" />
+                <Ionicons name="create-outline" size={17} color="#fbf9ff" />
                 <Text className="font-semibold text-[--primary-foreground]">Edit</Text>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Delete credential"
                 onPress={() => onDelete(credential)}
-                className="h-11 flex-1 flex-row items-center justify-center gap-2 rounded-md border border-rose-500"
+                className="h-11 flex-1 flex-row items-center justify-center gap-2 rounded-md border border-[--destructive]"
               >
-                <Ionicons name="trash-outline" size={17} color="#f43f5e" />
-                <Text className="font-semibold text-rose-500">Delete</Text>
+                <Ionicons name="trash-outline" size={17} color="#ef4444" />
+                <Text className="font-semibold text-[--destructive]">Delete</Text>
               </Pressable>
             </View>
           ) : null}

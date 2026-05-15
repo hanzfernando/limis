@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { UpdateVaultPayload, Vault, VaultDetail, VaultState } from '../../types/Vault';
+import type { UpdateVaultMetadataPayload, UpdateVaultPayload, Vault, VaultDetail, VaultState } from '../../types/Vault';
 import type { RootState } from '../store';
 
 const initialState: VaultState = {
@@ -68,6 +68,21 @@ const vaultSlice = createSlice({
       state.loading = false;
     },
 
+    updateVaultMetadata(state, action: PayloadAction<{ id: string; data: UpdateVaultMetadataPayload }>) {
+      const { id, data } = action.payload;
+
+      const index = state.vaults?.findIndex((vault) => vault.id === id);
+      if (index !== undefined && index !== -1 && state.vaults) {
+        state.vaults[index] = { ...state.vaults[index], ...data };
+      }
+
+      if (state.vaultDetails[id]) {
+        state.vaultDetails[id] = { ...state.vaultDetails[id], ...data };
+      }
+
+      state.loading = false;
+    },
+
     // DELETE
     deleteVault(state, action: PayloadAction<string>) {
       const id = action.payload;
@@ -96,6 +111,7 @@ export const {
   setVaultDetail,
   addVault,
   updateVault,
+  updateVaultMetadata,
   deleteVault,
   resetVaultState
 } = vaultSlice.actions;

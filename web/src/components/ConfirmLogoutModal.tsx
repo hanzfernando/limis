@@ -11,8 +11,8 @@ export default function ConfirmLogoutModal({ onClose, onConfirm }: ConfirmLogout
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Confirm Logout</DialogTitle>
-          <DialogDescription>Are you sure you want to log out?</DialogDescription>
+          <DialogTitle>Leave the archive?</DialogTitle>
+          <DialogDescription>Your local session will close and vaults will need to be unlocked again.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

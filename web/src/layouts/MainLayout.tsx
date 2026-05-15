@@ -1,32 +1,29 @@
-import { useState } from "react";
-import { RxHamburgerMenu } from "react-icons/rx";
 import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
-import { Button } from "../components/ui/button";
+import { SidebarProvider, SidebarTrigger } from "../components/ui/sidebar";
+
+function MainSidebarTrigger() {
+  return (
+    <SidebarTrigger
+      aria-label="Show sidebar"
+      title="Show sidebar"
+      className="absolute left-4 top-3 z-30 h-9 w-9 animate-fadeIn rounded-md border-border bg-card/90 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground md:hidden"
+    />
+  );
+}
 
 export default function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
-    <div className="flex min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] relative">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+    <SidebarProvider>
+      <div className="relative flex h-screen min-h-screen overflow-hidden bg-background text-foreground">
+        <Sidebar />
 
-      {/* Mobile toggle button */}
-      {!sidebarOpen && (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => setSidebarOpen(true)}
-          className="absolute left-4 top-3 z-50 animate-fadeIn md:hidden"
-        >
-          <RxHamburgerMenu size={24} />
-        </Button>
-      )}
+        <MainSidebarTrigger />
 
-      <main className="flex-1 h-screen overflow-y-auto relative">
-        <Outlet />
-      </main>
-    </div>
+        <main className="relative min-h-screen min-w-0 flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

@@ -1,5 +1,6 @@
 import type {
   CreateVaultPayloadContract,
+  UpdateVaultMetadataContract,
   UpdateVaultPayloadContract,
   VaultDetailContract,
   VaultSummaryContract,
@@ -9,6 +10,7 @@ export type Vault = VaultSummaryContract;
 export type VaultDetail = VaultDetailContract;
 export type EncryptedVaultPayload = CreateVaultPayloadContract;
 export type UpdateVaultPayload = UpdateVaultPayloadContract;
+export type UpdateVaultMetadataPayload = UpdateVaultMetadataContract;
 
 export interface VaultState {
   vaults: Vault[] | null; // 

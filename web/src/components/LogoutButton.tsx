@@ -1,4 +1,4 @@
-import { TbLogout2 } from "react-icons/tb";
+import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface LogoutButtonProps {
@@ -11,11 +11,11 @@ const LogoutButton = ({ onClick, disabled }: LogoutButtonProps) => {
     <Button
       type="button"
       onClick={onClick}
-      variant="destructive"
-      className="w-full justify-start"
+      variant="outline"
+      className="w-full justify-start border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
       disabled={disabled}
     >
-      <TbLogout2 size={18} />
+      <LogOut className="h-4 w-4" />
       Logout
     </Button>
   );

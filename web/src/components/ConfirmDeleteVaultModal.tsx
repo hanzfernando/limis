@@ -1,4 +1,4 @@
-import { FiTrash2 } from "react-icons/fi";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -23,7 +23,7 @@ export default function ConfirmDeleteVaultModal({ vaultName, isOpen, onClose, on
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-destructive">Confirm Deletion</DialogTitle>
+          <DialogTitle className="text-destructive">Delete sealed vault</DialogTitle>
           <DialogDescription>
             This action will permanently delete <strong>{vaultName}</strong> and all of its credentials.
           </DialogDescription>
@@ -46,7 +46,7 @@ export default function ConfirmDeleteVaultModal({ vaultName, isOpen, onClose, on
             Cancel
           </Button>
           <Button type="button" variant="destructive" disabled={!isMatch} onClick={onConfirm}>
-            <FiTrash2 />
+            <Trash2 className="h-4 w-4" />
             Delete
           </Button>
         </DialogFooter>

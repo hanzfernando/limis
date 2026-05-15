@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { useUnstableNativeVariable } from "nativewind";
 import type { CredentialFormState } from "@/src/types/credential";
 
 type Props = {
@@ -25,6 +26,9 @@ export function AddCredentialModal({
   onClose,
   onSave,
 }: Props) {
+  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#756e83";
+  const primaryColor = useUnstableNativeVariable("--primary") ?? "#5d3c8f";
+
   function updateField(field: keyof CredentialFormState, fieldValue: string) {
     onChange({ ...value, [field]: fieldValue });
   }
@@ -38,25 +42,36 @@ export function AddCredentialModal({
           className="absolute bottom-0 left-0 right-0 top-0 bg-black/40"
           onPress={onClose}
         />
-        <View className="max-h-[90%] rounded-t-2xl bg-[--card] p-4">
+        <View className="max-h-[90%] rounded-t-lg border-t border-[--border] bg-[--card] p-4">
           <View className="mb-4 flex-row items-center justify-between gap-3">
-            <Text className="text-lg font-semibold text-[--foreground]">{title}</Text>
+            <View className="flex-1 flex-row items-center gap-3">
+              <View className="h-10 w-10 items-center justify-center rounded-md bg-[--secondary]">
+                <Ionicons name="key-outline" size={18} color={primaryColor} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs font-semibold uppercase tracking-widest text-[--muted-foreground]">
+                  Archive record
+                </Text>
+                <Text className="text-lg font-semibold text-[--foreground]">{title}</Text>
+              </View>
+            </View>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close add credential"
               onPress={onClose}
-              className="h-10 w-10 items-center justify-center rounded-full border border-[--border]"
+              className="h-10 w-10 items-center justify-center rounded-md border border-[--border]"
             >
               <Ionicons name="close" size={20} color={foregroundColor} />
             </Pressable>
           </View>
 
           <ScrollView keyboardShouldPersistTaps="handled" className="mb-12">
-            <CredentialInput label="Title" value={value.title} placeholder="Example account" onChangeText={(text) => updateField("title", text)} />
+            <CredentialInput label="Title" value={value.title} placeholder="Example account" placeholderTextColor={mutedColor} onChangeText={(text) => updateField("title", text)} />
             <CredentialInput
               label="Username"
               value={value.username}
               placeholder="name@example.com"
+              placeholderTextColor={mutedColor}
               autoCapitalize="none"
               onChangeText={(text) => updateField("username", text)}
             />
@@ -64,6 +79,7 @@ export function AddCredentialModal({
               label="Password"
               value={value.password}
               placeholder="Password"
+              placeholderTextColor={mutedColor}
               autoCapitalize="none"
               secureTextEntry
               onChangeText={(text) => updateField("password", text)}
@@ -72,6 +88,7 @@ export function AddCredentialModal({
               label="URL"
               value={value.url}
               placeholder="https://example.com"
+              placeholderTextColor={mutedColor}
               autoCapitalize="none"
               keyboardType="url"
               onChangeText={(text) => updateField("url", text)}
@@ -84,7 +101,8 @@ export function AddCredentialModal({
                 multiline
                 textAlignVertical="top"
                 placeholder="Optional note"
-                className="min-h-24 rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+                placeholderTextColor={mutedColor}
+                className="min-h-24 rounded-md border border-[--input] bg-[--muted] px-3 py-2 text-[--foreground]"
               />
             </View>
 
@@ -92,7 +110,7 @@ export function AddCredentialModal({
               accessibilityRole="button"
               onPress={onSave}
               disabled={saving}
-              className={`mb-6 h-12 items-center justify-center rounded-md ${saving ? "bg-gray-300" : "bg-[--primary]"}`}
+              className={`mb-6 h-12 items-center justify-center rounded-md ${saving ? "bg-[--secondary]" : "bg-[--primary]"}`}
             >
               <Text className="font-semibold text-[--primary-foreground]">{saving ? "Saving..." : saveLabel}</Text>
             </Pressable>
@@ -107,6 +125,7 @@ type CredentialInputProps = {
   label: string;
   value: string;
   placeholder: string;
+  placeholderTextColor: string;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   keyboardType?: "default" | "url";
   secureTextEntry?: boolean;
@@ -117,6 +136,7 @@ function CredentialInput({
   label,
   value,
   placeholder,
+  placeholderTextColor,
   autoCapitalize,
   keyboardType,
   secureTextEntry,
@@ -132,7 +152,8 @@ function CredentialInput({
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         placeholder={placeholder}
-        className="rounded-md border border-[--border] bg-[--input] px-3 py-2 text-[--foreground]"
+        placeholderTextColor={placeholderTextColor}
+        className="rounded-md border border-[--input] bg-[--muted] px-3 py-2 text-[--foreground]"
       />
     </View>
   );

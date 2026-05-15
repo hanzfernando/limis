@@ -10,7 +10,6 @@ export async function apiRequest<T>(
   options: RequestOptions = {}
 ): Promise<ApiResponse<T>> {
   const { body, headers, ...restOptions } = options;
-  const url = `${API_BASE_URL}${endpoint}`;
 
   try {
 

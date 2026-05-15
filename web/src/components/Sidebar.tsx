@@ -1,30 +1,44 @@
-import { FaLock } from "react-icons/fa6";
-import { CgProfile } from "react-icons/cg";
-import { IoClose } from "react-icons/io5";
+import {
+  ChevronLeft,
+  CircleCheck,
+  KeyRound,
+  LayoutGrid,
+  LogOut,
+  UserCircle,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAuthUser } from "../state/slices/authSlice";
-import LogoutButton from "./LogoutButton";
 import ConfirmLogoutModal from "./ConfirmLogoutModal";
 import { useLogout } from "../hooks/useLogout";
 import { useState } from "react";
 import ThemeToggleButton from "./ThemeToggleButton";
 import { Button } from "./ui/button";
+import {
+  Sidebar as SidebarShell,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarTrigger,
+  useSidebar,
+} from "./ui/sidebar";
+import { cn } from "../lib/utils";
+import BrandMark from "./BrandMark";
 
-interface SidebarProps {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-}
+const navItems = [
+  { label: "Vaults", icon: KeyRound, to: "/vaults" },
+  { label: "Profile", icon: UserCircle, to: "/profile" },
+];
 
-export default function Sidebar({ open, setOpen }: SidebarProps) {
+export default function Sidebar() {
   const user = useSelector(selectAuthUser);
   const [showModal, setShowModal] = useState(false);
   const { logout, loading } = useLogout();
-
-  const navItems = [
-    { label: "Vault", icon: FaLock, to: "/vaults" },
-    { label: "Profile", icon: CgProfile, to: "/profile" },
-  ];
+  const { mobileOpen, state, setMobileOpen } = useSidebar();
+  const collapsed = state === "collapsed" && !mobileOpen;
 
   const handleLogout = () => setShowModal(true);
   const confirmLogout = () => {
@@ -34,67 +48,137 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
 
   return (
     <>
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      <SidebarShell className="bg-card/90">
+        <SidebarHeader className={cn("p-3", collapsed && "p-2")}>
+          <div className={cn(
+            "archive-surface relative overflow-hidden rounded-lg bg-card/80 p-3 shadow-none",
+            collapsed && "p-1"
+          )}>
+            <div className="archive-line absolute left-4 right-4 top-0 h-px" />
+            <div className={cn("flex items-center gap-3", collapsed ? "flex-col justify-center" : "justify-between")}>
+              {!collapsed && <BrandMark />}
 
-      <aside
-        className={`fixed top-0 left-0 z-50 h-screen w-64 border-r border-border
-        bg-card text-card-foreground
-        flex flex-col justify-between p-4 shadow-sm transition-transform duration-300
-        transform ${open ? "translate-x-0" : "-translate-x-full"}
-        md:relative md:translate-x-0`}
-      >
-        <div>
-          {/* Header */}
-          <div className="mb-6 px-2">
-            <div className="flex justify-between items-center">
-              <h1 className="text-xl font-bold">Limis</h1>
-              <Button type="button" variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(false)}>
-                <IoClose size={20} />
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
-          </div>
-
-          {/* Navigation */}
-          <nav className="space-y-1 text-sm mb-auto">
-            {navItems.map(({ label, icon: Icon, to }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center w-full px-3 py-2 rounded-md transition-colors
-                  ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-accent hover:text-accent-foreground"
-                  }`
-                }
+              <SidebarTrigger
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className={cn(
+                  "h-8 w-8 shrink-0 rounded-md border border-border bg-background/60 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  collapsed && "[&_svg]:rotate-180"
+                )}
               >
-                <Icon size={18} className="mr-2" />
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
+                <ChevronLeft className="h-4 w-4" />
+              </SidebarTrigger>
 
-        {/* Footer */}
-        <div className="mt-4 border-t border-border pt-4">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm font-medium">Theme</span>
-            <ThemeToggleButton />
+              {collapsed && (
+                <BrandMark
+                  showWordmark={false}
+                  className="justify-center [&>span:first-child]:h-9 [&>span:first-child]:w-9"
+                />
+              )}
+            </div>
+
+            {!collapsed && (
+              <div className="mt-4 flex items-center gap-2 rounded-md border border-border bg-background/55 px-3 py-2">
+                <CircleCheck className="h-4 w-4 shrink-0 text-primary" />
+                <p className="min-w-0 truncate text-sm text-muted-foreground">{user?.email}</p>
+              </div>
+            )}
           </div>
-          <LogoutButton onClick={handleLogout} disabled={loading} />
-        </div>
-      </aside>
+        </SidebarHeader>
 
-      {/* Confirm modal */}
+        <SidebarContent className={cn("px-3", collapsed && "px-2")}>
+          {!collapsed && (
+            <div className="mb-3 rounded-lg border border-border bg-background/45 p-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <LayoutGrid className="h-4 w-4 text-primary" />
+                Auri workspace
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Calm access to your sealed credential archive.
+              </p>
+            </div>
+          )}
+
+          <SidebarGroup>
+            <SidebarGroupLabel className={cn(collapsed && "sr-only")}>Workspace</SidebarGroupLabel>
+            <SidebarMenu>
+              {navItems.map(({ label, icon: Icon, to }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end
+                  title={collapsed ? label : undefined}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    cn(
+                      "group relative flex h-10 w-full items-center rounded-md border px-3 text-sm transition-colors",
+                      collapsed ? "justify-center px-0" : "justify-start gap-3",
+                      isActive
+                        ? "border-primary/25 bg-[var(--color-brand-muted)] text-primary"
+                        : "border-transparent text-muted-foreground hover:border-border hover:bg-accent hover:text-accent-foreground"
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && !collapsed && (
+                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary" />
+                      )}
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {!collapsed && <span>{label}</span>}
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter className={cn("p-3", collapsed && "p-2")}>
+          <div
+            className={cn(
+              "rounded-lg border border-border bg-background/45 p-3",
+              collapsed && "flex flex-col items-center gap-2 p-1"
+            )}
+          >
+            {collapsed ? (
+              <>
+                <ThemeToggleButton compact />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  title="Sign out"
+                  onClick={handleLogout}
+                  disabled={loading}
+                  className="h-8 w-8 border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-sm font-medium text-muted-foreground">Theme</span>
+                  <ThemeToggleButton />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleLogout}
+                  disabled={loading}
+                  className="w-full justify-start border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </Button>
+              </>
+            )}
+          </div>
+        </SidebarFooter>
+      </SidebarShell>
+
       {showModal && (
         <ConfirmLogoutModal
           onClose={() => setShowModal(false)}
