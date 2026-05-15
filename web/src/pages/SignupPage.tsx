@@ -9,6 +9,8 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import AuthCard from "../components/ui/auth-card";
 import PasswordField from "../components/ui/password-field";
+import AuthBrandPanel from "../components/AuthBrandPanel";
+import { Mail } from "lucide-react";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -59,18 +61,27 @@ const SignupPage = () => {
 
   return (
     <main className="w-full px-4">
-      <AuthCard title="Create your archive">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_0.92fr] lg:items-stretch">
+        <AuthBrandPanel />
+        <AuthCard
+          title="Create your archive"
+          description="Set up your private credential home with a master key only you control."
+        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="signup-email">Email</Label>
-            <Input
-              id="signup-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="signup-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="you@example.com"
+                className="pl-10"
+              />
+            </div>
           </div>
 
           <PasswordField
@@ -97,7 +108,7 @@ const SignupPage = () => {
           </Button>
 
           {formErrors.length > 0 && (
-            <ul className="space-y-1 text-sm text-destructive" role="alert">
+            <ul className="space-y-1 rounded-md border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
               {formErrors.map((err) => (
                 <li key={err}>{err}</li>
               ))}
@@ -111,7 +122,8 @@ const SignupPage = () => {
             </Link>
           </p>
         </form>
-      </AuthCard>
+        </AuthCard>
+      </div>
     </main>
   );
 };

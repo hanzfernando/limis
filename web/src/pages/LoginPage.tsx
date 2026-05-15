@@ -14,6 +14,8 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import AuthCard from "../components/ui/auth-card";
 import PasswordField from "../components/ui/password-field";
+import AuthBrandPanel from "../components/AuthBrandPanel";
+import { Mail } from "lucide-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -59,18 +61,27 @@ const LoginPage = () => {
 
   return (
     <main className="w-full px-4">
-      <AuthCard title="Unlock Limis">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[1fr_0.92fr] lg:items-stretch">
+        <AuthBrandPanel />
+        <AuthCard
+          title="Unlock Limis"
+          description="Return to your encrypted archive with a calm, focused sign-in."
+        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="login-email">Email</Label>
-            <Input
-              id="login-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="pl-10"
+              />
+            </div>
           </div>
           <PasswordField
             id="login-password"
@@ -86,7 +97,7 @@ const LoginPage = () => {
           </Button>
 
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="rounded-md border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
               {error}
             </p>
           )}
@@ -98,7 +109,8 @@ const LoginPage = () => {
             </Link>
           </p>
         </form>
-      </AuthCard>
+        </AuthCard>
+      </div>
     </main>
   );
 };

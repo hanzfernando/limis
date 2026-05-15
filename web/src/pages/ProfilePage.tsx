@@ -6,7 +6,7 @@ import PageContainer from "../components/ui/page-container";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import PasswordField from "../components/ui/password-field";
 import { Button } from "../components/ui/button";
-import { ShieldCheck } from "lucide-react";
+import { KeyRound, ShieldCheck } from "lucide-react";
 
 const ProfilePage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -52,12 +52,16 @@ const ProfilePage = () => {
 
   return (
     <PageContainer className="flex items-center">
-      <Card className="mx-auto w-full max-w-md bg-card/90">
+      <Card className="archive-surface mx-auto w-full max-w-md overflow-hidden bg-card/90">
+        <div className="archive-line h-px" />
         <CardHeader>
-          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
+          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary">
             <ShieldCheck className="h-5 w-5" />
           </div>
           <CardTitle>Profile security</CardTitle>
+          <p className="text-sm leading-6 text-muted-foreground">
+            Rotate your access key to keep the archive guarded.
+          </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +95,8 @@ const ProfilePage = () => {
             )}
 
             <Button type="submit" className="w-full">
-              Change Password
+              <KeyRound className="h-4 w-4" />
+              Change password
             </Button>
           </form>
         </CardContent>

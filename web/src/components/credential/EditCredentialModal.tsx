@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Pencil } from "lucide-react";
 import type { VaultCredential } from "../../types/Vault";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import PasswordField from "../ui/password-field";
@@ -48,13 +48,16 @@ const EditCredentialModal = ({
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4 text-primary" /> Edit credential
           </DialogTitle>
+          <DialogDescription>
+            Update this record, then reseal the archive.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
             <Label htmlFor="edit-credential-title">Title *</Label>
             <Input id="edit-credential-title" type="text" name="title" value={formData.title} onChange={handleChange} required />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label htmlFor="edit-credential-username">Username</Label>
             <Input id="edit-credential-username" type="text" name="username" value={formData.username} onChange={handleChange} />
           </div>
@@ -64,18 +67,18 @@ const EditCredentialModal = ({
             value={formData.password || ""}
             onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
           />
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label htmlFor="edit-credential-url">URL</Label>
             <Input id="edit-credential-url" type="url" name="url" value={formData.url} onChange={handleChange} placeholder="https://example.com" />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label htmlFor="edit-credential-note">Note</Label>
             <Textarea id="edit-credential-note" name="note" value={formData.note} onChange={handleChange} rows={3} className="resize-none" />
           </div>
 
           <Button type="submit" className="mt-2 w-full">
-            Save Changes
+            Save changes
           </Button>
         </form>
       </DialogContent>

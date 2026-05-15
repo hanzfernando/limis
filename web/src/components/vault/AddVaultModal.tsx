@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { LockKeyhole } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import PasswordField from "../ui/password-field";
@@ -59,22 +59,25 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
           <DialogTitle className="flex items-center gap-2">
             <LockKeyhole className="h-4 w-4 text-primary" /> New vault
           </DialogTitle>
+          <DialogDescription>
+            Create a sealed space for credentials that belong together.
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="vault-name">Vault Name</Label>
-            <Input id="vault-name" name="name" value={vaultData.name} onChange={handleChange} required />
+            <Label htmlFor="vault-name">Vault name</Label>
+            <Input id="vault-name" name="name" value={vaultData.name} onChange={handleChange} required placeholder="Personal archive" />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="vault-desc">Vault Description</Label>
-            <Textarea id="vault-desc" name="desc" value={vaultData.desc} onChange={handleChange} />
+            <Label htmlFor="vault-desc">Description</Label>
+            <Textarea id="vault-desc" name="desc" value={vaultData.desc} onChange={handleChange} placeholder="What this vault protects" />
           </div>
 
           <PasswordField
             id="vault-master-password"
-            label="Master Password"
+            label="Master password"
             value={masterPassword}
             onChange={setMasterPassword}
             required
@@ -84,7 +87,7 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
 
           <div className="flex justify-end">
             <Button type="submit" disabled={!vaultData.name || !masterPassword || isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Vault"}
+              {isSubmitting ? "Sealing..." : "Seal vault"}
             </Button>
           </div>
         </form>

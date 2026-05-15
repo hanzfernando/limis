@@ -23,7 +23,7 @@ export default function ConfirmDeleteVaultModal({ vaultName, isOpen, onClose, on
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-destructive">Confirm deletion</DialogTitle>
+          <DialogTitle className="text-destructive">Delete sealed vault</DialogTitle>
           <DialogDescription>
             This action will permanently delete <strong>{vaultName}</strong> and all of its credentials.
           </DialogDescription>

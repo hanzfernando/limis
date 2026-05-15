@@ -6,7 +6,7 @@ import BrandMark from './BrandMark';
 
 const Topbar = () => {
   return (
-    <nav className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background/88 px-4 py-3 backdrop-blur md:px-6">
+    <nav className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background/88 px-4 py-3 backdrop-blur-xl md:px-6">
       <NavLink
         to="/"
         className="text-foreground transition hover:opacity-90"
@@ -23,7 +23,7 @@ const Topbar = () => {
             cn(buttonVariants({ variant: isActive ? "default" : "outline", size: "sm" }))
           }
         >
-          Login
+          Unlock
         </NavLink>
 
         <NavLink
@@ -32,7 +32,7 @@ const Topbar = () => {
             cn(buttonVariants({ variant: isActive ? "default" : "outline", size: "sm" }))
           }
         >
-          Signup
+          Create
         </NavLink>
       </div>
     </nav>

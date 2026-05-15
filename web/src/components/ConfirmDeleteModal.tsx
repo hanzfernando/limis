@@ -26,7 +26,7 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Delete <span className="text-destructive">{title}</span>?
+            Remove <span className="text-destructive">{title}</span>?
           </DialogTitle>
           <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
