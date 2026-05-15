@@ -1,32 +1,35 @@
-import { useState } from "react";
-import { Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
-import { Button } from "../components/ui/button";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "../components/ui/sidebar";
+import { cn } from "../lib/utils";
 
-export default function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+function MainSidebarTrigger() {
+  const { state } = useSidebar();
 
   return (
-    <div className="relative flex min-h-screen bg-background text-foreground">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-
-      {/* Mobile toggle button */}
-      {!sidebarOpen && (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          onClick={() => setSidebarOpen(true)}
-          className="absolute left-4 top-3 z-50 animate-fadeIn bg-card/90 backdrop-blur md:hidden"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
+    <SidebarTrigger
+      aria-label="Show sidebar"
+      title="Show sidebar"
+      className={cn(
+        "absolute left-4 top-3 z-30 h-9 w-9 animate-fadeIn rounded-md border-border bg-card/90 text-muted-foreground shadow-sm backdrop-blur hover:bg-accent hover:text-foreground",
+        state === "expanded" ? "md:hidden" : "md:inline-flex"
       )}
+    />
+  );
+}
 
-      <main className="relative h-screen flex-1 overflow-y-auto">
-        <Outlet />
-      </main>
-    </div>
+export default function MainLayout() {
+  return (
+    <SidebarProvider>
+      <div className="relative flex h-screen min-h-screen overflow-hidden bg-background text-foreground">
+        <Sidebar />
+
+        <MainSidebarTrigger />
+
+        <main className="relative h-screen min-w-0 flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

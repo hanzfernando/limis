@@ -13,8 +13,8 @@ export default function BrandMark({ className, showWordmark = true }: BrandMarkP
       </span>
       {showWordmark && (
         <span className="flex flex-col leading-none">
-          <span className="text-xl font-semibold normal-case text-foreground">Limis</span>
-          <span className="mt-1 text-[0.65rem] font-medium uppercase text-muted-foreground">
+          <span className="text-xl font-thin normal-case text-foreground">Limis</span>
+          <span className="mt-1 text-[0.65rem] font-medium uppercase text-muted-foreground tracking-wider">
             Guarded by Auri
           </span>
         </span>
