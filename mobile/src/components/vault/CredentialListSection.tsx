@@ -21,32 +21,41 @@ export function CredentialListSection({
 }: Props) {
   return (
     <View className="mt-6">
-      <View className="mb-3 flex-row items-center justify-between">
-        <Text className="text-base font-semibold text-[--foreground]">Credentials</Text>
+      <View className="mb-4 flex-row items-center justify-between gap-3">
+        <View>
+          <Text className="text-xs font-semibold uppercase tracking-widest text-[--muted-foreground]">
+            Decrypted records
+          </Text>
+          <Text className="mt-1 text-xl font-semibold text-[--foreground]">Credentials</Text>
+        </View>
         <View className="flex-row items-center gap-2">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Add credential"
             onPress={onAddCredential}
-            className="flex-row items-center gap-2 rounded-md bg-[--primary] px-3 py-2"
+            className="h-10 w-10 items-center justify-center rounded-md bg-[--primary]"
           >
-            <Ionicons name="add" size={16} color="#ffffff" />
-            <Text className="text-sm font-semibold text-[--primary-foreground]">Add</Text>
+            <Ionicons name="add" size={18} color="#fbf9ff" />
           </Pressable>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close vault"
             onPress={onCloseVault}
-            className="flex-row items-center gap-2 rounded-md border border-[--border] px-3 py-2"
+            className="h-10 w-10 items-center justify-center rounded-md border border-[--border] bg-[--card]"
           >
             <Ionicons name="lock-closed-outline" size={16} color={foregroundColor} />
-            <Text className="text-sm font-semibold text-[--foreground]">Close</Text>
           </Pressable>
         </View>
       </View>
 
       {credentials.length === 0 ? (
-        <Text className="text-sm text-[--muted-foreground]">No credentials found.</Text>
+        <View className="rounded-lg border border-dashed border-[--border] bg-[--card] p-5">
+          <Ionicons name="key-outline" size={22} color={mutedColor} />
+          <Text className="mt-3 text-sm font-semibold text-[--foreground]">No credentials found.</Text>
+          <Text className="mt-1 text-sm leading-5 text-[--muted-foreground]">
+            Add the first record to this open archive.
+          </Text>
+        </View>
       ) : (
         credentials.map((credential, idx) => (
           <Pressable
@@ -54,9 +63,12 @@ export function CredentialListSection({
             accessibilityRole="button"
             accessibilityLabel={`View ${credential.title ?? credential.name ?? `credential ${idx + 1}`}`}
             onPress={() => onSelectCredential(credential)}
-            className="mb-3 rounded-lg border border-[--border] bg-[--card] p-3"
+            className="mb-3 rounded-lg border border-[--border] bg-[--card] p-4"
           >
             <View className="flex-row items-center justify-between gap-3">
+              <View className="h-9 w-9 items-center justify-center rounded-md bg-[--secondary]">
+                <Ionicons name="key-outline" size={17} color={foregroundColor} />
+              </View>
               <View className="flex-1">
                 <Text className="text-sm font-semibold text-[--foreground]">
                   {credential.title ?? credential.name ?? `Item ${idx + 1}`}

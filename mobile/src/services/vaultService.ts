@@ -1,6 +1,7 @@
 import { apiRequest } from "@/src/services/apiClient";
 import type {
   CreateVaultPayload,
+  UpdateVaultMetadataPayload,
   UpdateVaultPayload,
   VaultDetail,
   VaultSummary,
@@ -31,6 +32,17 @@ export function createVaultRequest(payload: CreateVaultPayload) {
 export function updateVaultRequest(vaultId: string, payload: UpdateVaultPayload) {
   return apiRequest<VaultDetail>(`/vaults/${vaultId}`, {
     method: "PUT",
+    body: payload,
+    credentials: "include",
+  });
+}
+
+export function updateVaultMetadataRequest(
+  vaultId: string,
+  payload: UpdateVaultMetadataPayload
+) {
+  return apiRequest<VaultDetail>(`/vaults/${vaultId}/details`, {
+    method: "PATCH",
     body: payload,
     credentials: "include",
   });

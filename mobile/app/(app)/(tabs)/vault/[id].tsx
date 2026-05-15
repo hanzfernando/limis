@@ -6,10 +6,15 @@ import { useUnstableNativeVariable } from "nativewind";
 import { AddCredentialModal } from "@/src/components/vault/AddCredentialModal";
 import { CredentialDetailModal } from "@/src/components/vault/CredentialDetailModal";
 import { CredentialListSection } from "@/src/components/vault/CredentialListSection";
+import { EditVaultMetadataModal } from "@/src/components/vault/EditVaultMetadataModal";
 import { LockedVaultDetailView } from "@/src/components/vault/LockedVaultDetailView";
 import { VaultDetailHeader } from "@/src/components/vault/VaultDetailHeader";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
-import { fetchVaultByIdThunk, updateVaultThunk } from "@/src/store/slices/vaultSlice";
+import {
+  fetchVaultByIdThunk,
+  updateVaultMetadataThunk,
+  updateVaultThunk,
+} from "@/src/store/slices/vaultSlice";
 import type { CredentialFormState, VaultCredential } from "@/src/types/credential";
 import { emptyCredentialForm } from "@/src/types/credential";
 import type { VaultSecurityMetadata, VaultSessionSnapshot } from "@/src/types/vaultSecurity";
@@ -26,6 +31,29 @@ import {
   deriveVaultKeyFromPassword,
   encryptVaultDataWithKey,
 } from "@/src/utils/cryptoMobile";
+
+type BiometricDialogState =
+  | {
+      type: "enable";
+      title: string;
+      message: string;
+    }
+  | {
+      type: "enabling";
+      title: string;
+      message: string;
+    }
+  | {
+      type: "success";
+      title: string;
+      message: string;
+    }
+  | {
+      type: "error";
+      title: string;
+      message: string;
+    }
+  | null;
 
 export default function VaultDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -46,9 +74,14 @@ export default function VaultDetailScreen() {
   const [sessionSnapshot, setSessionSnapshot] = useState<VaultSessionSnapshot | null>(null);
   const [isBiometricRefreshModalOpen, setIsBiometricRefreshModalOpen] = useState(false);
   const [isBiometricUnlockStale, setIsBiometricUnlockStale] = useState(false);
+  const [isEditVaultMetadataOpen, setIsEditVaultMetadataOpen] = useState(false);
+  const [savingVaultMetadata, setSavingVaultMetadata] = useState(false);
+  const [editVaultMetadataError, setEditVaultMetadataError] = useState<string | null>(null);
+  const [biometricDialog, setBiometricDialog] = useState<BiometricDialogState>(null);
   const isUnlocked = credentials !== null;
-  const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#111827";
-  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
+  const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#181424";
+  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#756e83";
+  const primaryColor = useUnstableNativeVariable("--primary") ?? "#5d3c8f";
 
   const resetNewCredential = useCallback(() => {
     setNewCredential(emptyCredentialForm);
@@ -64,6 +97,10 @@ export default function VaultDetailScreen() {
     setDecrypting(false);
     setSavingCredential(false);
     setIsBiometricRefreshModalOpen(false);
+    setIsEditVaultMetadataOpen(false);
+    setSavingVaultMetadata(false);
+    setEditVaultMetadataError(null);
+    setBiometricDialog(null);
     resetNewCredential();
     if (id) {
       vaultSessionManager.lock(id);
@@ -133,19 +170,12 @@ export default function VaultDetailScreen() {
       setPassword("");
 
       if (canUseBiometricUnlock() && !nextMetadata.biometricEnabled) {
-        Alert.alert(
-          "Enable biometric unlock?",
-          "Use this phone's biometrics to unlock this vault next time. Your vault password remains the root secret.",
-          [
-            { text: "Not now", style: "cancel" },
-            {
-              text: "Enable",
-              onPress: () => {
-                void handleEnableBiometricUnlock();
-              },
-            },
-          ]
-        );
+        setBiometricDialog({
+          type: "enable",
+          title: "Enable biometric unlock?",
+          message:
+            "Use this phone's biometrics to unlock this vault next time. Your vault password remains the root secret.",
+        });
       }
     } catch (err: any) {
       Alert.alert("Decryption failed", err?.message ?? String(err));
@@ -176,7 +206,11 @@ export default function VaultDetailScreen() {
       setCredentials(Array.isArray(creds) ? (creds as VaultCredential[]) : []);
       setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
     } catch (err: any) {
-      Alert.alert("Unlock failed", err?.message ?? String(err));
+      setBiometricDialog({
+        type: "error",
+        title: "Biometric unlock failed",
+        message: err?.message ?? String(err),
+      });
       setCredentials(null);
     } finally {
       biometricKey?.fill(0);
@@ -189,21 +223,75 @@ export default function VaultDetailScreen() {
 
     const vaultKey = vaultSessionManager.getKey(vault.id);
     if (!vaultKey) {
-      Alert.alert("Vault locked", "Unlock with your vault password before enabling biometric unlock.");
+      setBiometricDialog({
+        type: "error",
+        title: "Vault locked",
+        message: "Unlock with your vault password before enabling biometric unlock.",
+      });
       return;
     }
 
     try {
+      setBiometricDialog({
+        type: "enabling",
+        title: "Enabling biometric unlock",
+        message: "Auri is asking the OS to protect a local copy of this vault key.",
+      });
       await enableBiometricUnlockForVault(vault.id, vaultKey, vault.salt);
       setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
-      Alert.alert("Biometric unlock enabled", "You can use biometrics the next time this vault is locked.");
+      setBiometricDialog({
+        type: "success",
+        title: "Biometric unlock enabled",
+        message: "You can use biometrics the next time this vault is locked.",
+      });
     } catch (err: any) {
-      Alert.alert("Could not enable biometric unlock", err?.message ?? String(err));
+      setBiometricDialog({
+        type: "error",
+        title: "Could not enable biometric unlock",
+        message: err?.message ?? String(err),
+      });
     }
   }
 
   function handleCloseVault() {
     lockVault();
+  }
+
+  function handleOpenEditVaultMetadata() {
+    setEditVaultMetadataError(null);
+    setIsEditVaultMetadataOpen(true);
+  }
+
+  function handleCloseEditVaultMetadata() {
+    if (savingVaultMetadata) return;
+    setIsEditVaultMetadataOpen(false);
+    setEditVaultMetadataError(null);
+  }
+
+  async function handleSaveVaultMetadata(payload: { name: string; desc?: string }) {
+    if (!vault) return;
+
+    setSavingVaultMetadata(true);
+    setEditVaultMetadataError(null);
+
+    try {
+      const result = await dispatch(updateVaultMetadataThunk({ vaultId: vault.id, payload }));
+
+      if (updateVaultMetadataThunk.fulfilled.match(result)) {
+        setIsEditVaultMetadataOpen(false);
+        return;
+      }
+
+      setEditVaultMetadataError(
+        typeof result.payload === "string"
+          ? result.payload
+          : "Could not update vault details."
+      );
+    } catch (err: any) {
+      setEditVaultMetadataError(err?.message ?? "Could not update vault details.");
+    } finally {
+      setSavingVaultMetadata(false);
+    }
   }
 
   function handleOpenAddCredential() {
@@ -375,7 +463,7 @@ export default function VaultDetailScreen() {
   if (loading && !vault) {
     return (
       <View className="flex-1 items-center justify-center bg-[--background]">
-        <ActivityIndicator size="large" color="#111827" />
+        <ActivityIndicator size="large" color={primaryColor} />
         <Text className="mt-2 text-[--muted-foreground]">Loading vault...</Text>
       </View>
     );
@@ -392,7 +480,8 @@ export default function VaultDetailScreen() {
   return (
     <View className="flex-1 bg-[--background]">
       <ScrollView
-        className="flex-1 p-4"
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}
         onScrollBeginDrag={() => {
           if (vault && isUnlocked) vaultSessionManager.recordActivity(vault.id);
         }}
@@ -406,6 +495,7 @@ export default function VaultDetailScreen() {
           foregroundColor={foregroundColor}
           onBack={router.back}
           onCloseVault={handleCloseVault}
+          onEditDetails={handleOpenEditVaultMetadata}
         />
 
         {credentials ? (
@@ -440,6 +530,26 @@ export default function VaultDetailScreen() {
         foregroundColor={foregroundColor}
         onClose={() => setIsBiometricRefreshModalOpen(false)}
       />
+
+      <BiometricActionModal
+        dialog={biometricDialog}
+        foregroundColor={foregroundColor}
+        primaryColor={primaryColor}
+        onClose={() => setBiometricDialog(null)}
+        onConfirmEnable={handleEnableBiometricUnlock}
+      />
+
+      {vault ? (
+        <EditVaultMetadataModal
+          visible={isEditVaultMetadataOpen}
+          vault={vault}
+          saving={savingVaultMetadata}
+          error={editVaultMetadataError}
+          foregroundColor={foregroundColor}
+          onClose={handleCloseEditVaultMetadata}
+          onSave={handleSaveVaultMetadata}
+        />
+      ) : null}
 
       <CredentialDetailModal
         credential={selectedCredential}
@@ -476,6 +586,101 @@ export default function VaultDetailScreen() {
   );
 }
 
+type BiometricActionModalProps = {
+  dialog: BiometricDialogState;
+  foregroundColor: string;
+  primaryColor: string;
+  onClose: () => void;
+  onConfirmEnable: () => void;
+};
+
+function BiometricActionModal({
+  dialog,
+  foregroundColor,
+  primaryColor,
+  onClose,
+  onConfirmEnable,
+}: BiometricActionModalProps) {
+  if (!dialog) return null;
+
+  const isBusy = dialog.type === "enabling";
+  const isError = dialog.type === "error";
+  const iconName =
+    dialog.type === "success"
+      ? "checkmark-circle-outline"
+      : isError
+        ? "alert-circle-outline"
+        : "finger-print-outline";
+  const iconColor = isError ? "#ef4444" : primaryColor;
+
+  return (
+    <Modal animationType="fade" transparent visible onRequestClose={isBusy ? undefined : onClose}>
+      <View className="flex-1 items-center justify-center px-5">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close biometric message"
+          disabled={isBusy}
+          className="absolute bottom-0 left-0 right-0 top-0 bg-black/45"
+          onPress={onClose}
+        />
+
+        <View className="w-full max-w-md rounded-lg border border-[--border] bg-[--card] p-5">
+          <View className="mb-4 flex-row items-start gap-3">
+            <View className="h-12 w-12 items-center justify-center rounded-md bg-[--secondary]">
+              {isBusy ? (
+                <ActivityIndicator color={primaryColor} />
+              ) : (
+                <Ionicons name={iconName} size={24} color={iconColor} />
+              )}
+            </View>
+            <View className="flex-1">
+              <Text className="text-lg font-semibold text-[--foreground]">{dialog.title}</Text>
+              <Text className="mt-1 text-sm leading-5 text-[--muted-foreground]">
+                {dialog.message}
+              </Text>
+            </View>
+          </View>
+
+          {dialog.type === "enable" ? (
+            <View className="flex-row gap-3">
+              <Pressable
+                accessibilityRole="button"
+                onPress={onClose}
+                className="h-12 flex-1 items-center justify-center rounded-md border border-[--border]"
+              >
+                <Text className="font-semibold text-[--foreground]">Not now</Text>
+              </Pressable>
+
+              <Pressable
+                accessibilityRole="button"
+                onPress={onConfirmEnable}
+                className="h-12 flex-1 flex-row items-center justify-center gap-2 rounded-md bg-[--primary]"
+              >
+                <Ionicons name="finger-print-outline" size={17} color="#fbf9ff" />
+                <Text className="font-semibold text-[--primary-foreground]">Enable</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={isBusy ? "Biometric setup in progress" : "Close biometric message"}
+              disabled={isBusy}
+              onPress={onClose}
+              className={`h-12 items-center justify-center rounded-md ${
+                isBusy ? "bg-[--secondary]" : "bg-[--primary]"
+              }`}
+            >
+              <Text className="font-semibold text-[--primary-foreground]">
+                {isBusy ? "Enabling..." : "Done"}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 type BiometricRefreshRequiredModalProps = {
   visible: boolean;
   foregroundColor: string;
@@ -498,7 +703,7 @@ function BiometricRefreshRequiredModal({
         />
         <View className="w-full max-w-md rounded-lg border border-[--border] bg-[--card] p-5">
           <View className="mb-4 flex-row items-start gap-3">
-            <View className="h-11 w-11 items-center justify-center rounded-full bg-[--muted]">
+            <View className="h-11 w-11 items-center justify-center rounded-md bg-[--secondary]">
               <Ionicons name="sync-outline" size={22} color={foregroundColor} />
             </View>
             <View className="flex-1">

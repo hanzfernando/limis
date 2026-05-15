@@ -9,11 +9,12 @@ interface CustomTabBarProps {
 }
 
 export default function CustomTabBar({ state, descriptors, navigation }: CustomTabBarProps) {
-  const idleIconColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
+  const idleIconColor = useUnstableNativeVariable("--muted-foreground") ?? "#756e83";
+  const activeIconColor = useUnstableNativeVariable("--primary") ?? "#5d3c8f";
 
   return (
     <View className="absolute bottom-6 left-4 right-4 items-center">
-      <View className="flex-row rounded-full border border-[--border] bg-[--card] px-6 py-3 shadow-lg">
+      <View className="flex-row rounded-lg border border-[--border] bg-[--card] px-3 py-2 shadow-lg">
         {state.routes.map((route: any, index: number) => {
           const isFocused = state.index === index;
 
@@ -30,12 +31,14 @@ export default function CustomTabBar({ state, descriptors, navigation }: CustomT
             <TouchableOpacity
               key={route.key}
               onPress={onPress}
-              className={`mx-4 rounded-full p-2 ${isFocused ? "bg-sky-500/20" : ""}`}
+              className={`mx-2 h-12 w-16 items-center justify-center rounded-md ${
+                isFocused ? "bg-[--secondary]" : ""
+              }`}
             >
               <Ionicons
                 name={iconName}
                 size={22}
-                color={isFocused ? "#0ea5e9" : idleIconColor}
+                color={isFocused ? activeIconColor : idleIconColor}
               />
             </TouchableOpacity>
           );

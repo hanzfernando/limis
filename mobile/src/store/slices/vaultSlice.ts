@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type {
   CreateVaultPayload,
+  UpdateVaultMetadataPayload,
   UpdateVaultPayload,
-  VaultDetail,
   VaultState,
   VaultSummary,
 } from "@/src/types/vault";
@@ -11,6 +11,7 @@ import {
   deleteVaultRequest,
   fetchVaultByIdRequest,
   fetchVaultsRequest,
+  updateVaultMetadataRequest,
   updateVaultRequest,
 } from "@/src/services/vaultService";
 
@@ -79,6 +80,24 @@ export const updateVaultThunk = createAsyncThunk(
   ) => {
     try {
       const response = await updateVaultRequest(vaultId, payload);
+      if (!response.data) {
+        return rejectWithValue("Vault was not returned.");
+      }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(toErrorMessage(error));
+    }
+  }
+);
+
+export const updateVaultMetadataThunk = createAsyncThunk(
+  "vaults/updateMetadata",
+  async (
+    { vaultId, payload }: { vaultId: string; payload: UpdateVaultMetadataPayload },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await updateVaultMetadataRequest(vaultId, payload);
       if (!response.data) {
         return rejectWithValue("Vault was not returned.");
       }
@@ -186,6 +205,27 @@ const vaultSlice = createSlice({
           typeof action.payload === "string"
             ? action.payload
             : "Could not update vault.";
+      })
+      .addCase(updateVaultMetadataThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateVaultMetadataThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        const detail = action.payload;
+        state.selected = detail;
+        state.items = state.items.map((item) =>
+          item.id === detail.id
+            ? { id: detail.id, name: detail.name, desc: detail.desc }
+            : item
+        );
+      })
+      .addCase(updateVaultMetadataThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          typeof action.payload === "string"
+            ? action.payload
+            : "Could not update vault details.";
       })
       .addCase(deleteVaultThunk.pending, (state) => {
         state.loading = true;

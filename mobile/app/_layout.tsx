@@ -28,7 +28,7 @@ function RootLayoutContent() {
   }, [backgroundColor]);
 
   return (
-    <View className="flex-1 bg-[--background]" style={vars(themeVars)}>
+    <View className="flex-1 bg-[--background]" style={[vars(themeVars), { backgroundColor }]}>
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} translucent backgroundColor="transparent" />
       <AuthGate>
         <Stack screenOptions={{ headerShown: false }}>

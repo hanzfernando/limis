@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useUnstableNativeVariable } from "nativewind";
+import { BrandMark } from "@/src/components/BrandMark";
 import { useAppDispatch, useAppSelector } from "@/src/hooks/redux";
 import { vaultSessionManager } from "@/src/services/vaultSessionManager";
 import { createVaultThunk } from "@/src/store/slices/vaultSlice";
@@ -23,8 +24,9 @@ export default function CreateVaultScreen() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#111827";
-  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
+  const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#181424";
+  const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#756e83";
+  const primaryColor = useUnstableNativeVariable("--primary") ?? "#5d3c8f";
 
   const isSubmitting = loading && !localError;
   const isDisabled = !name.trim() || !password || isSubmitting;
@@ -74,26 +76,35 @@ export default function CreateVaultScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-[--background]" contentContainerStyle={{ padding: 24 }}>
-      <View className="mb-6 flex-row items-center gap-3">
+    <ScrollView className="flex-1 bg-[--background]" contentContainerStyle={{ padding: 20, paddingBottom: 44 }}>
+      <View className="mb-7 flex-row items-center justify-between">
+        <BrandMark compact />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Go back"
           onPress={goBack}
-          className="h-10 w-10 items-center justify-center rounded-full border border-[--border] bg-[--card]"
+          className="h-10 w-10 items-center justify-center rounded-md border border-[--border] bg-[--card]"
         >
           <Ionicons name="arrow-back" size={20} color={foregroundColor} />
         </Pressable>
+      </View>
 
+      <View className="mb-5 rounded-lg border border-[--border] bg-[--card] p-5">
+        <View className="mb-3 h-11 w-11 items-center justify-center rounded-lg bg-[--secondary]">
+          <Ionicons name="archive-outline" size={21} color={primaryColor} />
+        </View>
         <View className="flex-1">
-          <Text className="text-3xl font-semibold text-[--foreground]">New Vault</Text>
-          <Text className="mt-1 text-sm text-[--muted-foreground]">
-            Create an encrypted vault and protect it with a password.
+          <Text className="text-xs font-semibold uppercase tracking-widest text-[--muted-foreground]">
+            Encrypted archive
+          </Text>
+          <Text className="mt-2 text-3xl font-semibold text-[--foreground]">New vault</Text>
+          <Text className="mt-3 text-sm leading-6 text-[--muted-foreground]">
+            Create a sealed space for credentials, recovery records, and private notes.
           </Text>
         </View>
       </View>
 
-      <View className="rounded-3xl border border-[--border] bg-[--card] p-5">
+      <View className="rounded-lg border border-[--border] bg-[--card] p-5">
         <View className="mb-4">
           <Text className="mb-2 text-sm text-[--muted-foreground]">Vault name</Text>
           <TextInput
@@ -104,7 +115,7 @@ export default function CreateVaultScreen() {
             }}
             placeholder="Personal vault"
             placeholderTextColor={mutedColor}
-            className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
+            className="rounded-md border border-[--input] bg-[--muted] px-4 py-3 text-[--foreground]"
           />
         </View>
 
@@ -120,7 +131,7 @@ export default function CreateVaultScreen() {
             placeholderTextColor={mutedColor}
             multiline
             textAlignVertical="top"
-            className="min-h-28 rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
+            className="min-h-28 rounded-md border border-[--input] bg-[--muted] px-4 py-3 text-[--foreground]"
           />
         </View>
 
@@ -135,21 +146,30 @@ export default function CreateVaultScreen() {
             }}
             placeholder="Choose a password"
             placeholderTextColor={mutedColor}
-            className="rounded-xl border border-[--input] bg-[--card] px-4 py-3 text-[--foreground]"
+            className="rounded-md border border-[--input] bg-[--muted] px-4 py-3 text-[--foreground]"
           />
         </View>
 
-        <Text className="text-sm text-[--muted-foreground]">
+        <View className="rounded-md border border-[--border] bg-[--background] p-3">
+          <View className="flex-row items-start gap-2">
+            <Ionicons name="shield-checkmark-outline" size={17} color={primaryColor} />
+            <Text className="flex-1 text-sm leading-5 text-[--muted-foreground]">
           The vault starts empty. You can add credentials after creating it.
-        </Text>
+            </Text>
+          </View>
+        </View>
 
-        {localError ? <Text className="mt-4 text-sm text-rose-400">{localError}</Text> : null}
+        {localError ? (
+          <Text className="mt-4 rounded-md border border-[--destructive] bg-[--destructive]/10 px-3 py-2 text-sm text-[--destructive]">
+            {localError}
+          </Text>
+        ) : null}
 
         <View className="mt-6 flex-row gap-3">
           <Pressable
             accessibilityRole="button"
             onPress={goBack}
-            className="flex-1 items-center justify-center rounded-xl border border-[--border] px-4 py-3"
+            className="h-12 flex-1 items-center justify-center rounded-md border border-[--border] px-4"
           >
             <Text className="font-semibold text-[--foreground]">Cancel</Text>
           </Pressable>
@@ -158,10 +178,11 @@ export default function CreateVaultScreen() {
             accessibilityRole="button"
             onPress={handleCreateVault}
             disabled={isDisabled}
-            className={`flex-1 items-center justify-center rounded-xl px-4 py-3 ${
-              isDisabled ? "bg-gray-300" : "bg-[--primary]"
+            className={`h-12 flex-1 flex-row items-center justify-center gap-2 rounded-md px-4 ${
+              isDisabled ? "bg-[--secondary]" : "bg-[--primary]"
             }`}
           >
+            <Ionicons name="lock-closed-outline" size={17} color={isDisabled ? mutedColor : "#fbf9ff"} />
             <Text className="font-semibold text-[--primary-foreground]">
               {isSubmitting ? "Creating..." : "Create vault"}
             </Text>
