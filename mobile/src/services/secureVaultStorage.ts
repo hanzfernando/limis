@@ -70,6 +70,7 @@ function defaultMetadata(vaultId: string): VaultSecurityMetadata {
     passwordReauthExpiresAt: null,
     autoLockTimeoutMs: DEFAULT_AUTO_LOCK_TIMEOUT_MS,
     passwordReauthTimeoutMs: DEFAULT_PASSWORD_REAUTH_TIMEOUT_MS,
+    vaultSalt: null,
     updatedAt: Date.now(),
   };
 }

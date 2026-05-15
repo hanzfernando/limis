@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Alert, AppState, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Alert, AppState, Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { useUnstableNativeVariable } from "nativewind";
 import { AddCredentialModal } from "@/src/components/vault/AddCredentialModal";
 import { CredentialDetailModal } from "@/src/components/vault/CredentialDetailModal";
@@ -15,6 +16,7 @@ import type { VaultSecurityMetadata, VaultSessionSnapshot } from "@/src/types/va
 import {
   canUseBiometricUnlock,
   enableBiometricUnlockForVault,
+  refreshBiometricUnlockForVault,
   unlockVaultWithBiometrics,
 } from "@/src/services/biometricUnlockService";
 import { getVaultSecurityMetadata } from "@/src/services/secureVaultStorage";
@@ -42,6 +44,8 @@ export default function VaultDetailScreen() {
   const [editCredential, setEditCredential] = useState<CredentialFormState>(emptyCredentialForm);
   const [securityMetadata, setSecurityMetadata] = useState<VaultSecurityMetadata | null>(null);
   const [sessionSnapshot, setSessionSnapshot] = useState<VaultSessionSnapshot | null>(null);
+  const [isBiometricRefreshModalOpen, setIsBiometricRefreshModalOpen] = useState(false);
+  const [isBiometricUnlockStale, setIsBiometricUnlockStale] = useState(false);
   const isUnlocked = credentials !== null;
   const foregroundColor = useUnstableNativeVariable("--foreground") ?? "#111827";
   const mutedColor = useUnstableNativeVariable("--muted-foreground") ?? "#6b7280";
@@ -59,6 +63,7 @@ export default function VaultDetailScreen() {
     setPassword("");
     setDecrypting(false);
     setSavingCredential(false);
+    setIsBiometricRefreshModalOpen(false);
     resetNewCredential();
     if (id) {
       vaultSessionManager.lock(id);
@@ -115,8 +120,16 @@ export default function VaultDetailScreen() {
       await vaultSessionManager.unlockWithVaultKey(vault.id, vaultKey, "password", securityMetadata ?? undefined);
 
       setCredentials(Array.isArray(creds) ? (creds as VaultCredential[]) : []);
-      const nextMetadata = await getVaultSecurityMetadata(vault.id);
+      let nextMetadata = await getVaultSecurityMetadata(vault.id);
+      if (nextMetadata.biometricEnabled) {
+        try {
+          nextMetadata = await refreshBiometricUnlockForVault(vault.id, vaultKey, vault.salt);
+        } catch {
+          // Password unlock should still succeed if the OS cannot update the protected biometric copy.
+        }
+      }
       setSecurityMetadata(nextMetadata);
+      setIsBiometricUnlockStale(false);
       setPassword("");
 
       if (canUseBiometricUnlock() && !nextMetadata.biometricEnabled) {
@@ -150,7 +163,15 @@ export default function VaultDetailScreen() {
     try {
       const { key, metadata } = await unlockVaultWithBiometrics(vault.id);
       biometricKey = key;
-      const creds = await decryptVaultDataWithKey(vault.ciphertext, vault.iv, biometricKey);
+      let creds: unknown;
+      try {
+        creds = await decryptVaultDataWithKey(vault.ciphertext, vault.iv, biometricKey);
+      } catch {
+        setIsBiometricUnlockStale(true);
+        setIsBiometricRefreshModalOpen(true);
+        setCredentials(null);
+        return;
+      }
       await vaultSessionManager.unlockWithVaultKey(vault.id, biometricKey, "biometric", metadata);
       setCredentials(Array.isArray(creds) ? (creds as VaultCredential[]) : []);
       setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
@@ -173,7 +194,7 @@ export default function VaultDetailScreen() {
     }
 
     try {
-      await enableBiometricUnlockForVault(vault.id, vaultKey);
+      await enableBiometricUnlockForVault(vault.id, vaultKey, vault.salt);
       setSecurityMetadata(await getVaultSecurityMetadata(vault.id));
       Alert.alert("Biometric unlock enabled", "You can use biometrics the next time this vault is locked.");
     } catch (err: any) {
@@ -401,7 +422,11 @@ export default function VaultDetailScreen() {
             password={password}
             decrypting={decrypting}
             biometricAvailable={canUseBiometricUnlock()}
-            biometricEnabled={Boolean(securityMetadata?.biometricEnabled)}
+            biometricEnabled={Boolean(
+              securityMetadata?.biometricEnabled &&
+                !isBiometricUnlockStale &&
+                (!securityMetadata.vaultSalt || securityMetadata.vaultSalt === vault.salt)
+            )}
             foregroundColor={foregroundColor}
             onPasswordChange={setPassword}
             onDecrypt={handleDecrypt}
@@ -409,6 +434,12 @@ export default function VaultDetailScreen() {
           />
         )}
       </ScrollView>
+
+      <BiometricRefreshRequiredModal
+        visible={isBiometricRefreshModalOpen}
+        foregroundColor={foregroundColor}
+        onClose={() => setIsBiometricRefreshModalOpen(false)}
+      />
 
       <CredentialDetailModal
         credential={selectedCredential}
@@ -442,5 +473,53 @@ export default function VaultDetailScreen() {
         onSave={handleEditCredential}
       />
     </View>
+  );
+}
+
+type BiometricRefreshRequiredModalProps = {
+  visible: boolean;
+  foregroundColor: string;
+  onClose: () => void;
+};
+
+function BiometricRefreshRequiredModal({
+  visible,
+  foregroundColor,
+  onClose,
+}: BiometricRefreshRequiredModalProps) {
+  return (
+    <Modal animationType="fade" transparent visible={visible} onRequestClose={onClose}>
+      <View className="flex-1 items-center justify-center px-5">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Close biometric refresh message"
+          className="absolute bottom-0 left-0 right-0 top-0 bg-black/45"
+          onPress={onClose}
+        />
+        <View className="w-full max-w-md rounded-lg border border-[--border] bg-[--card] p-5">
+          <View className="mb-4 flex-row items-start gap-3">
+            <View className="h-11 w-11 items-center justify-center rounded-full bg-[--muted]">
+              <Ionicons name="sync-outline" size={22} color={foregroundColor} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-lg font-semibold text-[--foreground]">Vault key needs refresh</Text>
+              <Text className="mt-1 text-sm leading-5 text-[--muted-foreground]">
+                This vault changed on another device or on the web. Re-enter your master password to unlock it and
+                update biometric unlock on this phone.
+              </Text>
+            </View>
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Enter master password"
+            onPress={onClose}
+            className="h-12 items-center justify-center rounded-md bg-[--primary]"
+          >
+            <Text className="font-semibold text-[--primary-foreground]">Enter master password</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
   );
 }
