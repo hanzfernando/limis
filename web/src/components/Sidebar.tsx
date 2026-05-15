@@ -37,8 +37,8 @@ export default function Sidebar() {
   const user = useSelector(selectAuthUser);
   const [showModal, setShowModal] = useState(false);
   const { logout, loading } = useLogout();
-  const { state, setMobileOpen } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { mobileOpen, state, setMobileOpen } = useSidebar();
+  const collapsed = state === "collapsed" && !mobileOpen;
 
   const handleLogout = () => setShowModal(true);
   const confirmLogout = () => {
@@ -87,7 +87,7 @@ export default function Sidebar() {
         </SidebarHeader>
 
         <SidebarContent className={cn("px-3", collapsed && "px-2")}>
-          {/* {!collapsed && (
+          {!collapsed && (
             <div className="mb-3 rounded-lg border border-border bg-background/45 p-3">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <LayoutGrid className="h-4 w-4 text-primary" />
@@ -97,7 +97,7 @@ export default function Sidebar() {
                 Calm access to your sealed credential archive.
               </p>
             </div>
-          )} */}
+          )}
 
           <SidebarGroup>
             <SidebarGroupLabel className={cn(collapsed && "sr-only")}>Workspace</SidebarGroupLabel>

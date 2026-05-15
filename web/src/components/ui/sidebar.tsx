@@ -60,6 +60,7 @@ function Sidebar({
   children,
 }: React.ComponentProps<"aside">) {
   const { open, mobileOpen, setMobileOpen, state } = useSidebar();
+  const displayState = mobileOpen ? "expanded" : state;
 
   return (
     <>
@@ -73,9 +74,9 @@ function Sidebar({
       )}
 
       <aside
-        data-state={state}
+        data-state={displayState}
         className={cn(
-          "group/sidebar fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-hidden border-r border-border bg-card/94 text-card-foreground shadow-xl backdrop-blur-xl transition-[transform,width,border-color] duration-300 md:sticky md:top-0 md:z-20 md:translate-x-0 md:shadow-none",
+          "group/sidebar fixed inset-y-0 left-0 z-50 flex h-screen w-[min(18rem,calc(100vw-1rem))] flex-col overflow-hidden border-r border-border bg-card/94 text-card-foreground shadow-xl backdrop-blur-xl transition-[transform,width,border-color] duration-300 md:sticky md:top-0 md:z-20 md:w-72 md:translate-x-0 md:shadow-none",
           open ? "md:w-72" : "md:w-16",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
           className
