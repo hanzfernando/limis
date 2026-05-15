@@ -1,7 +1,7 @@
 // services/vaultService.ts
 
 import { apiRequest } from "../utils/apiRequest";
-import type { EncryptedVaultPayload, UpdateVaultPayload, Vault, VaultDetail } from "../types/Vault";
+import type { EncryptedVaultPayload, UpdateVaultMetadataPayload, UpdateVaultPayload, Vault, VaultDetail } from "../types/Vault";
 import type { ServerResponse } from "../types/responses/ServerResponse";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -39,6 +39,14 @@ export function deleteVaultById(id: string): Promise<ServerResponse<null>> {
 export function updateVault(id: string, payload: UpdateVaultPayload): Promise<ServerResponse<VaultDetail>> {
   return apiRequest<VaultDetail>(`${API_BASE_URL}/vaults/${id}`, {
     method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateVaultMetadata(id: string, payload: UpdateVaultMetadataPayload): Promise<ServerResponse<VaultDetail>> {
+  return apiRequest<VaultDetail>(`${API_BASE_URL}/vaults/${id}/details`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });

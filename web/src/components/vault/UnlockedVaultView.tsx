@@ -1,4 +1,4 @@
-import { Archive, EyeOff, Fingerprint, KeyRound, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Archive, EyeOff, Fingerprint, KeyRound, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import type { Vault, VaultCredential } from "../../types/Vault";
 import CredentialList from "../credential/CredentialList";
 import { Button } from "../ui/button";
@@ -10,6 +10,7 @@ type Props = {
   onSelect: (cred: VaultCredential) => void;
   onDeleteRequest: () => void;
   onAddCredentialClick: () => void;
+  onEditDetails: () => void;
 };
 
 
@@ -19,7 +20,8 @@ const UnlockedVaultView = ({
   selectedCredentialId,
   onSelect,
   onDeleteRequest,
-  onAddCredentialClick
+  onAddCredentialClick,
+  onEditDetails
 }: Props) => {
   return (
     <>
@@ -37,6 +39,10 @@ const UnlockedVaultView = ({
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="outline" size="sm" onClick={onEditDetails}>
+                <Pencil className="h-4 w-4" />
+                Edit details
+              </Button>
               <div className="flex items-center gap-2 rounded-md border border-border bg-background/55 px-3 py-2 text-sm text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 text-primary" />
                 Active session

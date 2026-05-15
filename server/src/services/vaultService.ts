@@ -2,6 +2,7 @@ import Vault from '../models/vaultModel';
 import type {
   CreateVaultInput,
   DeleteVaultResult,
+  UpdateVaultMetadataInput,
   UpdateVaultPayloadInput,
   VaultDetailDto,
   VaultSummaryDto,
@@ -81,6 +82,29 @@ export const updateVaultPayload = async (
   vault.ciphertext = input.ciphertext;
   vault.iv = input.iv;
   vault.salt = input.salt;
+  await vault.save();
+
+  return {
+    id: vault._id.toString(),
+    name: vault.name,
+    desc: vault.desc,
+    ciphertext: vault.ciphertext,
+    iv: vault.iv,
+    salt: vault.salt,
+  };
+};
+
+export const updateVaultMetadata = async (
+  input: UpdateVaultMetadataInput
+): Promise<VaultDetailDto | null> => {
+  const vault = await Vault.findOne({ _id: input.vaultId, userId: input.userId });
+
+  if (!vault) {
+    return null;
+  }
+
+  vault.name = input.name.trim();
+  vault.desc = input.desc?.trim() ?? '';
   await vault.save();
 
   return {

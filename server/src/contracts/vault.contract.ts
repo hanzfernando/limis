@@ -26,3 +26,8 @@ export interface UpdateVaultPayloadContract {
   iv: string;
   salt: string;
 }
+
+export interface UpdateVaultMetadataContract {
+  name: string;
+  desc?: string;
+}

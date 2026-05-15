@@ -1,4 +1,4 @@
-import { Archive, EyeOff, Fingerprint, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import { Archive, EyeOff, Fingerprint, KeyRound, LockKeyhole, Pencil, ShieldCheck } from "lucide-react";
 import type { FormEvent } from "react";
 import type { Vault } from "../../types/Vault";
 import { Button } from "../ui/button";
@@ -14,6 +14,7 @@ type Props = {
   decrypting: boolean;
   decryptError: string;
   onDecrypt: (event: FormEvent<HTMLFormElement>) => void;
+  onEditDetails: () => void;
 };
 
 const LockedVaultView = ({
@@ -23,6 +24,7 @@ const LockedVaultView = ({
   decrypting,
   decryptError,
   onDecrypt,
+  onEditDetails,
 }: Props) => {
   return(
     <div className="flex min-h-[calc(100vh-3rem)] items-center justify-center px-0 py-6">
@@ -56,12 +58,23 @@ const LockedVaultView = ({
       <Card className="archive-surface relative w-full overflow-hidden bg-card/90 backdrop-blur">
         <div className="archive-line absolute left-8 right-8 top-0 h-px" />
         <CardHeader>
-          <CardTitle className="flex items-center gap-3 text-2xl sm:text-3xl">
-            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary">
-              <Archive className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 truncate">{vault.name}</span>
-          </CardTitle>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <CardTitle className="flex min-w-0 items-center gap-3 text-2xl sm:text-3xl">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
+                <Archive className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 truncate">{vault.name}</span>
+            </CardTitle>
+            <Button type="button" variant="outline" size="sm" onClick={onEditDetails}>
+              <Pencil className="h-4 w-4" />
+              Edit details
+            </Button>
+          </div>
+          {vault.desc && (
+            <p className="mt-4 border-t border-border pt-4 text-sm leading-6 text-muted-foreground">
+              {vault.desc}
+            </p>
+          )}
         </CardHeader>
         <CardContent>
         <form onSubmit={onDecrypt} className="space-y-5">

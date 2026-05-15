@@ -1,5 +1,6 @@
 import type {
   CreateVaultPayloadContract,
+  UpdateVaultMetadataContract,
   UpdateVaultPayloadContract,
   VaultDetailContract,
   VaultSummaryContract,
@@ -10,6 +11,11 @@ export interface CreateVaultInput extends CreateVaultPayloadContract {
 }
 
 export interface UpdateVaultPayloadInput extends UpdateVaultPayloadContract {
+  userId: string;
+  vaultId: string;
+}
+
+export interface UpdateVaultMetadataInput extends UpdateVaultMetadataContract {
   userId: string;
   vaultId: string;
 }

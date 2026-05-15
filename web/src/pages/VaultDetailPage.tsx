@@ -11,13 +11,14 @@ import AddCredentialModal from "../components/credential/AddCredentialModal";
 import { showToast } from "../utils/showToast";
 import EditCredentialModal from "../components/credential/EditCredentialModal";
 import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
-import { deleteVaultThunk, fetchVaultDetailThunk, updateVaultThunk } from "../state/thunks/vaultThunk";
+import { deleteVaultThunk, fetchVaultDetailThunk, updateVaultMetadataThunk, updateVaultThunk } from "../state/thunks/vaultThunk";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { selectVaultDetailById, selectVaultError } from "../state/slices/vaultSlice";
 import { Archive, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
+import EditVaultDetailsModal from "../components/vault/EditVaultDetailsModal";
 
-type VaultModalType = "delete-vault" | "add-credential" | "edit-credential" | "delete-credential" | null;
+type VaultModalType = "delete-vault" | "edit-vault-details" | "add-credential" | "edit-credential" | "delete-credential" | null;
 
 
 const VaultDetailPage = () => {
@@ -32,6 +33,8 @@ const VaultDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [decrypting, setDecrypting] = useState(false);
   const [decryptError, setDecryptError] = useState("");
+  const [editingVaultDetails, setEditingVaultDetails] = useState(false);
+  const [editVaultError, setEditVaultError] = useState<string | null>(null);
 
   const vaultFromStore = useAppSelector((state) =>
     id ? selectVaultDetailById(state, id) : undefined
@@ -106,6 +109,35 @@ const handleDeleteVault = async () => {
   navigate("/vaults");
   closeModal();
 };
+
+  const handleUpdateVaultDetails = async (payload: { name: string; desc?: string }) => {
+    if (!vault) return;
+
+    setEditingVaultDetails(true);
+    setEditVaultError(null);
+
+    try {
+      const res = await dispatch(updateVaultMetadataThunk(vault.id, payload));
+
+      if (res.success && "data" in res && res.data) {
+        setVault(res.data);
+        showToast("Vault details updated.", "success");
+        closeModal();
+        return;
+      }
+
+      const message = res.message || "Failed to update vault details.";
+      setEditVaultError(message);
+      showToast(message, "error");
+    } catch (err) {
+      console.error(err);
+      const message = "Unexpected error while updating vault details.";
+      setEditVaultError(message);
+      showToast(message, "error");
+    } finally {
+      setEditingVaultDetails(false);
+    }
+  };
 
 
   const handleAddCredential = async (newCredential: VaultCredential) => {
@@ -250,6 +282,7 @@ const handleDeleteVault = async () => {
             decrypting={decrypting}
             decryptError={decryptError}
             onDecrypt={handleDecrypt}
+            onEditDetails={() => openModal("edit-vault-details")}
           />
         ) : (
           <UnlockedVaultView
@@ -259,6 +292,7 @@ const handleDeleteVault = async () => {
             selectedCredentialId={selectedCredential?.id}
             onAddCredentialClick={() => openModal("add-credential")}
             onDeleteRequest={() => openModal("delete-vault")}
+            onEditDetails={() => openModal("edit-vault-details")}
           />
 
         )}
@@ -294,6 +328,17 @@ const handleDeleteVault = async () => {
           onClose={closeModal}
           onConfirm={handleDeleteVault}
           vaultName={vault.name}
+        />
+      )}
+
+      {activeModal === "edit-vault-details" && (
+        <EditVaultDetailsModal
+          isOpen
+          vault={vault}
+          onClose={closeModal}
+          onSubmit={handleUpdateVaultDetails}
+          isSubmitting={editingVaultDetails}
+          error={editVaultError}
         />
       )}
 
