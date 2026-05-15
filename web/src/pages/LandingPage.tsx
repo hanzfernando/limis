@@ -7,7 +7,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "../components/ui/c
 const principles = [
   {
     title: "Silent Protection",
-    desc: "Credentials sit behind calm controls, quiet feedback, and zero-knowledge encryption.",
+    desc: "Credentials sit behind controls, quiet feedback, and zero-knowledge encryption.",
     icon: ShieldCheck,
   },
   {
@@ -50,12 +50,14 @@ const LandingPage = () => {
             <p className="mb-4 text-sm font-medium uppercase text-muted-foreground">
               Privacy-first credential manager
             </p>
+
             <h1 className="max-w-4xl text-4xl font-semibold leading-tight text-foreground md:text-6xl">
-              A secure personal archive guarded by a silent intelligent owl.
+              Secure credential management, designed for individuals.
             </h1>
+
             <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
-              Limis gives credentials a calm, encrypted home. Auri, the owl-inspired guardian,
-              shapes a brand that feels wise, restrained, and quietly protective.
+              Limis is a privacy-focused credential manager built to securely store and organize
+              sensitive information with end-to-end encryption, thoughtful design, and distraction-free experience.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">

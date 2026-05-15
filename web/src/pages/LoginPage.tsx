@@ -65,7 +65,7 @@ const LoginPage = () => {
         <AuthBrandPanel />
         <AuthCard
           title="Unlock Limis"
-          description="Return to your encrypted archive with a calm, focused sign-in."
+          description="Return to your encrypted archive."
         >
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">

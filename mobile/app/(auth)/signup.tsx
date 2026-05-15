@@ -96,7 +96,7 @@ export default function SignupScreen() {
             <View className="flex-1">
               <Text className="text-xl font-semibold text-[--foreground]">Create archive</Text>
               <Text className="mt-1 text-sm text-[--muted-foreground]">
-                A calm first step into your Limis vaults.
+                First step into your Limis vaults.
               </Text>
             </View>
           </View>

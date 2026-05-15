@@ -75,7 +75,7 @@ export default function LoginScreen() {
               Unlock your silent archive.
             </Text>
             <Text className="mt-4 text-base leading-6 text-[--muted-foreground]">
-              Auri keeps your vaults sealed behind calm controls and zero-knowledge encryption.
+              Auri keeps your vaults sealed behind a zero-knowledge encryption.
             </Text>
           </View>
 
