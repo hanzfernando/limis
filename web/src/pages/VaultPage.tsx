@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { Archive, Plus, ShieldCheck } from "lucide-react";
 import SearchInput from "../components/SearchInput";
 import VaultList from "../components/vault/VaultList";
 import AddVaultModal from "../components/vault/AddVaultModal";
@@ -85,19 +85,34 @@ const handleAddVault = async (
 
   return (
     <PageContainer>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Vault</h1>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
+            <Archive className="h-5 w-5" />
+          </div>
+          <p className="text-sm font-medium uppercase text-muted-foreground">Encrypted archive</p>
+          <h1 className="mt-2 text-3xl font-semibold">Your vaults</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Auri keeps each vault sealed until you choose to unlock it.
+          </p>
+        </div>
         <Button
           type="button"
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2"
         >
-          <FaPlus />
-          <span>Add Vault</span>
+          <Plus className="h-4 w-4" />
+          <span>New vault</span>
         </Button>
       </div>
 
-      <SearchInput value={search} onChange={setSearch} />
+      <div className="mb-6 rounded-lg border border-border bg-card/70 p-4">
+        <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          <span>Search stays local to your current archive view.</span>
+        </div>
+        <SearchInput value={search} onChange={setSearch} placeholder="Search vaults..." />
+      </div>
 
       {loading && <p className="text-muted-foreground">Loading vaults...</p>}
       {error && <p className="text-destructive">{error}</p>}

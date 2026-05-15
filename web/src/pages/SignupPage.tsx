@@ -59,7 +59,7 @@ const SignupPage = () => {
 
   return (
     <main className="w-full px-4">
-      <AuthCard title="Sign Up">
+      <AuthCard title="Create your archive">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="signup-email">Email</Label>
@@ -93,7 +93,7 @@ const SignupPage = () => {
           />
 
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? "Signing up..." : "Sign Up"}
+            {isLoading ? "Creating..." : "Create archive"}
           </Button>
 
           {formErrors.length > 0 && (

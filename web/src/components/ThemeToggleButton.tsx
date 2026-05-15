@@ -11,7 +11,7 @@ export default function ThemeToggleButton() {
       type="button"
       variant="outline"
       onClick={toggleTheme}
-      className="relative h-8 w-14 rounded-full px-1"
+      className="relative h-8 w-14 rounded-full bg-background/70 px-1"
       aria-label="Toggle Theme"
     >
       <Moon className={`h-4 w-4 ${isDark ? "text-primary" : "text-muted-foreground"}`} />

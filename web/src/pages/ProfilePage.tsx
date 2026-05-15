@@ -6,6 +6,7 @@ import PageContainer from "../components/ui/page-container";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import PasswordField from "../components/ui/password-field";
 import { Button } from "../components/ui/button";
+import { ShieldCheck } from "lucide-react";
 
 const ProfilePage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -51,9 +52,12 @@ const ProfilePage = () => {
 
   return (
     <PageContainer className="flex items-center">
-      <Card className="items w-full max-w-md mx-auto">
+      <Card className="mx-auto w-full max-w-md bg-card/90">
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
+          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
+            <ShieldCheck className="h-5 w-5" />
+          </div>
+          <CardTitle>Profile security</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

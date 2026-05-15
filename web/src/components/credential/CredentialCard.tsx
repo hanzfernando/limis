@@ -1,4 +1,4 @@
-import { FaLock } from "react-icons/fa6";
+import { KeyRound } from "lucide-react";
 import type { VaultCredential } from "../../types/Vault";
 
 interface CredentialCardProps {
@@ -8,17 +8,19 @@ interface CredentialCardProps {
 
 const CredentialCard: React.FC<CredentialCardProps> = ({ credential, onClick }) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
-      className="cursor-pointer p-4 rounded-lg border border-[var(--color-border)] 
-      bg-[var(--color-surface)] hover:shadow-md transition"
+      className="w-full rounded-lg border border-border bg-card p-4 text-left transition-colors duration-200 hover:border-primary/45 hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <div className="flex items-center gap-3 mb-1 text-[var(--color-foreground)]">
-        <FaLock className="text-[var(--color-muted)]" size={16} />
-        <p className="font-semibold text-lg">{credential.title}</p>
+      <div className="mb-1 flex items-center gap-3 text-foreground">
+        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-primary">
+          <KeyRound className="h-4 w-4" />
+        </span>
+        <p className="text-lg font-semibold">{credential.title}</p>
       </div>
-      <p className="text-sm text-[var(--color-muted)]">{credential.username}</p>
-    </div>
+      <p className="ml-11 text-sm text-muted-foreground">{credential.username}</p>
+    </button>
   );
 };
 

@@ -51,7 +51,7 @@ const VerifyEmailPage = () => {
           <p
             className={
               success === true
-                ? "rounded-md border border-[var(--color-success)]/30 bg-[var(--color-success)]/10 p-3 text-[var(--color-success)]"
+                ? "rounded-md border border-emerald-500/30 bg-emerald-500/10 p-3 text-emerald-600 dark:text-emerald-300"
                 : success === false
                 ? "rounded-md border border-destructive/30 bg-destructive/10 p-3 text-destructive"
                 : ""

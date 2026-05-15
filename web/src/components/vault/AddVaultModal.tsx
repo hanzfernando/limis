@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaLock } from "react-icons/fa";
+import { LockKeyhole } from "lucide-react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Input } from "../ui/input";
@@ -57,7 +57,7 @@ const AddVaultModal = ({ isOpen, onClose, onSubmit, isSubmitting, error }: Props
       <DialogContent className="max-w-md animate-fadeIn">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FaLock /> New Vault
+            <LockKeyhole className="h-4 w-4 text-primary" /> New vault
           </DialogTitle>
         </DialogHeader>
 

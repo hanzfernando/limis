@@ -1,105 +1,160 @@
-import { LuClock, LuLock, LuCloudDownload } from "react-icons/lu";
+import { Archive, EyeOff, KeyRound, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
+import BrandMark from "../components/BrandMark";
+import { Button } from "../components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 
-const features = [
+const principles = [
   {
-    title: "Top-Notch Security",
-    desc: "Your data is encrypted on your device using AES-GCM and Argon2id, so only you can access it.",
-    icon: <LuLock />,
+    title: "Silent Protection",
+    desc: "Credentials sit behind calm controls, quiet feedback, and zero-knowledge encryption.",
+    icon: ShieldCheck,
   },
   {
-    title: "Easy to Use",
-    desc: "Clean, intuitive interface lets you manage your credentials effortlessly, no matter your skill level.",
-    icon: <LuClock />,
+    title: "Encrypted Archive",
+    desc: "Vaults are treated like personal records: ordered, private, and intentionally low-noise.",
+    icon: Archive,
   },
   {
-    title: "Access Anywhere",
-    desc: "Your vault syncs securely across devices, so you can get your passwords anytime, anywhere.",
-    icon: <LuCloudDownload />,
+    title: "Private by Default",
+    desc: "The interface keeps attention on access, clarity, and ownership instead of threat theater.",
+    icon: EyeOff,
   },
+];
+
+const colors = [
+  { name: "Deep Violet", value: "#15111F" },
+  { name: "Muted Indigo", value: "#5D3C8F" },
+  { name: "Auri Lavender", value: "#BDA6E4" },
+  { name: "Lavender Gray", value: "#A89DB8" },
+  { name: "Soft White", value: "#F7F6FB" },
 ];
 
 const LandingPage = () => {
   return (
-    <main className="flex flex-col min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)]">
-      {/* Hero */}
-      <section className="relative flex min-h-[90vh] flex-col-reverse md:flex-row items-center max-w-7xl mx-auto px-6 py-20 gap-12">
+    <main className="min-h-screen bg-background text-foreground">
+      <section className="relative isolate flex min-h-[calc(100vh-73px)] items-center overflow-hidden px-6 py-16">
+        <img
+          src="/hero_img.png"
+          alt=""
+          className="absolute inset-0 -z-20 h-full w-full object-cover opacity-[0.08] grayscale dark:opacity-[0.05]"
+        />
+        <div className="absolute inset-0 -z-10 bg-background/86" />
 
-        <div className="flex-1 text-center md:text-left animate-fadeIn">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
-            Limis — Your{" "}
-            <span className="bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand-hover)] bg-clip-text text-transparent">
-              secure
-            </span>{" "}
-            credential vault
-          </h1>
-          <p className="text-lg md:text-xl text-[var(--color-muted)] mb-10 max-w-lg mx-auto md:mx-0">
-            Never worry about lost passwords or data leaks again. Limis keeps your secrets locked tight with zero-knowledge encryption.
-          </p>
-          <div className="flex justify-center md:justify-start gap-4">
-            <Link
-              to="/auth/signup"
-              className="px-8 py-3 bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-lg font-semibold transition shadow-lg hover:shadow-xl"
-            >
-              Get Started Free
-            </Link>
-            <Link
-              to="/auth/login"
-              className="px-8 py-3 border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] font-semibold hover:bg-[var(--color-surface)] transition"
-            >
-              Log In
-            </Link>
+        <div className="mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
+          <div className="max-w-3xl animate-fadeIn">
+            <div className="mb-8">
+              <BrandMark />
+            </div>
+
+            <p className="mb-4 text-sm font-medium uppercase text-muted-foreground">
+              Privacy-first credential manager
+            </p>
+            <h1 className="max-w-4xl text-4xl font-semibold leading-tight text-foreground md:text-6xl">
+              A secure personal archive guarded by a silent intelligent owl.
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+              Limis gives credentials a calm, encrypted home. Auri, the owl-inspired guardian,
+              shapes a brand that feels wise, restrained, and quietly protective.
+            </p>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg">
+                <Link to="/auth/signup">
+                  <LockKeyhole className="h-4 w-4" />
+                  Create archive
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/auth/login">
+                  <KeyRound className="h-4 w-4" />
+                  Unlock Limis
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 flex justify-center">
-          <img
-            src="hero_img.png"
-            alt="Person using password manager"
-            className="hidden md:block rounded-xl shadow-2xl h-auto max-h-[650px] w-auto transform hover:scale-105 transition"
-          />
+          <div className="rounded-lg border border-border bg-card/75 p-4 shadow-[0_24px_90px_rgba(20,14,32,0.14)] backdrop-blur">
+            <div className="rounded-md border border-border bg-background/80 p-4">
+              <div className="mb-5 flex items-center justify-between border-b border-border pb-4">
+                <div>
+                  <p className="text-sm font-medium">Auri Archive</p>
+                  <p className="text-xs text-muted-foreground">3 guarded vaults</p>
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary text-primary">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {["Personal", "Work", "Recovery"].map((item, index) => (
+                  <div
+                    key={item}
+                    className="flex items-center justify-between rounded-md border border-border bg-card px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <LockKeyhole className="h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">{item}</p>
+                        <p className="text-xs text-muted-foreground">AES-GCM sealed</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{index + 4} items</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-24 px-6 max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold mb-16 text-center">
-          Why Choose <span className="text-[var(--color-brand)]">Limis?</span>
-        </h2>
-        <div className="grid gap-12 md:grid-cols-3">
-          {features.map((feature, i) => (
-            <div
-              key={i}
-              className="flex flex-col items-center md:items-start p-6 bg-[var(--color-surface)] rounded-xl shadow-sm hover:shadow-lg transition"
-            >
-              <div className="p-4 rounded-full bg-[var(--color-brand)]/10 text-[var(--color-brand)] mb-6">
-                {feature.icon}
-              </div>
-              <h3 className="text-2xl font-semibold mb-3">{feature.title}</h3>
-              <p className="text-[var(--color-muted)] leading-relaxed">{feature.desc}</p>
-            </div>
+      <section className="border-y border-border bg-card/35 px-6 py-16">
+        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
+          {principles.map(({ title, desc, icon: Icon }) => (
+            <Card key={title} className="bg-card/80">
+              <CardHeader>
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-xl">{title}</CardTitle>
+                <CardDescription className="leading-6">{desc}</CardDescription>
+              </CardHeader>
+            </Card>
           ))}
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="bg-gradient-to-r from-[var(--color-brand)] to-[var(--color-brand-hover)] py-20 px-6 text-center text-white">
-        <h2 className="text-4xl font-bold mb-6">Start Protecting Your Credentials Today</h2>
-        <p className="text-lg mb-8 max-w-2xl mx-auto opacity-90">
-          Join thousands of users who trust Limis to keep their secrets safe and easy to manage.
-        </p>
-        <Link
-          to="/auth/signup"
-          className="inline-block px-10 py-4 rounded-lg bg-white text-[var(--color-brand)] font-semibold transition transform hover:scale-105 shadow-lg"
-        >
-          Create Your Free Account
-        </Link>
-        <p className="mt-4 text-sm opacity-75">Free and open-source • Your data stays with you</p>
+      <section className="px-6 py-16">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-border bg-secondary text-primary">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <h2 className="text-3xl font-semibold">Minimal, atmospheric, and exact.</h2>
+            <p className="mt-4 leading-7 text-muted-foreground">
+              The Limis system uses restrained violet surfaces, fine borders, readable sans-serif
+              typography, and geometric owl symbolism. It avoids hacker cliches and keeps trust in
+              the details.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-5">
+            {colors.map((color) => (
+              <div key={color.name} className="rounded-lg border border-border bg-card p-3">
+                <div
+                  className="mb-3 h-20 rounded-md border border-border"
+                  style={{ backgroundColor: color.value }}
+                />
+                <p className="text-sm font-medium">{color.name}</p>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">{color.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-[var(--color-border)] text-center text-sm text-[var(--color-muted)]">
-        &copy; {new Date().getFullYear()} Limis. All rights reserved.
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
+        Limis. Guarded by Auri.
       </footer>
     </main>
   );

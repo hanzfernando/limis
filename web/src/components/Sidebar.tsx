@@ -1,6 +1,4 @@
-import { FaLock } from "react-icons/fa6";
-import { CgProfile } from "react-icons/cg";
-import { IoClose } from "react-icons/io5";
+import { LockKeyhole, PanelLeftClose, UserCircle } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectAuthUser } from "../state/slices/authSlice";
@@ -10,6 +8,7 @@ import { useLogout } from "../hooks/useLogout";
 import { useState } from "react";
 import ThemeToggleButton from "./ThemeToggleButton";
 import { Button } from "./ui/button";
+import BrandMark from "./BrandMark";
 
 interface SidebarProps {
   open: boolean;
@@ -22,8 +21,8 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
   const { logout, loading } = useLogout();
 
   const navItems = [
-    { label: "Vault", icon: FaLock, to: "/vaults" },
-    { label: "Profile", icon: CgProfile, to: "/profile" },
+    { label: "Archive", icon: LockKeyhole, to: "/vaults" },
+    { label: "Profile", icon: UserCircle, to: "/profile" },
   ];
 
   const handleLogout = () => setShowModal(true);
@@ -36,31 +35,28 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-screen w-64 border-r border-border
-        bg-card text-card-foreground
-        flex flex-col justify-between p-4 shadow-sm transition-transform duration-300
+        className={`fixed top-0 left-0 z-50 flex h-screen w-64 flex-col justify-between border-r border-border
+        bg-card/95 p-4 text-card-foreground shadow-sm backdrop-blur transition-transform duration-300
         transform ${open ? "translate-x-0" : "-translate-x-full"}
         md:relative md:translate-x-0`}
       >
         <div>
-          {/* Header */}
           <div className="mb-6 px-2">
-            <div className="flex justify-between items-center">
-              <h1 className="text-xl font-bold">Limis</h1>
+            <div className="flex items-center justify-between">
+              <BrandMark />
               <Button type="button" variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(false)}>
-                <IoClose size={20} />
+                <PanelLeftClose className="h-5 w-5" />
               </Button>
             </div>
-            <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <p className="mt-4 truncate text-sm text-muted-foreground">{user?.email}</p>
           </div>
 
-          {/* Navigation */}
           <nav className="space-y-1 text-sm mb-auto">
             {navItems.map(({ label, icon: Icon, to }) => (
               <NavLink
@@ -69,22 +65,21 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                 end
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center w-full px-3 py-2 rounded-md transition-colors
+                  `flex w-full items-center rounded-md px-3 py-2 transition-colors
                   ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "hover:bg-accent hover:text-accent-foreground"
                   }`
                 }
               >
-                <Icon size={18} className="mr-2" />
+                <Icon className="mr-2 h-4 w-4" />
                 {label}
               </NavLink>
             ))}
           </nav>
         </div>
 
-        {/* Footer */}
         <div className="mt-4 border-t border-border pt-4">
           <div className="mb-4 flex items-center justify-between">
             <span className="text-sm font-medium">Theme</span>

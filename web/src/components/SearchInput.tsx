@@ -1,4 +1,4 @@
-import { FaSearch } from "react-icons/fa";
+import { Search } from "lucide-react";
 import type { InputHTMLAttributes } from "react";
 import { Input } from "./ui/input";
 import { cn } from "../lib/utils";
@@ -19,11 +19,11 @@ const SearchInput = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-md border border-input bg-card px-3 py-2 text-foreground focus-within:ring-2 focus-within:ring-ring",
+        "flex items-center gap-2 rounded-md border border-input bg-background/80 px-3 py-2 text-foreground focus-within:ring-2 focus-within:ring-ring",
         className
       )}
     >
-      <FaSearch className="text-muted-foreground" size={14} />
+      <Search className="h-4 w-4 text-muted-foreground" />
       <Input
         type="text"
         value={value}

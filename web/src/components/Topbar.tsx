@@ -2,20 +2,16 @@ import { NavLink } from 'react-router-dom';
 import ThemeToggleButton from './ThemeToggleButton';
 import { buttonVariants } from './ui/button';
 import { cn } from '../lib/utils';
+import BrandMark from './BrandMark';
 
 const Topbar = () => {
   return (
-    <nav className="flex items-center justify-between border-b border-border bg-card px-4 py-4 shadow-sm md:px-6">
+    <nav className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-background/88 px-4 py-3 backdrop-blur md:px-6">
       <NavLink
         to="/"
-        className="flex items-center gap-3 text-2xl font-bold uppercase text-foreground transition hover:opacity-90"
+        className="text-foreground transition hover:opacity-90"
       >
-        <img
-          src="/limis_icon.svg" 
-          className="w-10 h-10"
-          alt="Limis logo"
-        />
-        Limis
+        <BrandMark />
       </NavLink>
 
       <div className="flex items-center gap-2 md:gap-3">

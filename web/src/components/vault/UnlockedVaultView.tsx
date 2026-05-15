@@ -1,4 +1,4 @@
-import { FiDatabase, FiPlus, FiTrash2 } from "react-icons/fi";
+import { Archive, Plus, Trash2 } from "lucide-react";
 import type { Vault, VaultCredential } from "../../types/Vault";
 import CredentialList from "../credential/CredentialList";
 import { Button } from "../ui/button";
@@ -21,22 +21,27 @@ const UnlockedVaultView = ({
 }: Props) => {
   return (
     <>
-      <section className="space-y-4 max-w-5xl mx-auto">
+      <section className="mx-auto max-w-5xl space-y-4">
         <header className="flex items-center gap-3">
-          <FiDatabase className="text-xl text-[var(--color-brand)]" />
-          <h1 className="text-3xl font-bold">{vault.name}</h1>
+          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-secondary text-primary">
+            <Archive className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-sm font-medium uppercase text-muted-foreground">Unlocked archive</p>
+            <h1 className="text-3xl font-semibold">{vault.name}</h1>
+          </div>
         </header>
 
-        {vault.desc && <p className="text-[var(--color-muted)]">{vault.desc}</p>}
+        {vault.desc && <p className="text-muted-foreground">{vault.desc}</p>}
 
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium">Vault Entries</h3>
           <Button
             type="button"
             onClick={onAddCredentialClick}
             className="flex items-center gap-2"
           >
-            <FiPlus />
+            <Plus className="h-4 w-4" />
             Add Credential
           </Button>
         </div>
@@ -44,7 +49,7 @@ const UnlockedVaultView = ({
         <CredentialList credentials={credentials} onSelect={onSelect} />
       </section>
 
-      <section className="mt-8 max-w-5xl mx-auto rounded-md border border-destructive p-4">
+      <section className="mx-auto mt-8 max-w-5xl rounded-lg border border-destructive/35 bg-card/50 p-4">
         <details>
           <summary className="cursor-pointer font-semibold text-destructive">
             Danger Zone
@@ -60,7 +65,7 @@ const UnlockedVaultView = ({
               onClick={onDeleteRequest}
               className="flex items-center gap-2"
             >
-              <FiTrash2 />
+            <Trash2 className="h-4 w-4" />
               Delete Vault
             </Button>
           </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RxHamburgerMenu } from "react-icons/rx";
+import { Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import { Outlet } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -8,7 +8,7 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] relative">
+    <div className="relative flex min-h-screen bg-background text-foreground">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
 
       {/* Mobile toggle button */}
@@ -18,13 +18,13 @@ export default function MainLayout() {
           variant="outline"
           size="icon"
           onClick={() => setSidebarOpen(true)}
-          className="absolute left-4 top-3 z-50 animate-fadeIn md:hidden"
+          className="absolute left-4 top-3 z-50 animate-fadeIn bg-card/90 backdrop-blur md:hidden"
         >
-          <RxHamburgerMenu size={24} />
+          <Menu className="h-5 w-5" />
         </Button>
       )}
 
-      <main className="flex-1 h-screen overflow-y-auto relative">
+      <main className="relative h-screen flex-1 overflow-y-auto">
         <Outlet />
       </main>
     </div>

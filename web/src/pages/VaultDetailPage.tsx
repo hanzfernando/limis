@@ -203,8 +203,8 @@ const handleDeleteVault = async () => {
 
 
   return (
-    <div className="flex flex-col lg:flex-row w-full min-h-screen">
-      <div className="flex-1 mt-12 p-6 space-y-6 overflow-x-hidden">
+    <div className="flex min-h-screen w-full flex-col lg:flex-row">
+      <div className="mt-12 flex-1 space-y-6 overflow-x-hidden p-6">
        
 
         {!credentials ? (
@@ -232,7 +232,7 @@ const handleDeleteVault = async () => {
         <div
           className={`
             lg:static lg:w-[24rem] lg:flex-shrink-0
-            bg-[var(--color-surface)] border-t lg:border-t-0 lg:border-l border-[var(--color-border)] shadow-xl
+            border-t border-border bg-card shadow-xl lg:border-l lg:border-t-0
             transform transition-transform duration-300 ease-in-out
             ${selectedCredential ? "translate-y-0" : "translate-y-full"}
             lg:translate-y-0

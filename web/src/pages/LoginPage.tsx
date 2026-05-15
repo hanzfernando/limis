@@ -59,7 +59,7 @@ const LoginPage = () => {
 
   return (
     <main className="w-full px-4">
-      <AuthCard title="Login">
+      <AuthCard title="Unlock Limis">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="login-email">Email</Label>
@@ -82,7 +82,7 @@ const LoginPage = () => {
           />
 
           <Button type="submit" className="w-full">
-            Log In
+            Unlock archive
           </Button>
 
           {error && (
@@ -94,7 +94,7 @@ const LoginPage = () => {
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link to="/auth/signup" className="font-medium text-primary hover:underline">
-              Sign up
+              Create an archive
             </Link>
           </p>
         </form>
