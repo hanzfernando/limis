@@ -1,4 +1,19 @@
-import { Copy, Eye, EyeOff, Pencil, Trash2, X } from "lucide-react";
+import {
+  Copy,
+  Eye,
+  EyeOff,
+  FileText,
+  Fingerprint,
+  Globe2,
+  KeyRound,
+  LockKeyhole,
+  Pencil,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import type { VaultCredential } from "../../types/Vault";
 import { showToast } from "../../utils/showToast";
@@ -11,6 +26,47 @@ type Props = {
   onDelete: () => void;
 };
 
+type DetailFieldProps = {
+  label: string;
+  value?: string;
+  icon: ReactNode;
+  monospace?: boolean;
+  children?: ReactNode;
+  onCopy?: () => void;
+};
+
+function DetailField({ label, value, icon, monospace, children, onCopy }: DetailFieldProps) {
+  if (!value && !children) return null;
+
+  return (
+    <section className="rounded-lg border border-border bg-background/55 p-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground">
+          <span className="text-primary">{icon}</span>
+          {label}
+        </div>
+        {onCopy && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onCopy}
+            className="h-7 w-7 text-muted-foreground hover:text-primary"
+            aria-label={`Copy ${label.toLowerCase()}`}
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+      {children ?? (
+        <p className={monospace ? "break-all font-mono text-sm" : "break-words text-sm"}>
+          {value}
+        </p>
+      )}
+    </section>
+  );
+}
+
 const CredentialDetailPanel = ({ credential, onClose, onEdit, onDelete }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,100 +77,116 @@ const CredentialDetailPanel = ({ credential, onClose, onEdit, onDelete }: Props)
   };
 
   return (
-    <div className="relative h-full flex-shrink-0 overflow-y-auto border-l border-border bg-card shadow-lg">
-      <div className="flex items-start justify-between gap-4 border-b border-border p-4">
-        <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold">{credential.title}</h2>
-          <p className="truncate text-sm text-muted-foreground">{credential.id}</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button type="button" variant="ghost" size="icon" onClick={onEdit} aria-label="Edit credential">
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button type="button" variant="ghost" size="icon" onClick={onDelete} aria-label="Delete credential">
-            <Trash2 className="h-4 w-4 text-destructive" />
-          </Button>
+    <aside className="relative h-full overflow-y-auto bg-card">
+      <div className="archive-line absolute left-6 right-6 top-0 h-px" />
+
+      <header className="border-b border-border p-5">
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
+              <KeyRound className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-medium uppercase text-muted-foreground">Credential record</p>
+              <h2 className="mt-1 truncate text-xl font-semibold">{credential.title}</h2>
+            </div>
+          </div>
           <Button type="button" variant="ghost" size="icon" onClick={onClose} aria-label="Close panel">
             <X className="h-4 w-4" />
           </Button>
         </div>
-      </div>
 
-      <div className="space-y-4 p-4">
-        <div>
-          <label className="mb-1 block text-sm text-muted-foreground">Username</label>
-          <div className="relative">
-            <div className="rounded-md border border-border bg-background/80 px-3 py-2 pr-10 font-mono text-sm">
-              {credential.username}
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => copyValue(credential.username, "Username")}
-              className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-              aria-label="Copy username"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button type="button" variant="outline" onClick={onEdit} className="justify-start">
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onDelete}
+            className="justify-start border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+            Remove
+          </Button>
+        </div>
+      </header>
+
+      <div className="space-y-4 p-5">
+        <div className="rounded-lg border border-border bg-secondary/45 p-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            This record is visible only inside the current unlocked session.
           </div>
         </div>
 
-        <div>
-          <label className="mb-1 block text-sm text-muted-foreground">Password</label>
-          <div className="relative">
-            <div className="rounded-md border border-border bg-background/80 px-3 py-2 pr-20 font-mono text-sm">
-              {showPassword ? credential.password : "********"}
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-9 top-1/2 h-8 w-8 -translate-y-1/2"
-              aria-label="Toggle password visibility"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => copyValue(credential.password, "Password")}
-              className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-              aria-label="Copy password"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
+        <DetailField
+          label="Username"
+          value={credential.username || "No username saved"}
+          icon={<UserRound className="h-4 w-4" />}
+          onCopy={credential.username ? () => copyValue(credential.username, "Username") : undefined}
+        />
+
+        <DetailField
+          label="Password"
+          value={credential.password ? (showPassword ? credential.password : "********") : "No password saved"}
+          icon={<LockKeyhole className="h-4 w-4" />}
+          monospace
+          onCopy={credential.password ? () => copyValue(credential.password, "Password") : undefined}
+        >
+          <div className="flex items-center gap-2">
+            <p className="min-w-0 flex-1 break-all font-mono text-sm">
+              {credential.password ? (showPassword ? credential.password : "********") : "No password saved"}
+            </p>
+            {credential.password && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            )}
           </div>
-        </div>
+        </DetailField>
 
         {credential.url && (
-          <div>
-            <label className="mb-1 block text-sm text-muted-foreground">URL</label>
-            <div className="break-all rounded-md border border-border bg-background/80 px-3 py-2 text-sm">
-              <a
-                href={credential.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                {credential.url}
-              </a>
-            </div>
-          </div>
+          <DetailField
+            label="URL"
+            value={credential.url}
+            icon={<Globe2 className="h-4 w-4" />}
+            onCopy={() => copyValue(credential.url, "URL")}
+          >
+            <a
+              href={credential.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="break-all text-sm text-primary hover:underline"
+            >
+              {credential.url}
+            </a>
+          </DetailField>
         )}
 
         {credential.note && (
-          <div>
-            <label className="mb-1 block text-sm text-muted-foreground">Note</label>
-            <div className="whitespace-pre-wrap rounded-md border border-border bg-background/80 px-3 py-2 text-sm">
-              {credential.note}
-            </div>
-          </div>
+          <DetailField label="Note" value={credential.note} icon={<FileText className="h-4 w-4" />}>
+            <p className="whitespace-pre-wrap text-sm leading-6 text-foreground/90">{credential.note}</p>
+          </DetailField>
         )}
+
+        <DetailField
+          label="Record fingerprint"
+          value={credential.id}
+          icon={<Fingerprint className="h-4 w-4" />}
+          monospace
+          onCopy={() => copyValue(credential.id, "Record ID")}
+        />
       </div>
-    </div>
+    </aside>
   );
 };
 

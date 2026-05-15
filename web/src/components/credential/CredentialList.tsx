@@ -4,31 +4,32 @@ import type { VaultCredential } from "../../types/Vault";
 
 interface CredentialListProps {
   credentials: VaultCredential[];
+  selectedCredentialId?: string;
   onSelect?: (credential: VaultCredential) => void;
 }
 
-const CredentialList: React.FC<CredentialListProps> = ({ credentials, onSelect }) => {
+const CredentialList: React.FC<CredentialListProps> = ({ credentials, selectedCredentialId, onSelect }) => {
   if (credentials.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        No credentials yet. Add one when you are ready.
-      </p>
+      <div className="archive-surface rounded-lg bg-card/70 p-8 text-center">
+        <p className="text-sm font-medium">No records sealed here yet.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Add the first credential when this archive is ready to hold it.
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="mt-6 flex flex-wrap gap-4">
+    <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {credentials.map((cred, idx) => {
-        const isLastOdd =
-          credentials.length % 2 === 1 && idx === credentials.length - 1;
-
         return (
-          <div
+          <CredentialCard
             key={cred.id || idx}
-            className={isLastOdd ? "w-full" : "w-full sm:w-[calc(50%-0.5rem)]"}
-          >
-            <CredentialCard credential={cred} onClick={() => onSelect?.(cred)} />
-          </div>
+            credential={cred}
+            active={selectedCredentialId === cred.id}
+            onClick={() => onSelect?.(cred)}
+          />
         );
       })}
     </div>

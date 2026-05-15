@@ -14,8 +14,10 @@ import ConfirmDeleteModal from "../components/ConfirmDeleteModal";
 import { deleteVaultThunk, fetchVaultDetailThunk, updateVaultThunk } from "../state/thunks/vaultThunk";
 import { useAppDispatch, useAppSelector } from "../hooks/useRedux";
 import { selectVaultDetailById, selectVaultError } from "../state/slices/vaultSlice";
+import { Archive, AlertTriangle, Loader2 } from "lucide-react";
+import { Button } from "../components/ui/button";
 
-type VaultModalType = "delete-vault" | "add-credential" | "edit-credential" | "delete-credential" |null;
+type VaultModalType = "delete-vault" | "add-credential" | "edit-credential" | "delete-credential" | null;
 
 
 const VaultDetailPage = () => {
@@ -191,25 +193,58 @@ const handleDeleteVault = async () => {
 
 
   if (loading) {
-    return <p className="p-6 text-muted-foreground">Loading vault...</p>;
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="archive-surface flex items-center gap-3 rounded-lg bg-card/85 px-5 py-4 text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          Loading sealed archive...
+        </div>
+      </div>
+    );
   }
   if (reduxError) {
-    return <p className="p-6 text-destructive">{reduxError}</p>;
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="archive-surface max-w-md rounded-lg bg-card/85 p-5">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/10 text-destructive">
+            <AlertTriangle className="h-5 w-5" />
+          </div>
+          <h1 className="text-lg font-semibold">Archive unavailable</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{reduxError}</p>
+          <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/vaults")}>
+            Back to archive
+          </Button>
+        </div>
+      </div>
+    );
   }
   if (!vault) {
-    return <p className="p-6 text-destructive">Vault not found.</p>;
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="archive-surface max-w-md rounded-lg bg-card/85 p-5">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-primary">
+            <Archive className="h-5 w-5" />
+          </div>
+          <h1 className="text-lg font-semibold">Vault not found</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This archive may have been moved or removed.
+          </p>
+          <Button type="button" variant="outline" className="mt-5" onClick={() => navigate("/vaults")}>
+            Back to archive
+          </Button>
+        </div>
+      </div>
+    );
   }
 
 
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row">
-      <div className="mt-12 flex-1 space-y-6 overflow-x-hidden p-6">
-       
-
+    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden lg:flex-row">
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
         {!credentials ? (
           <LockedVaultView
-          vault={vault}
+            vault={vault}
             password={password}
             setPassword={setPassword}
             decrypting={decrypting}
@@ -221,6 +256,7 @@ const handleDeleteVault = async () => {
             vault={vault}
             credentials={credentials}
             onSelect={setSelectedCredential}
+            selectedCredentialId={selectedCredential?.id}
             onAddCredentialClick={() => openModal("add-credential")}
             onDeleteRequest={() => openModal("delete-vault")}
           />
@@ -231,28 +267,24 @@ const handleDeleteVault = async () => {
       {selectedCredential && (
         <div
           className={`
-            lg:static lg:w-[24rem] lg:flex-shrink-0
-            border-t border-border bg-card shadow-xl lg:border-l lg:border-t-0
+            fixed inset-x-0 bottom-0 max-h-[82vh]
+            border-t border-border bg-card/95 shadow-2xl backdrop-blur-xl
             transform transition-transform duration-300 ease-in-out
             ${selectedCredential ? "translate-y-0" : "translate-y-full"}
-            lg:translate-y-0
-            md:h-[70%] lg:h-auto
             z-40
+            lg:static lg:h-full lg:max-h-none lg:w-[27rem] lg:flex-shrink-0 lg:translate-y-0 lg:border-l lg:border-t-0
           `}
         >
-          
-            <CredentialDetailPanel
-              credential={selectedCredential}
-              onClose={() => setSelectedCredential(null)}
-              onEdit={() => {
-                openModal("edit-credential");
-              }}
-              onDelete={() => {
-                openModal("delete-credential");
-              }}
-
-            />
-          
+          <CredentialDetailPanel
+            credential={selectedCredential}
+            onClose={() => setSelectedCredential(null)}
+            onEdit={() => {
+              openModal("edit-credential");
+            }}
+            onDelete={() => {
+              openModal("delete-credential");
+            }}
+          />
         </div>
       )}
 

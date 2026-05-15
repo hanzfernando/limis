@@ -88,12 +88,17 @@ const handleAddVault = async (
     <PageContainer>
       <div className="archive-surface mb-6 overflow-hidden rounded-lg bg-card/80 p-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary">
-              <Archive className="h-5 w-5" />
+          <div className="flex flex-col">
+            <div className="flex items-center">
+              <div className="mr-4 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-primary">
+                <Archive className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-medium uppercase text-muted-foreground">Encrypted archive</p>
+                <h1 className="text-3xl font-semibold">Your vaults</h1>
+              </div>
+              
             </div>
-            <p className="text-sm font-medium uppercase text-muted-foreground">Encrypted archive</p>
-            <h1 className="mt-2 text-3xl font-semibold">Your vaults</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
               Auri keeps each vault sealed until you choose to unlock it.
             </p>
