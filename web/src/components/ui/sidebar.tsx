@@ -76,7 +76,7 @@ function Sidebar({
         data-state={state}
         className={cn(
           "group/sidebar fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-hidden border-r border-border bg-card/94 text-card-foreground shadow-xl backdrop-blur-xl transition-[transform,width,border-color] duration-300 md:sticky md:top-0 md:z-20 md:translate-x-0 md:shadow-none",
-          open ? "md:w-72" : "md:w-0 md:border-transparent",
+          open ? "md:w-72" : "md:w-16",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
           className
         )}

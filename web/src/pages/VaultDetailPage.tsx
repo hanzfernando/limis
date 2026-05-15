@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import type { VaultDetail, VaultCredential } from "../types/Vault";
 import { decryptVaultData, reencryptVault } from "../utils/cryptoUtils";
@@ -17,6 +17,7 @@ import { selectVaultDetailById, selectVaultError } from "../state/slices/vaultSl
 import { Archive, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import EditVaultDetailsModal from "../components/vault/EditVaultDetailsModal";
+import PageContainer from "../components/ui/page-container";
 
 type VaultModalType = "delete-vault" | "edit-vault-details" | "add-credential" | "edit-credential" | "delete-credential" | null;
 
@@ -45,6 +46,9 @@ const VaultDetailPage = () => {
 
   const [activeModal, setActiveModal] = useState<VaultModalType>(null);
   const [selectedCredential, setSelectedCredential] = useState<VaultCredential | null>(null);
+  const [renderedCredential, setRenderedCredential] = useState<VaultCredential | null>(null);
+  const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
+  const detailPanelCloseTimeoutRef = useRef<number | null>(null);
 
   const openModal = (type: Exclude<VaultModalType, null>) => setActiveModal(type);
   const closeModal = () => setActiveModal(null);
@@ -70,6 +74,36 @@ const VaultDetailPage = () => {
   useEffect(() => {
     if (!credentials) setSelectedCredential(null);
   }, [credentials]);
+
+  useEffect(() => {
+    if (detailPanelCloseTimeoutRef.current) {
+      window.clearTimeout(detailPanelCloseTimeoutRef.current);
+      detailPanelCloseTimeoutRef.current = null;
+    }
+
+    if (!selectedCredential) {
+      setIsDetailPanelOpen(false);
+      return;
+    }
+
+    setRenderedCredential(selectedCredential);
+    const frame = window.requestAnimationFrame(() => setIsDetailPanelOpen(true));
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedCredential]);
+
+  const closeDetailPanel = () => {
+    setIsDetailPanelOpen(false);
+    if (detailPanelCloseTimeoutRef.current) {
+      window.clearTimeout(detailPanelCloseTimeoutRef.current);
+    }
+
+    detailPanelCloseTimeoutRef.current = window.setTimeout(() => {
+      setSelectedCredential(null);
+      setRenderedCredential(null);
+      detailPanelCloseTimeoutRef.current = null;
+    }, 320);
+  };
 
 
   const handleDecrypt = async (event: FormEvent<HTMLFormElement>) => {
@@ -183,7 +217,7 @@ const handleDeleteVault = async () => {
         setCredentials(updatedList);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
         showToast("Credential updated successfully.", "success");
-        setSelectedCredential(null)
+        closeDetailPanel();
       } else {
         showToast("Failed to update credential.", "error");
       }
@@ -196,12 +230,14 @@ const handleDeleteVault = async () => {
   }
 
   const handleDeleteCredential = async () => {
-    if (!vault || !password || !credentials || !selectedCredential) {
+    const credentialToDelete = renderedCredential ?? selectedCredential;
+
+    if (!vault || !password || !credentials || !credentialToDelete) {
       showToast("Password is required to update vault.", "error");
       return;
     }
 
-    const updatedList = credentials.filter((c) => c.id !== selectedCredential.id);
+    const updatedList = credentials.filter((c) => c.id !== credentialToDelete.id);
 
     try {
       const payload = await reencryptVault(vault.name, vault.desc || "", updatedList, password);
@@ -211,7 +247,7 @@ const handleDeleteVault = async () => {
         setCredentials(updatedList);
         setVault((prev) => (prev ? { ...prev, ...payload } : prev));
         showToast("Credential deleted successfully.", "success");
-        setSelectedCredential(null)
+        closeDetailPanel();
       } else {
         showToast("Failed to delete credential.", "error");
       }
@@ -272,8 +308,8 @@ const handleDeleteVault = async () => {
 
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-col overflow-hidden lg:flex-row">
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+    <>
+    <PageContainer>
         {!credentials ? (
           <LockedVaultView
             vault={vault}
@@ -289,29 +325,46 @@ const handleDeleteVault = async () => {
             vault={vault}
             credentials={credentials}
             onSelect={setSelectedCredential}
-            selectedCredentialId={selectedCredential?.id}
+            selectedCredentialId={renderedCredential?.id}
             onAddCredentialClick={() => openModal("add-credential")}
             onDeleteRequest={() => openModal("delete-vault")}
             onEditDetails={() => openModal("edit-vault-details")}
           />
-
         )}
-      </div>
-      {/* Slide-in Panel */}
-      {selectedCredential && (
+    </PageContainer>
+      {/* Backdrop — desktop only, dims the main content when panel is open */}
+      {renderedCredential && (
+        <div
+          aria-hidden="true"
+          onClick={closeDetailPanel}
+          className={`
+            hidden lg:block
+            fixed inset-0 z-30
+            bg-black/20 backdrop-blur-[1px]
+            transition-opacity duration-300
+            ${isDetailPanelOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
+          `}
+        />
+      )}
+
+      {/* Slide-in Panel — slides up from bottom on mobile, in from right on desktop */}
+      {renderedCredential && (
         <div
           className={`
-            fixed inset-x-0 bottom-0 max-h-[82vh]
+            fixed z-40
+            inset-x-0 bottom-0 max-h-[82vh]
             border-t border-border bg-card/95 shadow-2xl backdrop-blur-xl
-            transform transition-transform duration-300 ease-in-out
-            ${selectedCredential ? "translate-y-0" : "translate-y-full"}
-            z-40
-            lg:static lg:h-full lg:max-h-none lg:w-[27rem] lg:flex-shrink-0 lg:translate-y-0 lg:border-l lg:border-t-0
+            lg:inset-x-auto lg:inset-y-0 lg:right-0 lg:h-full lg:max-h-none lg:w-[27rem] lg:border-l lg:border-t-0
+            transform-gpu transition-transform duration-300 ease-out
+            ${isDetailPanelOpen
+              ? "translate-y-0 lg:translate-y-0 lg:translate-x-0"
+              : "translate-y-full lg:translate-y-0 lg:translate-x-full"
+            }
           `}
         >
           <CredentialDetailPanel
-            credential={selectedCredential}
-            onClose={() => setSelectedCredential(null)}
+            credential={renderedCredential}
+            onClose={closeDetailPanel}
             onEdit={() => {
               openModal("edit-credential");
             }}
@@ -352,29 +405,30 @@ const handleDeleteVault = async () => {
 
       {
         activeModal === "edit-credential" && 
-        selectedCredential &&
+        renderedCredential &&
       (
         <EditCredentialModal
           isOpen
           onClose={closeModal}
           onSave={handleUpdateCredential} 
-          initialData={selectedCredential}
+          initialData={renderedCredential}
           />
       )}
 
       {
         activeModal === "delete-credential" && 
-        selectedCredential &&
+        renderedCredential &&
       (
         <ConfirmDeleteModal
           isOpen
-          title={selectedCredential.title}
+          title={renderedCredential.title}
           onClose={closeModal}
           onConfirm={handleDeleteCredential}
         />
       )}
 
-    </div>
+    </>
+
   );
 };
 

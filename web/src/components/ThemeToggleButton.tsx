@@ -2,9 +2,31 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
 import { useTheme } from "../hooks/useTheme";
 
-export default function ThemeToggleButton() {
+type ThemeToggleButtonProps = {
+  compact?: boolean;
+};
+
+export default function ThemeToggleButton({ compact = false }: ThemeToggleButtonProps) {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+
+  if (compact) {
+    const Icon = isDark ? Moon : Sun;
+
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={toggleTheme}
+        className="h-8 w-8 bg-background/70"
+        aria-label="Toggle Theme"
+        title="Toggle Theme"
+      >
+        <Icon className="h-4 w-4 text-primary" />
+      </Button>
+    );
+  }
 
   return (
     <Button

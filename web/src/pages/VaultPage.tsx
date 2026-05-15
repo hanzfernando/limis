@@ -86,7 +86,7 @@ const handleAddVault = async (
 
   return (
     <PageContainer>
-      <div className="archive-surface mb-6 overflow-hidden rounded-lg bg-card/80 p-5">
+      <div className="archive-surface mb-6 overflow-y-auto rounded-lg bg-card/80 p-5">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col">
             <div className="flex items-center">

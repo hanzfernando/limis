@@ -49,22 +49,32 @@ export default function Sidebar() {
   return (
     <>
       <SidebarShell className="bg-card/90">
-        <SidebarHeader className="p-3">
-          <div className="archive-surface relative overflow-hidden rounded-lg bg-card/80 p-3 shadow-none">
+        <SidebarHeader className={cn("p-3", collapsed && "p-2")}>
+          <div className={cn(
+            "archive-surface relative overflow-hidden rounded-lg bg-card/80 p-3 shadow-none",
+            collapsed && "p-1"
+          )}>
             <div className="archive-line absolute left-4 right-4 top-0 h-px" />
-            <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "justify-between")}>
-              <BrandMark
-                showWordmark={!collapsed}
-                className={cn(collapsed && "justify-center [&>span:first-child]:h-9 [&>span:first-child]:w-9")}
-              />
+            <div className={cn("flex items-center gap-3", collapsed ? "flex-col justify-center" : "justify-between")}>
+              {!collapsed && <BrandMark />}
 
               <SidebarTrigger
-                aria-label="Hide sidebar"
-                title="Hide sidebar"
-                className="h-8 w-8 shrink-0 rounded-md border border-border bg-background/60 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className={cn(
+                  "h-8 w-8 shrink-0 rounded-md border border-border bg-background/60 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                  collapsed && "[&_svg]:rotate-180"
+                )}
               >
                 <ChevronLeft className="h-4 w-4" />
               </SidebarTrigger>
+
+              {collapsed && (
+                <BrandMark
+                  showWordmark={false}
+                  className="justify-center [&>span:first-child]:h-9 [&>span:first-child]:w-9"
+                />
+              )}
             </div>
 
             {!collapsed && (
@@ -77,7 +87,7 @@ export default function Sidebar() {
         </SidebarHeader>
 
         <SidebarContent className={cn("px-3", collapsed && "px-2")}>
-          {!collapsed && (
+          {/* {!collapsed && (
             <div className="mb-3 rounded-lg border border-border bg-background/45 p-3">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <LayoutGrid className="h-4 w-4 text-primary" />
@@ -87,7 +97,7 @@ export default function Sidebar() {
                 Calm access to your sealed credential archive.
               </p>
             </div>
-          )}
+          )} */}
 
           <SidebarGroup>
             <SidebarGroupLabel className={cn(collapsed && "sr-only")}>Workspace</SidebarGroupLabel>
@@ -128,12 +138,12 @@ export default function Sidebar() {
           <div
             className={cn(
               "rounded-lg border border-border bg-background/45 p-3",
-              collapsed && "flex flex-col items-center gap-3 p-2"
+              collapsed && "flex flex-col items-center gap-2 p-1"
             )}
           >
             {collapsed ? (
               <>
-                <ThemeToggleButton />
+                <ThemeToggleButton compact />
                 <Button
                   type="button"
                   variant="outline"
@@ -141,7 +151,7 @@ export default function Sidebar() {
                   title="Sign out"
                   onClick={handleLogout}
                   disabled={loading}
-                  className="border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  className="h-8 w-8 border-destructive/25 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
