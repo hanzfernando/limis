@@ -94,7 +94,7 @@ export default function Sidebar() {
                 Auri workspace
               </div>
               <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Calm access to your sealed credential archive.
+                Access to your sealed credential archive.
               </p>
             </div>
           )}
